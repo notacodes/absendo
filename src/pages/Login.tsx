@@ -1,5 +1,5 @@
-import LoginFrom from "./components/LoginFrom.tsx";
-import Navbar from "./components/Navbar.tsx";
+import LoginFrom from "../components/LoginFrom.tsx";
+import Navbar from "../components/Navbar.tsx";
 
 function Login () {
     return (

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient('https://uvvchmphtkqsfpaydagn.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dmNobXBodGtxc2ZwYXlkYWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxNzA4MzYsImV4cCI6MjA1OTc0NjgzNn0.x9jLUG8EOwXeO6clfhZII_H90JTceR3UAKcQRZARd2U');
 
-function LoginFrom() {
+function SignupForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -18,8 +18,8 @@ function LoginFrom() {
         }
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
+            const { error: signUpError } = await supabase.auth.signUp({ email, password });
+            if (signUpError) throw signUpError;
 
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');
@@ -31,7 +31,7 @@ function LoginFrom() {
             <div className="card w-96 bg-base-200 shadow-xl">
                 <div className="card-body">
                     <h2 className="card-title text-2xl font-bold mb-4">
-                        Welcome, log in to continue
+                        Welcome Sing up to continue
                     </h2>
 
                     <button className="btn btn-primary w-full mb-3 flex items-center gap-2">
@@ -72,52 +72,52 @@ function LoginFrom() {
                         className="form-control mb-4"
                         onSubmit={handleSubmit}
                     >
-                    <div className="form-control mb-4">
-                        <label className="label">
-                            <span className="label-text">Email</span>
-                        </label>
-                        <input
-                            onChange={(e) => setEmail(e.target.value)}
-                            type="email"
-                            placeholder="Email"
-                            className="input input-bordered w-full"
-                        />
-                    </div>
-
-                    <div className="form-control mb-4">
-                        <label className="label">
-                            <span className="label-text">Password</span>
-                        </label>
-                        <input
-                            onChange={(e) => setPassword(e.target.value)}
-                            type="password"
-                            placeholder="Password"
-                            className="input input-bordered w-full"
-                        />
-                    </div>
-
-                    <button className="btn btn-primary w-full">
-                        Continue
-                        <svg
-                            className="w-5 h-5 ml-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M9 5l7 7-7 7"
+                        <div className="form-control mb-4">
+                            <label className="label">
+                                <span className="label-text">Email</span>
+                            </label>
+                            <input
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                placeholder="Email"
+                                className="input input-bordered w-full"
                             />
-                        </svg>
-                    </button>
+                        </div>
+
+                        <div className="form-control mb-4">
+                            <label className="label">
+                                <span className="label-text">Password</span>
+                            </label>
+                            <input
+                                onChange={(e) => setPassword(e.target.value)}
+                                type="password"
+                                placeholder="Password"
+                                className="input input-bordered w-full"
+                            />
+                        </div>
+
+                        <button className="btn btn-primary w-full">
+                            Continue
+                            <svg
+                                className="w-5 h-5 ml-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </button>
                     </form>
                 </div>
                 <div className="card-footer text-center mb-4">
                     <p className="text-sm">
-                        <p>Don't have an account? <a href="/signup" className="link">Sign up</a></p>
+                        <p> Already have an account? <a href="/login" className="link">Log in</a></p>
                     </p>
                 </div>
                 <p>{error}</p>
@@ -125,4 +125,4 @@ function LoginFrom() {
         </div>
     );
 }
-export default LoginFrom;
+export default SignupForm;
