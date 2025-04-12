@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient('https://uvvchmphtkqsfpaydagn.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dmNobXBodGtxc2ZwYXlkYWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxNzA4MzYsImV4cCI6MjA1OTc0NjgzNn0.x9jLUG8EOwXeO6clfhZII_H90JTceR3UAKcQRZARd2U');
+import { supabase} from "../supabaseClient.ts";
 
 function SignupForm() {
     const [email, setEmail] = useState('');
