@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient('https://uvvchmphtkqsfpaydagn.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dmNobXBodGtxc2ZwYXlkYWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxNzA4MzYsImV4cCI6MjA1OTc0NjgzNn0.x9jLUG8EOwXeO6clfhZII_H90JTceR3UAKcQRZARd2U');
+import { supabase } from '../supabaseClient';
 
 function LoginFrom() {
     const [email, setEmail] = useState('');
@@ -72,52 +70,52 @@ function LoginFrom() {
                         className="form-control mb-4"
                         onSubmit={handleSubmit}
                     >
-                    <div className="form-control mb-4">
-                        <label className="label">
-                            <span className="label-text">Email</span>
-                        </label>
-                        <input
-                            onChange={(e) => setEmail(e.target.value)}
-                            type="email"
-                            placeholder="Email"
-                            className="input input-bordered w-full"
-                        />
-                    </div>
-
-                    <div className="form-control mb-4">
-                        <label className="label">
-                            <span className="label-text">Password</span>
-                        </label>
-                        <input
-                            onChange={(e) => setPassword(e.target.value)}
-                            type="password"
-                            placeholder="Password"
-                            className="input input-bordered w-full"
-                        />
-                    </div>
-
-                    <button className="btn btn-primary w-full">
-                        Continue
-                        <svg
-                            className="w-5 h-5 ml-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M9 5l7 7-7 7"
+                        <div className="form-control mb-4">
+                            <label className="label">
+                                <span className="label-text">Email</span>
+                            </label>
+                            <input
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                placeholder="Email"
+                                className="input input-bordered w-full"
                             />
-                        </svg>
-                    </button>
+                        </div>
+
+                        <div className="form-control mb-4">
+                            <label className="label">
+                                <span className="label-text">Password</span>
+                            </label>
+                            <input
+                                onChange={(e) => setPassword(e.target.value)}
+                                type="password"
+                                placeholder="Password"
+                                className="input input-bordered w-full"
+                            />
+                        </div>
+
+                        <button className="btn btn-primary w-full">
+                            Continue
+                            <svg
+                                className="w-5 h-5 ml-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </button>
                     </form>
                 </div>
                 <div className="card-footer text-center mb-4">
                     <p className="text-sm">
-                        <p>Don't have an account? <a href="/signup" className="link">Sign up</a></p>
+                        Don't have an account? <a href="/signup" className="link">Sign up</a>
                     </p>
                 </div>
                 <p>{error}</p>
@@ -125,4 +123,5 @@ function LoginFrom() {
         </div>
     );
 }
+
 export default LoginFrom;
