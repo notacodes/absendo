@@ -24,6 +24,12 @@ function SignupForm() {
         }
     };
 
+    async function signInWithGithub() {
+        await supabase.auth.signInWithOAuth({
+            provider: 'github',
+        })
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-base-100">
             <div className="card w-96 bg-base-200 shadow-xl">
@@ -54,7 +60,7 @@ function SignupForm() {
                         Continue with Google
                     </button>
 
-                    <button className="btn btn-secondary w-full mb-3 flex items-center gap-2">
+                    <button className="btn btn-secondary w-full mb-3 flex items-center gap-2" onClick={signInWithGithub}>
                         <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill="currentColor"
