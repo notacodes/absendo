@@ -243,17 +243,24 @@ export default function AbsendoOnboarding() {
                                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                                     <div className="flex items-start">
                                         <div className="flex-shrink-0">
-                                            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path>
+                                            <svg className="w-5 h-5 text-blue-600" fill="currentColor"
+                                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd"
+                                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                      clipRule="evenodd"></path>
                                             </svg>
                                         </div>
                                         <div className="ml-3">
-                                            <h3 className="text-sm font-medium text-blue-800">So findest du deine Kalender-URL</h3>
+                                            <h3 className="text-sm font-medium text-blue-800">So findest du deine
+                                                Kalender-URL</h3>
                                             <div className="mt-2 text-sm text-blue-700">
-                                                <p>1. Öffne deine Kalender-App</p>
-                                                <p>2. Gehe zu den Kalendereinstellungen</p>
-                                                <p>3. Suche nach "iCal-URL" oder "Kalender teilen"</p>
-                                                <p>4. Kopiere die URL und füge sie hier ein</p>
+                                                <ol className="list-decimal list-inside">
+                                                    <li>Melde dich im Schulnetz an</li>
+                                                    <li>Scrolle ganz nach unten und aktiviere dein Kalender-Abo</li>
+                                                    <li>Fordere den Kalender-Link per E-Mail an</li>
+                                                    <li>Die Kalender-URL wird an deine SLUZ-E-Mail gesendet</li>
+                                                    <li>Kopiere die URL und füge sie hier ein</li>
+                                                </ol>
                                             </div>
                                         </div>
                                     </div>
@@ -268,7 +275,7 @@ export default function AbsendoOnboarding() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="form-control w-full">
                                         <label className="label">
-                                            <span className="label-text">Vorname des Ausbilders</span>
+                                        <span className="label-text">Vorname des Ausbilders</span>
                                         </label>
                                         <input
                                             type="text"
