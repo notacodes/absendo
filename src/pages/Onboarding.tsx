@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import {supabase, useIsUserLoggedIn, user} from "../supabaseClient.ts";
 
 interface FormData {
+    id: string;
     first_name: string;
     last_name: string;
     birthday: string;
@@ -25,8 +27,10 @@ interface FormErrors {
 }
 
 export default function AbsendoOnboarding() {
+
     const [step, setStep] = useState<number>(1);
     const [formData, setFormData] = useState<FormData>({
+        id: user?.id ?? '',
         first_name: '',
         last_name: '',
         birthday: '',
@@ -41,6 +45,11 @@ export default function AbsendoOnboarding() {
     const [loading, setLoading] = useState<boolean>(false);
     const [complete, setComplete] = useState<boolean>(false);
 
+    const isUserLoggedIn = useIsUserLoggedIn();
+    if (!isUserLoggedIn) {
+        window.location.href = '/login';
+        return null;
+    }
     const totalSteps = 3;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,8 +110,7 @@ export default function AbsendoOnboarding() {
     const submitForm = () => {
         setLoading(true);
 
-        //TO-DO: Datenbank Verbindung hier
-        // Bool onboarding_complete in Datenbank true setzen
+        insertFormData(formData);
 
         setTimeout(() => {
             console.log('Formular übermittelt:', formData);
@@ -110,6 +118,19 @@ export default function AbsendoOnboarding() {
             setComplete(true);
         }, 1500);
     };
+
+    async function insertFormData(formData: FormData) {
+        const { error } = await supabase
+            .from('profiles')
+            .upsert({ ...formData, onboarding_completed: true }, { onConflict: 'id' });
+
+        if (error) {
+            console.error('Fehler beim Speichern:', error);
+        } else {
+            console.log('Daten gespeichert (insert oder update)');
+        }
+
+    }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-base-200">
