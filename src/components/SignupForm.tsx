@@ -16,8 +16,15 @@ function SignupForm() {
         }
 
         try {
-            const { error: signUpError } = await supabase.auth.signUp({ email, password });
+            const { error: signUpError } = await supabase.auth.signUp({ email, password,
+                options: {
+                    emailRedirectTo: 'http://localhost:5173/welcome',
+                }
+            })
             if (signUpError) throw signUpError;
+            if (!error) {
+                window.location.href = '/email-verification';
+            }
 
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');
@@ -30,6 +37,12 @@ function SignupForm() {
         })
     }
 
+    function signInWithGoogle() {
+        supabase.auth.signInWithOAuth({
+            provider: 'google',
+        })
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-base-100">
             <div className="card w-96 bg-base-200 shadow-xl">
@@ -38,7 +51,7 @@ function SignupForm() {
                         Welcome Sing up to continue
                     </h2>
 
-                    <button className="btn btn-primary w-full mb-3 flex items-center gap-2">
+                    <button className="btn btn-primary w-full mb-3 flex items-center gap-2" onClick={signInWithGoogle}>
                         <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill="#4285F4"

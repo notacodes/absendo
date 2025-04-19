@@ -16,13 +16,6 @@ export default function EmailVerificationCard() {
                         Click it to activate your account and get started! 🚀
                     </p>
 
-                    <div className="bg-base-200 p-4 rounded-lg w-full mb-6">
-                        <div className="flex items-center space-x-3">
-                            <span className="text-lg text-success">✓</span>
-                            <span className="text-sm">Email sent successfully ✅</span>
-                        </div>
-                    </div>
-
                     <div className="space-y-4 w-full">
                         <button className="btn btn-primary w-full" onClick={() => window.location.href = '/login'}>
                             Login to your account 🔑
