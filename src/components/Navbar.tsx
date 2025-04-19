@@ -11,8 +11,11 @@ function Navbar() {
             </div>
             <div className="navbar-end">
                 { !isUserLoggedIn ? (
-                    <a className="btn btn-secondary ml-2" href="/login">Login</a>
-                ):(
+                    <div>
+                        <a className="btn btn-secondary ml-2" href="/signup">Sign Up</a>
+                        <a className="btn btn-primary ml-2" href="/login">Login</a>
+                    </div>
+                ) : (
                     <button className="btn btn-secondary ml-2" onClick={async () => {
                         await supabase.auth.signOut();
                         window.location.href = "/";

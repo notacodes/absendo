@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import {supabase, useIsUserLoggedIn, user} from "../supabaseClient.ts";
+import {supabase,user} from "../supabaseClient.ts";
+
+const isUserLoggedIn = await supabase.auth.getUser();
 
 interface FormData {
     id: string;
@@ -45,11 +47,6 @@ export default function AbsendoOnboarding() {
     const [loading, setLoading] = useState<boolean>(false);
     const [complete, setComplete] = useState<boolean>(false);
 
-    const isUserLoggedIn = useIsUserLoggedIn();
-    if (!isUserLoggedIn) {
-        window.location.href = '/login';
-        return null;
-    }
     const totalSteps = 3;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +131,7 @@ export default function AbsendoOnboarding() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-base-200">
+            {isUserLoggedIn ?(
             <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
                 <div className="text-center mb-10">
                     <h1 className="font-bold text-3xl text-primary mb-2">Absendo</h1>
@@ -386,6 +384,15 @@ export default function AbsendoOnboarding() {
                     </form>
                 )}
             </div>
+                ): (
+                    <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
+                        <h1 className="text-3xl font-bold text-center">Bitte melde dich an</h1>
+                        <p className="text-center mt-4">Du musst angemeldet sein, um auf diese Seite zuzugreifen.</p>
+                        <div className="flex justify-center mt-6">
+                            <a href="/login" className="btn btn-primary">Zur Anmeldung</a>
+                        </div>
+                    </div>
+                )}
         </div>
     );
 }
