@@ -10,6 +10,7 @@ function AppRoutes() {
         <Router>
             <Routes>
                 <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path=" " element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
