@@ -4,6 +4,7 @@ import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import EmailVerification from "./pages/EmailVerification.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 
 function AppRoutes() {
     return (
@@ -16,6 +17,7 @@ function AppRoutes() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/welcome" element={<Onboarding />} />
                 <Route path="/email-verification" element={<EmailVerification />} />
+                <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
         </Router>
     );
