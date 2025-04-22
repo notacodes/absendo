@@ -3,6 +3,7 @@ import Footer from "../components/Footer.tsx";
 import DashboardStats from "../components/DashboardStats.tsx";
 import DashboardHeader from "../components/DashboardHeader.tsx";
 import DashboardLastAbsences from "../components/DashboardLastAbsences.tsx";
+import {Meep} from "../components/meep.tsx";
 
 function Dashboard() {
     return (
@@ -11,6 +12,7 @@ function Dashboard() {
             <DashboardHeader />
             <DashboardStats />
             <DashboardLastAbsences />
+            <Meep />
             <Footer />
         </div>
     );
