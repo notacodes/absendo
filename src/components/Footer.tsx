@@ -1,8 +1,21 @@
 function Footer() {
     return (
-        <footer className="footer footer-center p-4 bg-base-300 text-base-content ">
-            <div>
-                <p>© 2025 Absendo - Alle Rechte vorbehalten</p>
+        <footer className="footer p-8 bg-base-300 text-base-content">
+            <div className="container mx-auto flex flex-wrap justify-between gap-8 text-center md:text-left">
+                <div className="flex flex-col items-center md:items-start">
+                    <span className="footer-title">Absenz-Tool</span>
+                    <p className="max-w-xs">
+                        Ein einfaches Tool zum Ausfüllen von Schulnetz-Absenzformularen. Gemacht von Schülern für Schüler.
+                    </p>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                    <span className="footer-title">Links</span>
+                    <a className="link link-hover" href="https://github.com/notacodes/absendo" target="_blank">Github Repository</a>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                    <span className="footer-title">Kontakt</span>
+                    <a className="link link-hover" href="mailto:jonathan.wirz@proton.me">jonathan.wirz@proton.me</a>
+                </div>
             </div>
         </footer>
     );

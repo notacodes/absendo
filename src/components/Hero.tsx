@@ -5,9 +5,9 @@ function Hero() {
                 <div className="max-w-md">
                     <h1 className="text-5xl font-bold">Absendo</h1>
                     <p className="py-6 text-lg">
-                        Automatisches Ausfüllen von Absenzen für Berufsbildungszentren (BBZ) – einfach, schnell und zuverlässig.
+                        Automatisches Ausfüllen von Absenzen fürs BBZW
                     </p>
-                    <button className="btn btn-primary">Mehr erfahren</button>
+                    <button className="btn btn-primary" onClick={() => (window.location.href = "/signup")}>Registriere dich!</button>
                 </div>
             </div>
         </div>

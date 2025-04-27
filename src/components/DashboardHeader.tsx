@@ -118,20 +118,17 @@ function DashboardHeader() {
                 </button>
             </div>
 
-            {/* Modal */}
             {isModalOpen && (
                 <div className="modal modal-open">
                     <div className="modal-box max-w-2xl">
                         <h3 className="font-bold text-lg mb-4">Neue Absenz erstellen</h3>
 
-                        {/* Progress indicator */}
                         <ul className="steps w-full mb-6">
                             <li className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>Daten eingeben</li>
                             <li className={`step ${currentStep >= 2 ? 'step-primary' : ''}`}>Generieren</li>
                             <li className={`step ${currentStep >= 3 ? 'step-primary' : ''}`}>Download</li>
                         </ul>
 
-                        {/* Step 1: Enter date and reason */}
                         {currentStep === 1 && (
                             <div className="form-control">
                                 <div className="mb-4">
@@ -174,7 +171,6 @@ function DashboardHeader() {
                             </div>
                         )}
 
-                        {/* Step 2: Generating */}
                         {currentStep === 2 && (
                             <div className="flex flex-col items-center justify-center py-10">
                                 <div className="radial-progress animate-spin" style={{ "--value": "70" } as React.CSSProperties}></div>
@@ -182,7 +178,6 @@ function DashboardHeader() {
                             </div>
                         )}
 
-                        {/* Step 3: Preview and download - simplified without logic */}
                         {currentStep === 3 && (
                             <div>
                                 <div className="flex flex-col items-center justify-center py-10">
