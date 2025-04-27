@@ -80,7 +80,10 @@ export default function AbsendoOnboarding() {
         } else if (stepNumber === 2) {
             if (!formData.calendar_url.trim()) newErrors.calendar_url = 'Kalender-URL ist erforderlich';
             if (formData.calendar_url && !formData.calendar_url.startsWith('http')) {
-                newErrors.calendar_url = 'Gültige URL erforderlich (beginnt mit ttps://)';
+                newErrors.calendar_url = 'Gültige URL erforderlich (beginnt mit https://)';
+            }
+            if (formData.calendar_url && !formData.calendar_url.startsWith('https://schulnetz.lu.ch/bbzw')) {
+                newErrors.calendar_url = 'Aktuell unterstützen wir nur Kalender-URLs des BBZW';
             }
         } else if (stepNumber === 3) {
             if (!formData.first_name_trainer.trim()) newErrors.first_name_trainer = 'Vorname des Ausbilders ist erforderlich';

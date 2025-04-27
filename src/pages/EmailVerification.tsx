@@ -1,5 +1,3 @@
-
-
 export default function EmailVerificationCard() {
 
     return (
@@ -10,23 +8,23 @@ export default function EmailVerificationCard() {
                         <span className="text-3xl">✉️</span>
                     </div>
 
-                    <h2 className="text-2xl font-bold mb-2">Check Your Inbox! 📧</h2>
+                    <h2 className="text-2xl font-bold mb-2">Schau in dein Postfach! 📧</h2>
                     <p className="text-base-content/70 mb-6">
-                        We've sent a verification link to your email.
-                        Click it to activate your account and get started! 🚀
+                        Ich haben dir einen Bestätigungslink per E-Mail geschickt.
+                        Klick darauf, um dein Konto zu aktivieren und loszulegen! 🚀
                     </p>
 
                     <div className="space-y-4 w-full">
                         <button className="btn btn-primary w-full" onClick={() => window.location.href = '/login'}>
-                            Login to your account 🔑
+                            In dein Konto einloggen 🔑
                         </button>
                         <button className="btn btn-outline w-full" onClick={() => window.location.href = '/home'}>
-                            Back to Home 🏠
+                            Zurück zur Startseite 🏠
                         </button>
                     </div>
 
                     <p className="mt-6 text-sm text-base-content/60">
-                        Having trouble? <a href="#" className="text-primary hover:underline">Hit up our support team! 🤙</a>
+                        Probleme? <a href="/contact" className="text-primary hover:underline">Kontaktiere mich!</a>
                     </p>
                 </div>
             </div>
