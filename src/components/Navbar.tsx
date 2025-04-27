@@ -12,7 +12,7 @@ function Navbar() {
                 { !isUserLoggedIn ? (
                     <div>
                         <a className="btn btn-secondary ml-2" href="/signup">Sign Up</a>
-                        <a className="btn btn- ml-2" href="/login">Login</a>
+                        <a className="btn btn-primary ml-2" href="/login">Login</a>
                     </div>
                 ) : (
                     <button className="btn btn-primary" onClick={() => window.location.href = "/dashboard"}>
