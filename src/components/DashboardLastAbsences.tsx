@@ -1,6 +1,6 @@
 function DashboardLastAbsences() {
     return (
-        <div className="flex flex-col items-center justify-center py-10">
+        <div className="flex flex-col items-center justify-center py-10 m-20">
             <div className="bg-base-200 rounded-lg p-8 text-center w-full border-2 border-dashed border-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                      stroke="currentColor" className="w-16 h-16 mx-auto text-primary mb-4">

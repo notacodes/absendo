@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import {supabase,user} from "../supabaseClient.ts";
-
-const isUserLoggedIn = await supabase.auth.getUser();
+import {useEffect, useState} from 'react';
+import {supabase} from "../supabaseClient.ts";
+import {User} from "@supabase/supabase-js";
 
 interface FormData {
     id: string;
@@ -29,6 +28,16 @@ interface FormErrors {
 }
 
 export default function AbsendoOnboarding() {
+
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        async function fetchUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+        }
+        fetchUser();
+    }, []);
 
     const [step, setStep] = useState<number>(1);
     const [formData, setFormData] = useState<FormData>({
@@ -131,7 +140,7 @@ export default function AbsendoOnboarding() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-base-200">
-            {isUserLoggedIn ?(
+            {user ?(
             <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
                 <div className="text-center mb-10">
                     <h1 className="font-bold text-3xl text-primary mb-2">Absendo</h1>
