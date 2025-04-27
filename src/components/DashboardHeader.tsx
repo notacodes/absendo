@@ -69,7 +69,7 @@ function DashboardHeader() {
             alert('User not logged in');
             return;
         }
-        const response = await fetch('http://srv770938.hstgr.cloud:3001/absendo/api', {
+        const response = await fetch('https://srv770938.hstgr.cloud:3001/absendo/api', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
