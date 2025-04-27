@@ -1,4 +1,4 @@
-import {useIsUserLoggedIn } from "../supabaseClient.ts";
+import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
@@ -15,11 +15,15 @@ function Navbar() {
                         <a className="btn btn-primary ml-2" href="/login">Login</a>
                     </div>
                 ) : (
+                    <>
                     <button className="btn btn-primary" onClick={() => window.location.href = "/dashboard"}>
                         Dashboard
                     </button>
+                    <button className="btn btn-secondary ml-2" onClick={()=> supabase.auth.signOut().then(() => {window.location.href = "/home";})}>
+                        Logout
+                    </button>
+                    </>
                 )}
-
             </div>
         </div>
     );
