@@ -1,7 +1,19 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
+import {User} from "@supabase/supabase-js";
 
 function DashboardHeader() {
+
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        async function fetchUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+        }
+        fetchUser();
+    }, []);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -53,7 +65,6 @@ function DashboardHeader() {
     };
 
     async function getPDF() {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             alert('User not logged in');
             return;
@@ -88,6 +99,7 @@ function DashboardHeader() {
             a.download = 'filled-formdfd.pdf';
             a.click();
             URL.revokeObjectURL(url);
+            closeModal();
         } else {
             console.error('PDF Blob is null. Cannot download the file.');
         }
@@ -116,7 +128,7 @@ function DashboardHeader() {
                         <ul className="steps w-full mb-6">
                             <li className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>Daten eingeben</li>
                             <li className={`step ${currentStep >= 2 ? 'step-primary' : ''}`}>Generieren</li>
-                            <li className={`step ${currentStep >= 3 ? 'step-primary' : ''}`}>Vorschau</li>
+                            <li className={`step ${currentStep >= 3 ? 'step-primary' : ''}`}>Download</li>
                         </ul>
 
                         {/* Step 1: Enter date and reason */}
