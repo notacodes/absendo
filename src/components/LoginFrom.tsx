@@ -25,27 +25,21 @@ function LoginFrom() {
     };
 
     async function logInWithGithub() {
-        console.log("Starte GitHub Login...");
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://absendo.vercel.app/welcome'
+                redirectTo: 'https://absendo.vercel.app/home'
             }
         });
-        console.log('Login Response:', { data, error });
-        await supabase.auth.getSession();
     }
 
     async function logInWithGoogle() {
-        console.log("Starte Google Login...");
-       const {data, error } = await supabase.auth.signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'google',
            options: {
-               redirectTo: 'https://absendo.vercel.app/welcome'
+               redirectTo: 'https://absendo.vercel.app/home'
            }
         })
-        console.log('Login Response:', { data, error });
-        await supabase.auth.getSession();
     }
 
     return (
