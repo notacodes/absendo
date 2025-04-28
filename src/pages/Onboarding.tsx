@@ -39,6 +39,15 @@ export default function AbsendoOnboarding() {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        if (user?.id) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                id: user.id
+            }));
+        }
+    }, [user]);
+
     const [step, setStep] = useState<number>(1);
     const [formData, setFormData] = useState<FormData>({
         id: user?.id ?? '',
