@@ -1,4 +1,4 @@
-function Features() {
+function HomeContent() {
     return (
         <>
             <div className="py-12 container mx-auto px-4">
@@ -29,10 +29,9 @@ function Features() {
                 </div>
             </div>
 
-            <div className="py-12">
+            <div className="py-12 mt-12">
         <div className="container mx-auto px-4">
             <h2 className="text-2xl font-bold text-center mb-8">Warum dieses Tool?</h2>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div className="flex items-start gap-4">
                     <div className="text-2xl">💸</div>
@@ -69,7 +68,7 @@ function Features() {
         </div>
     </div>
 
-    <div className="py-12">
+    <div className="py-12 mt-12 mb-12">
         <div className="container mx-auto px-4 text-center">
             <h2 className="text-2xl font-bold mb-4">Bereit, Zeit zu sparen?</h2>
             <p className="mb-6 max-w-md mx-auto">Kein Stress mehr mit Absenzformularen! <br /> Registriere dich jetzt und erledige es in Sekunden.</p>
@@ -85,4 +84,4 @@ function Features() {
     );
 }
 
-export default Features;
+export default HomeContent;
