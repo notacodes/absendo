@@ -25,15 +25,21 @@ function LoginFrom() {
     };
 
     async function logInWithGithub() {
-       await supabase.auth.signInWithOAuth({
+        console.log("Starte GitHub Login...");
+        const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
-        })
+        });
+        console.log('Login Response:', { data, error });
+        await supabase.auth.getSession();
     }
 
     async function logInWithGoogle() {
-        await supabase.auth.signInWithOAuth({
+        console.log("Starte Google Login...");
+       const {data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
         })
+        console.log('Login Response:', { data, error });
+        await supabase.auth.getSession();
     }
 
     return (

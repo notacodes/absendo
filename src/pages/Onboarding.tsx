@@ -32,12 +32,35 @@ export default function AbsendoOnboarding() {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
+        async function getSessionAfterRedirect() {
+            console.log("Checke Session nach Redirect...");
+            const { data, error } = await supabase.auth.getSession();
+            console.log('Session Result:', { data, error });
+            if (data.session) {
+                console.log('User ist eingeloggt!', data.session.user);
+            } else {
+                console.log('Keine aktive Session gefunden.');
+            }
+        }
+        getSessionAfterRedirect();
+    }, []);
+
+    useEffect(() => {
         async function fetchUser() {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
         }
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        if (user?.id) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                id: user.id
+            }));
+        }
+    }, [user]);
 
     const [step, setStep] = useState<number>(1);
     const [formData, setFormData] = useState<FormData>({
