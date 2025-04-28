@@ -18,7 +18,7 @@ function SignupForm() {
         try {
             const { error: signUpError } = await supabase.auth.signUp({ email, password,
                 options: {
-                    emailRedirectTo: 'https://absendo.vercel.app/welcome',
+                    emailRedirectTo: 'https://absendo.app/welcome',
                 }
             })
             if (signUpError) throw signUpError;
@@ -35,7 +35,7 @@ function SignupForm() {
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://absendo.vercel.app/welcome'
+                redirectTo: 'https://absendo.app/welcome'
             }
         });
     }
@@ -44,7 +44,7 @@ function SignupForm() {
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: 'https://absendo.vercel.app/welcome'
+                redirectTo: 'https://absendo.app/welcome'
             }
         })
     }
