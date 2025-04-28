@@ -25,14 +25,20 @@ function LoginFrom() {
     };
 
     async function logInWithGithub() {
-       await supabase.auth.signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'github',
-        })
+            options: {
+                redirectTo: 'https://absendo.vercel.app/home'
+            }
+        });
     }
 
     async function logInWithGoogle() {
         await supabase.auth.signInWithOAuth({
             provider: 'google',
+           options: {
+               redirectTo: 'https://absendo.vercel.app/home'
+           }
         })
     }
 
