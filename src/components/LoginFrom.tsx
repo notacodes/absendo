@@ -29,7 +29,7 @@ function LoginFrom() {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://uvvchmphtkqsfpaydagn.supabase.co/auth/v1/callback'
+                redirectTo: 'https://absendo.vercel.app/welcome'
             }
         });
         console.log('Login Response:', { data, error });
@@ -41,7 +41,7 @@ function LoginFrom() {
        const {data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
            options: {
-               redirectTo: 'https://uvvchmphtkqsfpaydagn.supabase.co/auth/v1/callback'
+               redirectTo: 'https://absendo.vercel.app/welcome'
            }
         })
         console.log('Login Response:', { data, error });
