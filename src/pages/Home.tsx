@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import Navbar from "../components/Navbar.tsx";
 import Hero from "../components/Hero.tsx";
-import Features from "../components/Features.tsx";
+import HomeContent from "../components/HomeContent.tsx";
 import Footer from "../components/Footer.tsx";
 import { supabase } from "../supabaseClient.ts";
 
@@ -30,7 +30,7 @@ function Home() {
         <div className="min-h-screen bg-base-100">
             <Navbar />
             <Hero />
-            <Features />
+            <HomeContent />
             <Footer />
         </div>
     );
