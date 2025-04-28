@@ -28,6 +28,9 @@ function LoginFrom() {
         console.log("Starte GitHub Login...");
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
+            options: {
+                redirectTo: 'https://absendo.vercel.app/welcome'
+            }
         });
         console.log('Login Response:', { data, error });
         await supabase.auth.getSession();
@@ -37,6 +40,9 @@ function LoginFrom() {
         console.log("Starte Google Login...");
        const {data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
+           options: {
+               redirectTo: 'https://absendo.vercel.app/welcome'
+           }
         })
         console.log('Login Response:', { data, error });
         await supabase.auth.getSession();
