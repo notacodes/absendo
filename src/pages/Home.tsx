@@ -26,6 +26,19 @@ function Home() {
 
         checkLogin();
     }, []);
+    useEffect(() => {
+        async function getSessionAfterRedirect() {
+            console.log("Checke Session nach Redirect...");
+            const { data, error } = await supabase.auth.getSession();
+            console.log('Session Result:', { data, error });
+            if (data.session) {
+                console.log('User ist eingeloggt!', data.session.user);
+            } else {
+                console.log('Keine aktive Session gefunden.');
+            }
+        }
+        getSessionAfterRedirect();
+    }, []);
 
     return (
         <div className="min-h-screen bg-base-100">
