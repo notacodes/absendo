@@ -14,7 +14,7 @@ function Footer() {
                 </div>
                 <div className="flex flex-col items-center md:items-start">
                     <span className="footer-title">Kontakt</span>
-                    <a className="link link-hover" href="mailto:jonathan.wirz@proton.me">jonathan.wirz@proton.me</a>
+                    <a className="link link-hover" href="mailto:contact@absendo.app">contact@absendo.app</a>
                 </div>
             </div>
         </footer>

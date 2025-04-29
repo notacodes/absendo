@@ -71,7 +71,7 @@ function HomeContent() {
             <div className="py-12 mt-12 mb-12">
                 <div className="container mx-auto px-4 text-center">
                     <h2 className="text-4xl font-bold mb-4">Bereit, Zeit zu sparen?</h2>
-                    <p className="text-xl mb-6 max-w-md mx-auto">Kein Stress mehr mit Absenzformularen! <br /> Registriere dich jetzt und erledige es in Sekunden.</p>
+                    <p className="text-xl mb-6 max-w-md mx-auto">Kein Stress mehr mit BBZW Absenzformularen! <br /> Registriere dich jetzt und erledige es in Sekunden.</p>
                     <button
                         className="btn btn-primary text-lg"
                         onClick={() => window.location.href = '/signup'}
