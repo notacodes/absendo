@@ -28,7 +28,7 @@ function LoginFrom() {
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://absendo.vercel.app/home'
+                redirectTo: 'https://absendo.app/home'
             }
         });
     }
@@ -37,7 +37,7 @@ function LoginFrom() {
         await supabase.auth.signInWithOAuth({
             provider: 'google',
            options: {
-               redirectTo: 'https://absendo.vercel.app/home'
+               redirectTo: 'https://absendo.app/home'
            }
         })
     }
