@@ -11,9 +11,8 @@ function AppRoutes() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Navigate to="/home" replace />} />
-                <Route path=" " element={<Navigate to="/home" replace />} />
-                <Route path="/home" element={<Home />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Navigate to="/" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/welcome" element={<Onboarding />} />
