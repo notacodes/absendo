@@ -5,7 +5,7 @@ function Footer() {
                 <div className="flex flex-col items-center md:items-start">
                     <span className="footer-title">Absenz-Tool</span>
                     <p className="max-w-xs">
-                        Ein einfaches Tool zum Ausfüllen von Absenzformularen. Gemacht von Schülern für Schüler.
+                        Ein einfaches Tool zum Ausfüllen von Absenzformularen.
                     </p>
                 </div>
                 <div className="flex flex-col items-center md:items-start">
