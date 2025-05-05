@@ -2,7 +2,7 @@ import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
-    const version = "v1.0.0";
+    const version = "Beta-Version 0.1.0";
 
     return (
         <div className="navbar bg-base-200 shadow-md">
