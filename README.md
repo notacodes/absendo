@@ -20,5 +20,6 @@ This repository contains the frontend for Absendo. The backend is maintained in 
   
 ## 🙏 Thanks
 
-A special thanks to those who shared their school network URLs for testing purposes, helping me develop the tool.
+Special thanks to everyone who shared their SLUZ URL for testing purposes — your help made this tool possible.
+Thanks also to [dDreistein](https://github.com/dDreistein) for designing the favicon.
 
