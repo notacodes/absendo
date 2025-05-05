@@ -1,6 +1,6 @@
 # Absendo
 
-**Absendo** is a tool that automatically fills out absence forms for the BBZ (Berufsbildungszentrum).
+**Absendo** is a tool that automatically fills out absence forms for the BBZW (Berufsbildungszentrum Wirtschaft, Informatik und Technik).
 
 ## 🌐 Live Demo
 
