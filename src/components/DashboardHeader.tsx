@@ -19,6 +19,7 @@ function DashboardHeader() {
     const [formData, setFormData] = useState({
         date: '',
         reason: '',
+        fileName: '',
         is_excused: true,
         isFullNameEnabled: true
     });
@@ -31,6 +32,7 @@ function DashboardHeader() {
         setFormData({
             date: '',
             reason: '',
+            fileName: 'Absenz',
             is_excused: true,
             isFullNameEnabled: true
         });
@@ -79,7 +81,8 @@ function DashboardHeader() {
                 user_id: user.id,
                 reason: formData.reason,
                 is_excused: formData.is_excused,
-                isFullNameEnabled: formData.isFullNameEnabled
+                isFullNameEnabled: formData.isFullNameEnabled,
+                fileName: 'Absenz.pdf'
             })
         });
         if (!response.ok) {
@@ -99,9 +102,15 @@ function DashboardHeader() {
             a.download = 'filled-formdfd.pdf';
             a.click();
             URL.revokeObjectURL(url);
-            closeModal();
         } else {
             console.error('PDF Blob is null. Cannot download the file.');
+        }
+    }
+
+    function viewPDF(){
+        if(pdfBlob){
+            const url = URL.createObjectURL(pdfBlob);
+            window.open(url, '_blank');
         }
     }
 
@@ -109,7 +118,7 @@ function DashboardHeader() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Absendo Dashboard</h1>
-                <button className="btn btn-primary" onClick={openModal}>
+                <button className="btn btn-primary btn-xl" onClick={openModal}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                          stroke="currentColor" className="w-6 h-6 mr-2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -190,6 +199,7 @@ function DashboardHeader() {
                                     </svg>
                                     <h3 className="text-2xl font-bold text-center mb-2">PDF erfolgreich generiert!</h3>
                                     <p className="text-center text-base-content/70 mb-6">Ihre Absenz wurde als PDF-Dokument erstellt.</p>
+                                    <button className="btn btn-secondary" onClick={viewPDF}>Vorschau</button>
                                 </div>
                                 <div className="modal-action">
                                     <button className="btn btn-ghost" onClick={closeModal}>Abbrechen</button>
