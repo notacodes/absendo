@@ -70,10 +70,10 @@ function DashboardContent() {
                         .from("pdf_files")
                         .select("*")
                         .eq("user_id", user.id)
-                        .order("date_of_absence", { ascending: false });
+                        .order("created_at", { ascending: false });
 
                     if (error) throw error;
-                    setPdfs(data || []);
+                    setPdfs((data || []).slice(0, 5));
                 } catch (err) {
                     console.error("Error fetching PDFs:", err);
                 }
@@ -81,6 +81,7 @@ function DashboardContent() {
         }
         fetchPdfs();
     }, [user]);
+
 
     function getUserShortName() {
         if (!userData) return "NN";

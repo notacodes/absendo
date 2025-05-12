@@ -66,6 +66,13 @@ function DashboardHeader() {
 
     };
 
+    function addPDFExtension(fileName: string) {
+        if (!fileName.endsWith('.pdf')) {
+            return fileName + '.pdf';
+        }
+        return fileName;
+    }
+
     async function getPDF() {
         if (!user) {
             alert('User not logged in');
@@ -82,7 +89,7 @@ function DashboardHeader() {
                 reason: formData.reason,
                 is_excused: formData.is_excused,
                 isFullNameEnabled: formData.isFullNameEnabled,
-                fileName: 'Absenz.pdf'
+                fileName: addPDFExtension(formData.fileName)
             })
         });
         if (!response.ok) {
@@ -142,6 +149,19 @@ function DashboardHeader() {
                             <div className="form-control">
                                 <div className="mb-4">
                                     <label className="label">
+                                        <span className="label-text">Name der Datei</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="fileName"
+                                        value={formData.fileName}
+                                        onChange={handleInputChange}
+                                        className="input input-bordered w-full"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="label">
                                         <span className="label-text">Datum</span>
                                     </label>
                                     <input
@@ -182,7 +202,8 @@ function DashboardHeader() {
 
                         {currentStep === 2 && (
                             <div className="flex flex-col items-center justify-center py-10">
-                                <div className="radial-progress animate-spin" style={{ "--value": "70" } as React.CSSProperties}></div>
+                                <div className="radial-progress animate-spin"
+                                     style={{"--value": "70"} as React.CSSProperties}></div>
                                 <p className="mt-4 text-lg">Absenz wird generiert...</p>
                             </div>
                         )}
