@@ -115,7 +115,7 @@ function DashboardContent() {
                     <p className="text-sm text-gray-500">{userData.birthday}</p>
                     <p className="text-sm text-gray-500">{userData.first_name_trainer} {userData.last_name_trainer}</p>
                     <div className="card-actions justify-center mt-4">
-                        <button className="btn btn-sm btn-outline">Deine Daten ändern</button>
+                        <button className="btn btn-sm btn-outline"><a href="/Profile">Deine Daten ändern</a></button>
                     </div>
                 </div>
             </div>
