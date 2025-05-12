@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.tsx";
 import DashboardHeader from "../components/DashboardHeader.tsx";
-import DashboardLastAbsences from "../components/DashboardLastAbsences.tsx";
+import DashboardLastAbsences from "../components/DashboardContent.tsx";
 import { supabase } from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
 
