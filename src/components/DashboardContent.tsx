@@ -13,6 +13,9 @@ interface UserProfile {
 
 interface PdfFile {
     id: string;
+    user_id: string;
+    file_path: string;
+    created_at: string;
     date_of_absence: string;
     reason: string;
     pdf_name: string;
@@ -73,7 +76,7 @@ function DashboardContent() {
                         .order("created_at", { ascending: false });
 
                     if (error) throw error;
-                    setPdfs((data || []).slice(0, 5));
+                    setPdfs((data || []));
                 } catch (err) {
                     console.error("Error fetching PDFs:", err);
                 }
@@ -102,6 +105,53 @@ function DashboardContent() {
         return <div className="text-center text-red-500 mt-10">Benutzerdaten konnten nicht geladen werden.</div>;
     }
 
+    async function getPdf(pdf:PdfFile) {
+        const {data, error} = await supabase
+            .storage
+            .from('pdf-files')
+            .download(pdf.file_path)
+        if(!error){
+            return data
+        }
+        console.log("Error");
+    }
+
+    function viewPdf(pdfBlob: Blob) {
+        const url = URL.createObjectURL(pdfBlob);
+        window.open(url, '_blank');
+    }
+
+    function downloadPDF(pdfBlob: Blob, pdf: PdfFile) {
+        if (pdfBlob) {
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = pdf.pdf_name;
+            a.click();
+            URL.revokeObjectURL(url);
+        } else {
+            console.error('PDF Blob is null. Cannot download the file.');
+        }
+    }
+
+    async function deletePdf(pdf: PdfFile) {
+        const { error } = await supabase
+            .storage
+            .from('pdf-files')
+            .remove([pdf.file_path]);
+
+        const { status } = await supabase
+            .from('pdf_files')
+            .delete()
+            .eq('id', pdf.id);
+
+        if (!error && status === 204) {
+            setPdfs((prev) => prev.filter((p) => p.id !== pdf.id));
+        } else {
+            console.error("Fehler beim Löschen der PDF:", error);
+        }
+    }
+
     return (
         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* User Profile Card */}
@@ -116,7 +166,7 @@ function DashboardContent() {
                     <p className="text-sm text-gray-500">{userData.birthday}</p>
                     <p className="text-sm text-gray-500">{userData.first_name_trainer} {userData.last_name_trainer}</p>
                     <div className="card-actions justify-center mt-4">
-                        <button className="btn btn-sm btn-outline">Deine Daten ändern</button>
+                        <a className="btn btn-sm btn-outline" href="/profile">Deine Daten ändern</a>
                     </div>
                 </div>
             </div>
@@ -150,15 +200,39 @@ function DashboardContent() {
                             </tr>
                             </thead>
                             <tbody>
-                            {pdfs.map((pdf) => (
+                            {pdfs.slice(0, 5).map((pdf) => (
                                 <tr key={pdf.id}>
                                     <td>{pdf.date_of_absence}</td>
                                     <td>{pdf.reason}</td>
-                                    <td><a href="#" className="link link-primary">{pdf.pdf_name}</a></td>
+                                    <td>
+                                        <a
+                                            onClick={async (e) => {
+                                                e.preventDefault();
+                                                const pdfBlob = await getPdf(pdf);
+                                                if (pdfBlob) viewPdf(pdfBlob);
+                                            }}
+                                            className="link link-primary"
+                                            href="#"
+                                        >
+                                            {pdf.pdf_name}
+                                        </a>
+                                    </td>
                                     <td>
                                         <div className="flex gap-2">
-                                            <button className="btn btn-xs btn-outline btn-info">Details</button>
-                                            <button className="btn btn-xs btn-outline">Duplizieren</button>
+                                            <button className="btn btn-xs btn-secondary"
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();
+                                                        const pdfBlob = await getPdf(pdf);
+                                                        if (pdfBlob) downloadPDF(pdfBlob, pdf);
+                                                    }}
+                                            >Herunterladen</button>
+                                            <button
+                                                className="btn btn-xs btn-error"
+                                                onClick={async (e) => {
+                                                    e.preventDefault();
+                                                    await deletePdf(pdf);
+                                                }}
+                                            >Löschen</button>
                                         </div>
                                     </td>
                                 </tr>
