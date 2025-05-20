@@ -28,7 +28,7 @@ function LoginFrom() {
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://absendo.app'
+                redirectTo: 'http://localhost:5173/'
             }
         });
     }
