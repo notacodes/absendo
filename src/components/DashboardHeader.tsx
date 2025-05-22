@@ -40,6 +40,7 @@ function DashboardHeader() {
 
     const closeModal = () => {
         setIsModalOpen(false);
+        window.location.reload();
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -223,7 +224,7 @@ function DashboardHeader() {
                                     <button className="btn btn-secondary" onClick={viewPDF}>Vorschau</button>
                                 </div>
                                 <div className="modal-action">
-                                    <button className="btn btn-ghost" onClick={closeModal}>Abbrechen</button>
+                                    <button className="btn btn-ghost" onClick={closeModal}>Schliessen</button>
                                     <button className="btn btn-primary" onClick={downloadPDF}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                                              stroke="currentColor" className="w-6 h-6 mr-2">
