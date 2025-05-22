@@ -27,14 +27,34 @@ interface FormErrors {
     email_trainer?: string;
 }
 
+
 export default function AbsendoOnboarding() {
 
     const [user, setUser] = useState<User | null>(null);
+    const [hasUserCompletedOnboarding, setHasUserCompletedOnboarding] = useState<boolean>(false);
 
     useEffect(() => {
         async function fetchUser() {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
+
+            if (user) {
+                try {
+                    const { data, error } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", user.id)
+                        .single();
+
+                    if (error) throw error;
+
+                    if(data.onboarding_completed) {
+                        setHasUserCompletedOnboarding(true);
+                    }
+                } catch (err) {
+                    console.error("Error fetching user data:", err);
+                }
+            }
         }
         fetchUser();
     }, []);
@@ -152,260 +172,269 @@ export default function AbsendoOnboarding() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-base-200">
-            {user ?(
-            <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
-                <div className="text-center mb-10">
-                    <h1 className="font-bold text-3xl text-primary mb-2">Absendo</h1>
-                    <p className="text-gray-600">Dein automatischer Absenzformular-Ausfüller</p>
-                </div>
-
-                <div className="mb-8">
-                    <ul className="steps steps-horizontal w-full">
-                        {Array.from({ length: totalSteps }).map((_, idx) => (
-                            <li
-                                key={idx}
-                                className={`step ${idx + 1 <= step ? 'step-primary' : ''}`}
-                                data-content={idx + 1 <= step ? "✓" : (idx + 1).toString()}
-                            >
-                                {idx === 0 ? 'Persönliche Daten' :
-                                    idx === 1 ? 'Kalender' : 'Ausbilder'}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {complete ? (
-                    <div className="text-center py-10">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
-                            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Onboarding abgeschlossen!</h2>
-                        <p className="text-gray-600 mb-6">Vielen Dank für deine Angaben. Absendo ist jetzt bereit für dich.</p>
-                        <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard'}>
-                            Zum Dashboard
-                        </button>
+            {hasUserCompletedOnboarding ? (
+                <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
+                    <h1 className="text-3xl font-bold text-center">Onboarding bereits abgeschlossen</h1>
+                    <p className="text-center mt-4">Du hast das Onboarding bereits abgeschlossen. Du kannst jetzt zum Dashboard gehen.</p>
+                    <div className="flex justify-center mt-6">
+                        <a href="/dashboard" className="btn btn-primary">Zum Dashboard</a>
                     </div>
-                ) : (
-                    <form>
-                        {step === 1 && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-700 mb-6">Deine persönlichen Daten</h2>
+                </div>
+            ) : (
+                user ? (
+                    <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
+                        <div className="text-center mb-10">
+                            <h1 className="font-bold text-3xl text-primary mb-2">Absendo</h1>
+                            <p className="text-gray-600">Dein automatischer Absenzformular-Ausfüller</p>
+                        </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Vorname</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="first_name"
-                                            value={formData.first_name}
-                                            onChange={handleChange}
-                                            placeholder="Dein Vorname"
-                                            className={`input input-bordered w-full ${errors.first_name ? 'input-error' : ''}`}
-                                        />
-                                        {errors.first_name && <span className="text-error text-xs mt-1">{errors.first_name}</span>}
-                                    </div>
+                        <div className="mb-8">
+                            <ul className="steps steps-horizontal w-full">
+                                {Array.from({ length: totalSteps }).map((_, idx) => (
+                                    <li
+                                        key={idx}
+                                        className={`step ${idx + 1 <= step ? 'step-primary' : ''}`}
+                                        data-content={idx + 1 <= step ? "✓" : (idx + 1).toString()}
+                                    >
+                                        {idx === 0 ? 'Persönliche Daten' :
+                                            idx === 1 ? 'Kalender' : 'Ausbilder'}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Nachname</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="last_name"
-                                            value={formData.last_name}
-                                            onChange={handleChange}
-                                            placeholder="Dein Nachname"
-                                            className={`input input-bordered w-full ${errors.last_name ? 'input-error' : ''}`}
-                                        />
-                                        {errors.last_name && <span className="text-error text-xs mt-1">{errors.last_name}</span>}
-                                    </div>
+                        {complete ? (
+                            <div className="text-center py-10">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
+                                    <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                 </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Geburtsdatum</span>
-                                        </label>
-                                        <input
-                                            type="date"
-                                            name="birthday"
-                                            value={formData.birthday}
-                                            onChange={handleChange}
-                                            className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
-                                        />
-                                        {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
-                                    </div>
-
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Klasse</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="class"
-                                            value={formData.class}
-                                            onChange={handleChange}
-                                            placeholder="z.B. INA19a"
-                                            className={`input input-bordered w-full ${errors.class ? 'input-error' : ''}`}
-                                        />
-                                        {errors.class && <span className="text-error text-xs mt-1">{errors.class}</span>}
-                                    </div>
-                                </div>
+                                <h2 className="text-2xl font-bold text-gray-800 mb-2">Onboarding abgeschlossen!</h2>
+                                <p className="text-gray-600 mb-6">Vielen Dank für deine Angaben. Absendo ist jetzt bereit für dich.</p>
+                                <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard'}>
+                                    Zum Dashboard
+                                </button>
                             </div>
-                        )}
+                        ) : (
+                            <form>
+                                {step === 1 && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-xl font-bold text-gray-700 mb-6">Deine persönlichen Daten</h2>
 
-                        {step === 2 && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-700 mb-6">Kalender-Einstellungen</h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Vorname</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="first_name"
+                                                    value={formData.first_name}
+                                                    onChange={handleChange}
+                                                    placeholder="Dein Vorname"
+                                                    className={`input input-bordered w-full ${errors.first_name ? 'input-error' : ''}`}
+                                                />
+                                                {errors.first_name && <span className="text-error text-xs mt-1">{errors.first_name}</span>}
+                                            </div>
 
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">Kalender-URL</span>
-                                    </label>
-                                    <input
-                                        type="url"
-                                        name="calendar_url"
-                                        value={formData.calendar_url}
-                                        onChange={handleChange}
-                                        placeholder="https://kalender.beispiel.com/dein-kalender"
-                                        className={`input input-bordered w-full ${errors.calendar_url ? 'input-error' : ''}`}
-                                    />
-                                    {errors.calendar_url && <span className="text-error text-xs mt-1">{errors.calendar_url}</span>}
-                                    <label className="label">
-                                        <span className="label-text-alt text-gray-500">Dies ist die URL, von der Absendo deine Absenzen auslesen wird</span>
-                                    </label>
-                                </div>
-
-                                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0">
-                                            <svg className="w-5 h-5 text-blue-600" fill="currentColor"
-                                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path fillRule="evenodd"
-                                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                      clipRule="evenodd"></path>
-                                            </svg>
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Nachname</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="last_name"
+                                                    value={formData.last_name}
+                                                    onChange={handleChange}
+                                                    placeholder="Dein Nachname"
+                                                    className={`input input-bordered w-full ${errors.last_name ? 'input-error' : ''}`}
+                                                />
+                                                {errors.last_name && <span className="text-error text-xs mt-1">{errors.last_name}</span>}
+                                            </div>
                                         </div>
-                                        <div className="ml-3">
-                                            <h3 className="text-sm font-medium text-blue-800">So findest du deine
-                                                Kalender-URL</h3>
-                                            <div className="mt-2 text-sm text-blue-700">
-                                                <ol className="list-decimal list-inside">
-                                                    <li>Melde dich im Schulnetz an</li>
-                                                    <li>Scrolle ganz nach unten und aktiviere dein Kalender-Abo</li>
-                                                    <li>Fordere den Kalender-Link per E-Mail an</li>
-                                                    <li>Die Kalender-URL wird an deine SLUZ-E-Mail gesendet</li>
-                                                    <li>Kopiere die URL und füge sie hier ein</li>
-                                                </ol>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Geburtsdatum</span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    name="birthday"
+                                                    value={formData.birthday}
+                                                    onChange={handleChange}
+                                                    className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
+                                                />
+                                                {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
+                                            </div>
+
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Klasse</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="class"
+                                                    value={formData.class}
+                                                    onChange={handleChange}
+                                                    placeholder="z.B. INA19a"
+                                                    className={`input input-bordered w-full ${errors.class ? 'input-error' : ''}`}
+                                                />
+                                                {errors.class && <span className="text-error text-xs mt-1">{errors.class}</span>}
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {step === 3 && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-700 mb-6">Ausbilder-Informationen</h2>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                        <span className="label-text">Vorname des Ausbilders</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="first_name_trainer"
-                                            value={formData.first_name_trainer}
-                                            onChange={handleChange}
-                                            placeholder="Vorname"
-                                            className={`input input-bordered w-full ${errors.first_name_trainer ? 'input-error' : ''}`}
-                                        />
-                                        {errors.first_name_trainer && <span className="text-error text-xs mt-1">{errors.first_name_trainer}</span>}
-                                    </div>
-
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Nachname des Ausbilders</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="last_name_trainer"
-                                            value={formData.last_name_trainer}
-                                            onChange={handleChange}
-                                            placeholder="Nachname"
-                                            className={`input input-bordered w-full ${errors.last_name_trainer ? 'input-error' : ''}`}
-                                        />
-                                        {errors.last_name_trainer && <span className="text-error text-xs mt-1">{errors.last_name_trainer}</span>}
-                                    </div>
-                                </div>
-
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">Telefonnummer des Ausbilders</span>
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        name="phone_number_trainer"
-                                        value={formData.phone_number_trainer}
-                                        onChange={handleChange}
-                                        placeholder="+41 79 123 45 67"
-                                        className={`input input-bordered w-full ${errors.phone_number_trainer ? 'input-error' : ''}`}
-                                    />
-                                    {errors.phone_number_trainer && <span className="text-error text-xs mt-1">{errors.phone_number_trainer}</span>}
-                                </div>
-
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">E-Mail des Ausbilders</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email_trainer"
-                                        value={formData.email_trainer}
-                                        onChange={handleChange}
-                                        placeholder="ausbilder@beispiel.com"
-                                        className={`input input-bordered w-full ${errors.email_trainer ? 'input-error' : ''}`}
-                                    />
-                                    {errors.email_trainer && <span className="text-error text-xs mt-1">{errors.email_trainer}</span>}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="mt-8 flex justify-between">
-                            <button
-                                type="button"
-                                onClick={prevStep}
-                                className="btn btn-outline"
-                                disabled={step === 1}
-                            >
-                                Zurück
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={nextStep}
-                                className={`btn ${step === totalSteps ? 'btn-success' : 'btn-primary'}`}
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <span className="loading loading-spinner loading-sm"></span>
-                                        Wird verarbeitet...
-                                    </>
-                                ) : (
-                                    step === totalSteps ? 'Fertigstellen' : 'Weiter'
                                 )}
-                            </button>
-                        </div>
-                    </form>
-                )}
-            </div>
-                ): (
+
+                                {step === 2 && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-xl font-bold text-gray-700 mb-6">Kalender-Einstellungen</h2>
+
+                                        <div className="form-control w-full">
+                                            <label className="label">
+                                                <span className="label-text">Kalender-URL</span>
+                                            </label>
+                                            <input
+                                                type="url"
+                                                name="calendar_url"
+                                                value={formData.calendar_url}
+                                                onChange={handleChange}
+                                                placeholder="https://kalender.beispiel.com/dein-kalender"
+                                                className={`input input-bordered w-full ${errors.calendar_url ? 'input-error' : ''}`}
+                                            />
+                                            {errors.calendar_url && <span className="text-error text-xs mt-1">{errors.calendar_url}</span>}
+                                            <label className="label">
+                                                <span className="label-text-alt text-gray-500">Dies ist die URL, von der Absendo deine Absenzen auslesen wird</span>
+                                            </label>
+                                        </div>
+
+                                        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                                            <div className="flex items-start">
+                                                <div className="flex-shrink-0">
+                                                    <svg className="w-5 h-5 text-blue-600" fill="currentColor"
+                                                         viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fillRule="evenodd"
+                                                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                              clipRule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                                <div className="ml-3">
+                                                    <h3 className="text-sm font-medium text-blue-800">So findest du deine
+                                                        Kalender-URL</h3>
+                                                    <div className="mt-2 text-sm text-blue-700">
+                                                        <ol className="list-decimal list-inside">
+                                                            <li>Melde dich im Schulnetz an</li>
+                                                            <li>Scrolle ganz nach unten und aktiviere dein Kalender-Abo</li>
+                                                            <li>Fordere den Kalender-Link per E-Mail an</li>
+                                                            <li>Die Kalender-URL wird an deine SLUZ-E-Mail gesendet</li>
+                                                            <li>Kopiere die URL und füge sie hier ein</li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 3 && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-xl font-bold text-gray-700 mb-6">Ausbilder-Informationen</h2>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Vorname des Ausbilders</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="first_name_trainer"
+                                                    value={formData.first_name_trainer}
+                                                    onChange={handleChange}
+                                                    placeholder="Vorname"
+                                                    className={`input input-bordered w-full ${errors.first_name_trainer ? 'input-error' : ''}`}
+                                                />
+                                                {errors.first_name_trainer && <span className="text-error text-xs mt-1">{errors.first_name_trainer}</span>}
+                                            </div>
+
+                                            <div className="form-control w-full">
+                                                <label className="label">
+                                                    <span className="label-text">Nachname des Ausbilders</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="last_name_trainer"
+                                                    value={formData.last_name_trainer}
+                                                    onChange={handleChange}
+                                                    placeholder="Nachname"
+                                                    className={`input input-bordered w-full ${errors.last_name_trainer ? 'input-error' : ''}`}
+                                                />
+                                                {errors.last_name_trainer && <span className="text-error text-xs mt-1">{errors.last_name_trainer}</span>}
+                                            </div>
+                                        </div>
+
+                                        <div className="form-control w-full">
+                                            <label className="label">
+                                                <span className="label-text">Telefonnummer des Ausbilders</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                name="phone_number_trainer"
+                                                value={formData.phone_number_trainer}
+                                                onChange={handleChange}
+                                                placeholder="+41 79 123 45 67"
+                                                className={`input input-bordered w-full ${errors.phone_number_trainer ? 'input-error' : ''}`}
+                                            />
+                                            {errors.phone_number_trainer && <span className="text-error text-xs mt-1">{errors.phone_number_trainer}</span>}
+                                        </div>
+
+                                        <div className="form-control w-full">
+                                            <label className="label">
+                                                <span className="label-text">E-Mail des Ausbilders</span>
+                                            </label>
+                                            <input
+                                                type="email"
+                                                name="email_trainer"
+                                                value={formData.email_trainer}
+                                                onChange={handleChange}
+                                                placeholder="ausbilder@beispiel.com"
+                                                className={`input input-bordered w-full ${errors.email_trainer ? 'input-error' : ''}`}
+                                            />
+                                            {errors.email_trainer && <span className="text-error text-xs mt-1">{errors.email_trainer}</span>}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="mt-8 flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={prevStep}
+                                        className="btn btn-outline"
+                                        disabled={step === 1}
+                                    >
+                                        Zurück
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={nextStep}
+                                        className={`btn ${step === totalSteps ? 'btn-success' : 'btn-primary'}`}
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <span className="loading loading-spinner loading-sm"></span>
+                                                Wird verarbeitet...
+                                            </>
+                                        ) : (
+                                            step === totalSteps ? 'Fertigstellen' : 'Weiter'
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                ) : (
                     <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
                         <h1 className="text-3xl font-bold text-center">Bitte melde dich an</h1>
                         <p className="text-center mt-4">Du musst angemeldet sein, um auf diese Seite zuzugreifen.</p>
@@ -413,7 +442,8 @@ export default function AbsendoOnboarding() {
                             <a href="/login" className="btn btn-primary">Zur Anmeldung</a>
                         </div>
                     </div>
-                )}
+                )
+            )}
         </div>
     );
 }
