@@ -9,6 +9,8 @@ interface UserProfile {
     birthday: string;
     first_name_trainer: string;
     last_name_trainer: string;
+    isFullNameEnabled?: boolean;
+    isFullSubjectEnabled?: boolean;
 }
 
 interface PdfFile {
@@ -26,6 +28,9 @@ function DashboardContent() {
     const [loading, setLoading] = useState(true);
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [pdfs, setPdfs] = useState<PdfFile[]>([]);
+    const [isFullNameEnabled, setIsFullNameEnabled] = useState(false);
+    const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(false);
+    const [settingsLoading, setSettingsLoading] = useState(false);
 
     useEffect(() => {
         async function fetchUser() {
@@ -57,6 +62,10 @@ function DashboardContent() {
 
                     if (error) throw error;
                     setUserData(data);
+
+                    setIsFullNameEnabled(data.isFullNameEnabled || false);
+                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
+
                 } catch (err) {
                     console.error("Error fetching user data:", err);
                 }
@@ -85,6 +94,45 @@ function DashboardContent() {
         fetchPdfs();
     }, [user]);
 
+    async function updateSetting(field: 'isFullNameEnabled' | 'isFullSubjectEnabled', value: boolean) {
+        if (!user) return;
+
+        setSettingsLoading(true);
+        try {
+            const { error } = await supabase
+                .from("profiles")
+                .update({ [field]: value })
+                .eq("id", user.id);
+
+            if (error) throw error;
+
+            setUserData(prev => prev ? { ...prev, [field]: value } : null);
+
+        } catch (err) {
+            console.error(`Error updating ${field}:`, err);
+            if (field === 'isFullNameEnabled') {
+                setIsFullNameEnabled(userData?.isFullNameEnabled || false);
+            } else {
+                setIsFullSubjectEnabled(userData?.isFullSubjectEnabled || false);
+            }
+        } finally {
+            setSettingsLoading(false);
+            window.location.reload();
+            //TO-DO: remove reload and add something to update the Values in DashboardHeader
+        }
+    }
+
+    const handleFullNameToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.checked;
+        setIsFullNameEnabled(newValue);
+        await updateSetting('isFullNameEnabled', newValue);
+    };
+
+    const handleFullSubjectToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.checked;
+        setIsFullSubjectEnabled(newValue);
+        await updateSetting('isFullSubjectEnabled', newValue);
+    };
 
     function getUserShortName() {
         if (!userData) return "NN";
@@ -176,16 +224,88 @@ function DashboardContent() {
                 </div>
             </div>
 
-            {/* Coming Soon Card */}
+            {/* Settings Card */}
             <div className="card bg-base-100 shadow-xl lg:col-span-2">
                 <div className="card-body">
                     <h2 className="card-title">Absenz-Einstellungen</h2>
                     <div className="divider"></div>
-                    <div className="bg-base-200 rounded-lg p-8 text-center w-full border-2 border-dashed border-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto text-primary mb-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                        </svg>
-                        <h3 className="text-2xl font-bold text-center mb-2">Coming Soon!</h3>
+
+                    {settingsLoading && (
+                        <div className="loading loading-spinner loading-sm">
+                            <span>Einstellungen werden gespeichert...</span>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-2 mb-4">
+                        <label className="toggle text-base-content">
+                            <input
+                                type="checkbox"
+                                checked={isFullNameEnabled}
+                                onChange={handleFullNameToggle}
+                                disabled={settingsLoading}
+                            />
+                            <svg
+                                aria-label="disabled"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g
+                                    strokeLinejoin="round"
+                                    strokeLinecap="round"
+                                    strokeWidth="4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                >
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                </g>
+                            </svg>
+                        </label>
+                        <span>Statt Kürzeln werden die Namen der Lehrpersonen vollständig ausgeschrieben</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <label className="toggle text-base-content">
+                            <input
+                                type="checkbox"
+                                checked={isFullSubjectEnabled}
+                                onChange={handleFullSubjectToggle}
+                                disabled={settingsLoading}
+                            />
+                            <svg
+                                aria-label="disabled"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g
+                                    strokeLinejoin="round"
+                                    strokeLinecap="round"
+                                    strokeWidth="4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                >
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                </g>
+                            </svg>
+                        </label>
+                        <span>Fächer werden im Absenzformular ausgeschrieben statt abgekürzt dargestellt (Hinweis: Module werden weiterhin abgekürzt)</span>
                     </div>
                 </div>
             </div>
@@ -201,16 +321,17 @@ function DashboardContent() {
                                 <th>Datum</th>
                                 <th>Grund</th>
                                 <th>Formular</th>
+                                <th>Erstellt am</th>
                                 <th>Aktionen</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {pdfs.map((pdf) => (
+                            {pdfs.slice(0, 5).map((pdf) => (
                                 <tr key={pdf.id}>
                                     <td>
-                                                <span className="font-medium">
-                                                    {formatDate(pdf.date_of_absence)}
-                                                </span>
+                                        <span className="font-medium">
+                                            {formatDate(pdf.date_of_absence)}
+                                        </span>
                                     </td>
                                     <td>
                                         {pdf.reason}

@@ -5,6 +5,8 @@ import {User} from "@supabase/supabase-js";
 function DashboardHeader() {
 
     const [user, setUser] = useState<User | null>(null);
+    const [isFullNameEnabled, setIsFullNameEnabled] = useState(null);
+    const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(null);
 
     useEffect(() => {
         async function fetchUser() {
@@ -14,6 +16,29 @@ function DashboardHeader() {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        async function fetchUserData() {
+            if (user) {
+                try {
+                    const { data, error } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", user.id)
+                        .single();
+
+                    if (error) throw error;
+
+                    setIsFullNameEnabled(data.isFullNameEnabled || false);
+                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
+
+                } catch (err) {
+                    console.error("Error fetching user data:", err);
+                }
+            }
+        }
+        fetchUserData();
+    }, [user]);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -21,7 +46,8 @@ function DashboardHeader() {
         reason: '',
         fileName: '',
         is_excused: true,
-        isFullNameEnabled: true
+        isFullNameEnabled: isFullNameEnabled,
+        isFullSubjectEnabled: isFullSubjectEnabled
     });
     const [, setIsGenerating] = useState(false);
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
@@ -34,7 +60,8 @@ function DashboardHeader() {
             reason: '',
             fileName: 'Absenz',
             is_excused: true,
-            isFullNameEnabled: true
+            isFullNameEnabled: isFullNameEnabled,
+            isFullSubjectEnabled: isFullSubjectEnabled
         });
     };
 
@@ -89,7 +116,8 @@ function DashboardHeader() {
                 user_id: user.id,
                 reason: formData.reason,
                 is_excused: formData.is_excused,
-                isFullNameEnabled: formData.isFullNameEnabled,
+                isFullNameEnabled: isFullNameEnabled,
+                isFullSubjectEnabled: isFullSubjectEnabled,
                 fileName: addPDFExtension(formData.fileName)
             })
         });
