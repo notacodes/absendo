@@ -8,7 +8,6 @@ export const ProfilePage = () => {
         first_name: string;
         last_name: string;
         birthday: string;
-        class: string;
         calendar_url: string;
         first_name_trainer: string;
         last_name_trainer: string;
@@ -23,7 +22,6 @@ export const ProfilePage = () => {
         first_name: string;
         last_name: string;
         birthday: string;
-        class: string;
         calendar_url: string;
         first_name_trainer: string;
         last_name_trainer: string;
@@ -35,7 +33,6 @@ export const ProfilePage = () => {
         first_name?: string;
         last_name?: string;
         birthday?: string;
-        class?: string;
         calendar_url?: string;
         first_name_trainer?: string;
         last_name_trainer?: string;
@@ -51,7 +48,6 @@ export const ProfilePage = () => {
         first_name: '',
         last_name: '',
         birthday: '',
-        class: '',
         calendar_url: '',
         first_name_trainer: '',
         last_name_trainer: '',
@@ -112,7 +108,6 @@ export const ProfilePage = () => {
                         first_name: data.first_name || '',
                         last_name: data.last_name || '',
                         birthday: data.birthday || '',
-                        class: data.class || '',
                         calendar_url: data.calendar_url || '',
                         first_name_trainer: data.first_name_trainer || '',
                         last_name_trainer: data.last_name_trainer || '',
@@ -151,7 +146,6 @@ export const ProfilePage = () => {
         if (!formData.first_name.trim()) newErrors.first_name = 'Vorname ist erforderlich';
         if (!formData.last_name.trim()) newErrors.last_name = 'Nachname ist erforderlich';
         if (!formData.birthday) newErrors.birthday = 'Geburtsdatum ist erforderlich';
-        if (!formData.class.trim()) newErrors.class = 'Klasse ist erforderlich';
 
         if (!formData.calendar_url.trim()) {
             newErrors.calendar_url = 'Kalender-URL ist erforderlich';
@@ -190,7 +184,6 @@ export const ProfilePage = () => {
                     first_name: formData.first_name,
                     last_name: formData.last_name,
                     birthday: formData.birthday,
-                    class: formData.class,
                     calendar_url: formData.calendar_url,
                     first_name_trainer: formData.first_name_trainer,
                     last_name_trainer: formData.last_name_trainer,
@@ -239,7 +232,6 @@ export const ProfilePage = () => {
                         </div>
                         <h2 className="card-title mt-4">{userData.first_name} {userData.last_name}</h2>
                         <p className="text-sm text-gray-500">{userData.birthday}</p>
-                        <p className="text-sm text-gray-500">Klasse: {userData.class || 'Keine Angabe'}</p>
                         <p className="text-sm text-gray-500">Ausbilder: {userData.first_name_trainer} {userData.last_name_trainer}</p>
                     </div>
                 </div>
@@ -257,7 +249,7 @@ export const ProfilePage = () => {
 
                             <div className="stat">
                                 <div className="stat-title">Zeit gespart</div>
-                                <div className="stat-value text-secondary">
+                                <div className="stat-value text-accent">
                                     {userData.time_saved_minutes
                                         ? userData.time_saved_minutes >= 60
                                             ? `${Math.floor(userData.time_saved_minutes / 60)} Std. ${userData.time_saved_minutes % 60} Min.`
@@ -312,35 +304,19 @@ export const ProfilePage = () => {
                                 />
                                 {errors.last_name && <span className="text-error text-xs mt-1">{errors.last_name}</span>}
                             </div>
-
-                            <div className="form-control w-full">
-                                <label className="label">
-                                    <span className="label-text">Geburtsdatum</span>
-                                </label>
-                                <input
-                                    type="date"
-                                    name="birthday"
-                                    value={formData.birthday}
-                                    onChange={handleChange}
-                                    className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
-                                />
-                                {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
-                            </div>
-
-                            <div className="form-control w-full">
-                                <label className="label">
-                                    <span className="label-text">Klasse</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="class"
-                                    value={formData.class}
-                                    onChange={handleChange}
-                                    placeholder="z.B. INA19a"
-                                    className={`input input-bordered w-full ${errors.class ? 'input-error' : ''}`}
-                                />
-                                {errors.class && <span className="text-error text-xs mt-1">{errors.class}</span>}
-                            </div>
+                        </div>
+                        <div className="form-control w-full">
+                            <label className="label">
+                                <span className="label-text">Geburtsdatum</span>
+                            </label>
+                            <input
+                                type="date"
+                                name="birthday"
+                                value={formData.birthday}
+                                onChange={handleChange}
+                                className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
+                            />
+                            {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
                         </div>
                     </div>
                 </div>

@@ -5,7 +5,6 @@ import {supabase} from "../src/supabaseClient.js";
 import teachersData from '../src/data/teachers24-25-bbzw.json';
 import subjectsData from '../src/data/subjects24-25-bbzw.json';
 
-
 export async function generatePdf(user_id, form_data) {
     return  await getPdfData(user_id, form_data);
 }
@@ -67,11 +66,12 @@ function filterEventsByDate(events, filterDatum) {
                 date.getFullYear() === filterDatum.getFullYear()
             ) {
                 let title = events[k].summary;
+                let classe = extractClasse(title);
                 let fach = title.split('-')[0];
                 let teacher = title.split('-').pop();
                 if(hasSpace(teacher) !== true) {
                     let realteacher = teacher.split(' ')[0];
-                    let object = {datum: getFormattedDate(filterDatum), fach: fach, lehrer: realteacher};
+                    let object = {datum: getFormattedDate(filterDatum), fach: fach, lehrer: realteacher, klasse: classe};
                     array.push(object);
                 }
 
@@ -166,7 +166,7 @@ async function fillForm(userData, processedEvents, form_data) {
 
     form.getTextField('Name und Vorname Lernender').setText(userData.last_name + ' ' + userData.first_name);
     form.getTextField('Geburtsdatum').setText(formatBirthday(userData.birthday));
-    form.getTextField('Klasse').setText(userData.class);
+    form.getTextField('Klasse').setText(processedEvents[0].klasse);
     form.getTextField('Datum der Absenz').setText(formattedDate);
     form.getTextField('Begründung der Absenzen Beim Urlaubsgesuch Beweismittel zwingend beilegen').setText(form_data.reason);
 
@@ -230,8 +230,6 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
     }
 
     const filePath = `${filePathBase}${uniqueFileName}`;
-    console.log("Hochladen als:", filePath);
-
     const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('pdf-files')
@@ -257,8 +255,6 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
 
     if (uploadError) {
         console.error("Fehler beim Hochladen:", uploadError);
-    } else {
-        console.log("Erfolgreich hochgeladen:", uploadData);
     }
 }
 
@@ -273,4 +269,8 @@ async function checkUserIdExists(userId) {
 
     return !error;
 
+}
+function extractClasse(title) {
+        const matches = title.match(/[SWER]-[A-Z]+\d{2}[a-zA-Z]+(?:-LO)?/g);
+        return matches ? matches.join(',') : '';
 }

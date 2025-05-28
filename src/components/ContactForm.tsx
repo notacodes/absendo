@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {supabase} from "../supabaseClient.ts";
 
 export default function ContactForm() {
     const [formData, setFormData] = useState({
@@ -14,11 +15,28 @@ export default function ContactForm() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
         console.log("Formular gesendet:", formData);
+
+        const { error } = await supabase
+            .from('feedback')
+            .insert([
+                {
+                    name: formData.name,
+                    email: formData.email,
+                    grund: formData.grund,
+                    nachricht: formData.nachricht,
+                },
+            ]);
+
+        if (error) {
+            console.error("Fehler beim Senden an Supabase:", error.message);
+            return;
+        }
+
         setGesendet(true);
-        //TO-DO send form data to server or email
+
         setTimeout(() => {
             setGesendet(false);
             setFormData({
@@ -33,7 +51,7 @@ export default function ContactForm() {
     return (
         <div className="flex items-center justify-center">
         <div className="max-w-md mx-auto bg-base-100 rounded-lg shadow-lg p-6 mt-8 ">
-            <h2 className="text-2xl font-bold mb-6 text-center">Schreib mir!</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Kontaktformular</h2>
 
             {gesendet ? (
                 <div className="alert alert-success mb-6">
@@ -83,9 +101,9 @@ export default function ContactForm() {
                             className="select select-bordered w-full"
                             required
                         >
-                            <option value="feature">Ich habe eine Idee für ein Feature!</option>
-                            <option value="bug">Hab einen Bug gefunden 🐞</option>
-                            <option value="hilfe">Ich brauch Hilfe bei einem Problem</option>
+                            <option value="feature">Ich habe eine Idee für ein neues Feature</option>
+                            <option value="bug">Hab einen Bug gefunden</option>
+                            <option value="hilfe">Ich benötige Unterstützung bei einem Problem</option>
                             <option value="sonstiges">Etwas anderes...</option>
                         </select>
                     </div>
@@ -100,7 +118,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             className="textarea textarea-bordered w-full h-32"
                             required
-                            placeholder="Schreib etwas hier..."
+                            placeholder="Schreib etwas..."
                         ></textarea>
                     </div>
 
