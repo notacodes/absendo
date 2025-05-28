@@ -1,10 +1,13 @@
 import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
+import {generatePdf} from "../../services/pdfService";
 
 function DashboardHeader() {
 
     const [user, setUser] = useState<User | null>(null);
+    const [isFullNameEnabled, setIsFullNameEnabled] = useState(true);
+    const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(false);
 
     useEffect(() => {
         async function fetchUser() {
@@ -14,13 +17,38 @@ function DashboardHeader() {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        async function fetchUserData() {
+            if (user) {
+                try {
+                    const { data, error } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", user.id)
+                        .single();
+
+                    if (error) throw error;
+
+                    setIsFullNameEnabled(data.isFullNameEnabled || true);
+                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
+
+                } catch (err) {
+                    console.error("Error fetching user data:", err);
+                }
+            }
+        }
+        fetchUserData();
+    }, [user]);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         date: '',
         reason: '',
+        fileName: '',
         is_excused: true,
-        isFullNameEnabled: true
+        isFullNameEnabled: isFullNameEnabled,
+        isFullSubjectEnabled: isFullSubjectEnabled
     });
     const [, setIsGenerating] = useState(false);
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
@@ -31,13 +59,16 @@ function DashboardHeader() {
         setFormData({
             date: '',
             reason: '',
+            fileName: 'Absenz',
             is_excused: true,
-            isFullNameEnabled: true
+            isFullNameEnabled: isFullNameEnabled,
+            isFullSubjectEnabled: isFullSubjectEnabled
         });
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        window.location.reload();
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,42 +84,39 @@ function DashboardHeader() {
             setIsGenerating(true);
             setCurrentStep(2);
             getPDF()
-                .then(() => {
-                    setIsGenerating(false);
-                    setCurrentStep(3);
-                })
-                .catch((error) => {
-                    console.error('Error generating PDF:', error);
-                });
+            setIsGenerating(true);
         }
 
     };
+
+    function addPDFExtension(fileName: string) {
+        if (!fileName.endsWith('.pdf')) {
+            return fileName + '.pdf';
+        }
+        return fileName;
+    }
 
     async function getPDF() {
         if (!user) {
             alert('User not logged in');
             return;
         }
-        const response = await fetch('https://srv770938.hstgr.cloud:443/absendo/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                date: formData.date,
-                user_id: user.id,
-                reason: formData.reason,
-                is_excused: formData.is_excused,
-                isFullNameEnabled: formData.isFullNameEnabled
-            })
+        setFormData({
+            ...formData,
+            isFullNameEnabled: isFullNameEnabled,
+            isFullSubjectEnabled: isFullSubjectEnabled,
+            fileName: addPDFExtension(formData.fileName)
         });
-        if (!response.ok) {
-            alert('Failed to download PDF');
+        const blob = await generatePdf(user.id, formData)
+        if(blob){
+            setPdfBlob(blob);
+            setIsGenerating(false);
+            setCurrentStep(3);
+        }else{
+            setIsGenerating(false);
+            console.error('Failed to generate PDF: Blob is null');
             return;
         }
-        const blob = await response.blob();
-        setPdfBlob(blob);
-
     }
 
     function downloadPDF() {
@@ -99,9 +127,17 @@ function DashboardHeader() {
             a.download = 'filled-formdfd.pdf';
             a.click();
             URL.revokeObjectURL(url);
-            closeModal();
         } else {
             console.error('PDF Blob is null. Cannot download the file.');
+        }
+    }
+
+    function viewPDF() {
+        if (pdfBlob instanceof Blob) {
+            const url = URL.createObjectURL(pdfBlob);
+            window.open(url, '_blank');
+        } else {
+            console.error('Invalid PDF Blob. Cannot open the file.');
         }
     }
 
@@ -109,7 +145,7 @@ function DashboardHeader() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Absendo Dashboard</h1>
-                <button className="btn btn-primary" onClick={openModal}>
+                <button className="btn btn-primary btn-xl" onClick={openModal}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                          stroke="currentColor" className="w-6 h-6 mr-2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -131,6 +167,19 @@ function DashboardHeader() {
 
                         {currentStep === 1 && (
                             <div className="form-control">
+                                <div className="mb-4">
+                                    <label className="label">
+                                        <span className="label-text">Name der Datei</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="fileName"
+                                        value={formData.fileName}
+                                        onChange={handleInputChange}
+                                        className="input input-bordered w-full"
+                                        required
+                                    />
+                                </div>
                                 <div className="mb-4">
                                     <label className="label">
                                         <span className="label-text">Datum</span>
@@ -173,7 +222,8 @@ function DashboardHeader() {
 
                         {currentStep === 2 && (
                             <div className="flex flex-col items-center justify-center py-10">
-                                <div className="radial-progress animate-spin" style={{ "--value": "70" } as React.CSSProperties}></div>
+                                <div className="radial-progress animate-spin"
+                                     style={{"--value": "70"} as React.CSSProperties}></div>
                                 <p className="mt-4 text-lg">Absenz wird generiert...</p>
                             </div>
                         )}
@@ -190,9 +240,10 @@ function DashboardHeader() {
                                     </svg>
                                     <h3 className="text-2xl font-bold text-center mb-2">PDF erfolgreich generiert!</h3>
                                     <p className="text-center text-base-content/70 mb-6">Ihre Absenz wurde als PDF-Dokument erstellt.</p>
+                                    <button className="btn btn-secondary" onClick={viewPDF}>Vorschau</button>
                                 </div>
                                 <div className="modal-action">
-                                    <button className="btn btn-ghost" onClick={closeModal}>Abbrechen</button>
+                                    <button className="btn btn-ghost" onClick={closeModal}>Schliessen</button>
                                     <button className="btn btn-primary" onClick={downloadPDF}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                                              stroke="currentColor" className="w-6 h-6 mr-2">

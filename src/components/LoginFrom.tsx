@@ -28,7 +28,8 @@ function LoginFrom() {
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: 'https://absendo.app'
+            redirectTo: window.location.origin + '/dashboard'
+
             }
         });
     }
@@ -37,7 +38,7 @@ function LoginFrom() {
         await supabase.auth.signInWithOAuth({
             provider: 'google',
            options: {
-               redirectTo: 'https://absendo.app'
+redirectTo: window.location.origin + '/dashboard'
            }
         })
     }

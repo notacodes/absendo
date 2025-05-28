@@ -18,10 +18,10 @@ function Navbar() {
                     </div>
                 ) : (
                     <>
-                        <button className="btn btn-primary" onClick={() => window.location.href = "/dashboard"}>
+                        <button className="btn btn-secondary" onClick={() => window.location.href = "/dashboard"}>
                             Dashboard
                         </button>
-                        <button className="btn btn-secondary ml-2" onClick={()=> supabase.auth.signOut().then(() => {window.location.href = "/home";})}>
+                        <button className="btn btn-error ml-2" onClick={()=> supabase.auth.signOut().then(() => {window.location.href = "/home";})}>
                             Logout
                         </button>
                     </>

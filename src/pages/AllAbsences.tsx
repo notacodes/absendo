@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.tsx";
-import DashboardHeader from "../components/DashboardHeader.tsx";
-import DashboardLastAbsences from "../components/DashboardContent.tsx";
-import { supabase } from "../supabaseClient.ts";
+import {supabase } from "../supabaseClient.ts";
+import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
+import AllAbsencesComponent from "../components/AllAbsencesComponent.tsx";
 
-function Dashboard() {
+
+function AllAbsences () {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -29,8 +29,7 @@ function Dashboard() {
     return user ? (
         <div className="min-h-screen bg-base-100">
             <Navbar />
-            <DashboardHeader />
-            <DashboardLastAbsences />
+            <AllAbsencesComponent />
         </div>
     ) : (
         <div className="min-h-screen bg-base-100">
@@ -43,4 +42,4 @@ function Dashboard() {
     );
 }
 
-export default Dashboard;
+export default AllAbsences;
