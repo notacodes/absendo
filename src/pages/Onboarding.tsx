@@ -7,7 +7,6 @@ interface FormData {
     first_name: string;
     last_name: string;
     birthday: string;
-    class: string;
     calendar_url: string;
     first_name_trainer: string;
     last_name_trainer: string;
@@ -19,7 +18,6 @@ interface FormErrors {
     first_name?: string;
     last_name?: string;
     birthday?: string;
-    class?: string;
     calendar_url?: string;
     first_name_trainer?: string;
     last_name_trainer?: string;
@@ -74,7 +72,6 @@ export default function AbsendoOnboarding() {
         first_name: '',
         last_name: '',
         birthday: '',
-        class: '',
         calendar_url: '',
         first_name_trainer: '',
         last_name_trainer: '',
@@ -105,7 +102,6 @@ export default function AbsendoOnboarding() {
             if (!formData.first_name.trim()) newErrors.first_name = 'Vorname ist erforderlich';
             if (!formData.last_name.trim()) newErrors.last_name = 'Nachname ist erforderlich';
             if (!formData.birthday) newErrors.birthday = 'Geburtsdatum ist erforderlich';
-            if (!formData.class.trim()) newErrors.class = 'Klasse ist erforderlich';
         } else if (stepNumber === 2) {
             if (!formData.calendar_url.trim()) newErrors.calendar_url = 'Kalender-URL ist erforderlich';
             if (formData.calendar_url && !formData.calendar_url.startsWith('http')) {
@@ -254,7 +250,6 @@ export default function AbsendoOnboarding() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="form-control w-full">
                                                 <label className="label">
                                                     <span className="label-text">Geburtsdatum</span>
@@ -269,21 +264,6 @@ export default function AbsendoOnboarding() {
                                                 {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
                                             </div>
 
-                                            <div className="form-control w-full">
-                                                <label className="label">
-                                                    <span className="label-text">Klasse</span>
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name="class"
-                                                    value={formData.class}
-                                                    onChange={handleChange}
-                                                    placeholder="z.B. INA19a"
-                                                    className={`input input-bordered w-full ${errors.class ? 'input-error' : ''}`}
-                                                />
-                                                {errors.class && <span className="text-error text-xs mt-1">{errors.class}</span>}
-                                            </div>
-                                        </div>
                                     </div>
                                 )}
 

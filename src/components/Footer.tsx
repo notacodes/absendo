@@ -11,6 +11,7 @@ function Footer() {
                 <div className="flex flex-col items-center md:items-start">
                     <span className="footer-title">Links</span>
                     <a className="link link-hover" href="https://github.com/notacodes/absendo" target="_blank">Github Repository</a>
+                    <a className="link link-hover" href="/contact">Kontaktformular</a>
                 </div>
                 <div className="flex flex-col items-center md:items-start">
                     <span className="footer-title">Kontakt</span>
