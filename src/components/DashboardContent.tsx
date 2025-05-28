@@ -237,74 +237,22 @@ function DashboardContent() {
                     )}
 
                     <div className="flex items-center gap-2 mb-4">
-                        <label className="toggle text-base-content">
-                            <input
-                                type="checkbox"
-                                checked={isFullNameEnabled}
-                                onChange={handleFullNameToggle}
-                                disabled={settingsLoading}
-                            />
-                            <svg
-                                aria-label="disabled"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                            </svg>
-                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <g
-                                    strokeLinejoin="round"
-                                    strokeLinecap="round"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                >
-                                    <path d="M20 6 9 17l-5-5"></path>
-                                </g>
-                            </svg>
-                        </label>
+                        <input
+                            type="checkbox"
+                            checked={isFullNameEnabled}
+                            onChange={handleFullNameToggle}
+                            disabled={settingsLoading}
+                            className="toggle"/>
                         <span>Statt Kürzeln werden die Namen der Lehrpersonen vollständig ausgeschrieben</span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <label className="toggle text-base-content">
                             <input
                                 type="checkbox"
                                 checked={isFullSubjectEnabled}
                                 onChange={handleFullSubjectToggle}
                                 disabled={settingsLoading}
-                            />
-                            <svg
-                                aria-label="disabled"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                            </svg>
-                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <g
-                                    strokeLinejoin="round"
-                                    strokeLinecap="round"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                >
-                                    <path d="M20 6 9 17l-5-5"></path>
-                                </g>
-                            </svg>
-                        </label>
+                                className="toggle"/>
                         <span>Fächer werden im Absenzformular ausgeschrieben statt abgekürzt dargestellt (Hinweis: Module werden weiterhin abgekürzt)</span>
                     </div>
                 </div>

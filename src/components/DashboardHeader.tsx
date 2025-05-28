@@ -124,7 +124,7 @@ function DashboardHeader() {
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'filled-formdfd.pdf';
+            a.download = formData.fileName;
             a.click();
             URL.revokeObjectURL(url);
         } else {
@@ -168,6 +168,35 @@ function DashboardHeader() {
                         {currentStep === 1 && (
                             <div className="form-control">
                                 <div className="mb-4">
+                                    <label className="label mb-2">
+                                        <span className="label-text">Typ der Absenz</span>
+                                    </label>
+                                    <div className="flex gap-6">
+                                        <label className="label cursor-pointer justify-start">
+                                            <input
+                                                type="radio"
+                                                name="is_excused"
+                                                value="true"
+                                                className="radio"
+                                                checked={formData.is_excused}
+                                                onChange={() => setFormData({...formData, is_excused: true})}
+                                            />
+                                            <span>Entschuldigt</span>
+                                        </label>
+                                        <label className="label cursor-pointer justify-start">
+                                            <input
+                                                type="radio"
+                                                name="is_excused"
+                                                value="false"
+                                                className="radio"
+                                                checked={!formData.is_excused}
+                                                onChange={() => setFormData({...formData, is_excused: false})}
+                                            />
+                                            <span>Urlaubsgesuch</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="mb-4">
                                     <label className="label">
                                         <span className="label-text">Name der Datei</span>
                                     </label>
@@ -181,7 +210,7 @@ function DashboardHeader() {
                                     />
                                 </div>
                                 <div className="mb-4">
-                                    <label className="label">
+                                <label className="label">
                                         <span className="label-text">Datum</span>
                                     </label>
                                     <input
