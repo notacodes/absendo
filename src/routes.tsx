@@ -6,6 +6,8 @@ import Onboarding from "./pages/Onboarding.tsx";
 import EmailVerification from "./pages/EmailVerification.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Contact from "./pages/Contact.tsx";
+import Profile from "./pages/Profile.tsx";
+import AllAbsences from "./pages/AllAbsences.tsx";
 
 function AppRoutes() {
     return (
@@ -19,6 +21,8 @@ function AppRoutes() {
                 <Route path="/email-verification" element={<EmailVerification />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/absences" element={<AllAbsences />} />
             </Routes>
         </Router>
     );

@@ -73,7 +73,7 @@ function HomeContent() {
                     <h2 className="text-4xl font-bold mb-4">Bereit, Zeit zu sparen?</h2>
                     <p className="text-xl mb-6 max-w-md mx-auto">Kein Stress mehr mit BBZW Absenzformularen! <br /> Registriere dich jetzt und erledige es in Sekunden.</p>
                     <button
-                        className="btn btn-primary text-lg"
+                        className="btn btn-primary btn-lg"
                         onClick={() => window.location.href = '/signup'}
                     >
                         Jetzt kostenlos nutzen
