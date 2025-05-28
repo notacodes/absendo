@@ -1,12 +1,13 @@
 import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
+import {generatePdf} from "../../services/pdfService";
 
 function DashboardHeader() {
 
     const [user, setUser] = useState<User | null>(null);
-    const [isFullNameEnabled, setIsFullNameEnabled] = useState(null);
-    const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(null);
+    const [isFullNameEnabled, setIsFullNameEnabled] = useState(true);
+    const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(false);
 
     useEffect(() => {
         async function fetchUser() {
@@ -28,7 +29,7 @@ function DashboardHeader() {
 
                     if (error) throw error;
 
-                    setIsFullNameEnabled(data.isFullNameEnabled || false);
+                    setIsFullNameEnabled(data.isFullNameEnabled || true);
                     setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
 
                 } catch (err) {
@@ -83,13 +84,7 @@ function DashboardHeader() {
             setIsGenerating(true);
             setCurrentStep(2);
             getPDF()
-                .then(() => {
-                    setIsGenerating(false);
-                    setCurrentStep(3);
-                })
-                .catch((error) => {
-                    console.error('Error generating PDF:', error);
-                });
+            setIsGenerating(true);
         }
 
     };
@@ -106,28 +101,22 @@ function DashboardHeader() {
             alert('User not logged in');
             return;
         }
-        const response = await fetch('https://srv770938.hstgr.cloud:443/absendo/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                date: formData.date,
-                user_id: user.id,
-                reason: formData.reason,
-                is_excused: formData.is_excused,
-                isFullNameEnabled: isFullNameEnabled,
-                isFullSubjectEnabled: isFullSubjectEnabled,
-                fileName: addPDFExtension(formData.fileName)
-            })
+        setFormData({
+            ...formData,
+            isFullNameEnabled: isFullNameEnabled,
+            isFullSubjectEnabled: isFullSubjectEnabled,
+            fileName: addPDFExtension(formData.fileName)
         });
-        if (!response.ok) {
-            alert('Failed to download PDF');
+        const blob = await generatePdf(user.id, formData)
+        if(blob){
+            setPdfBlob(blob);
+            setIsGenerating(false);
+            setCurrentStep(3);
+        }else{
+            setIsGenerating(false);
+            console.error('Failed to generate PDF: Blob is null');
             return;
         }
-        const blob = await response.blob();
-        setPdfBlob(blob);
-
     }
 
     function downloadPDF() {
@@ -143,10 +132,12 @@ function DashboardHeader() {
         }
     }
 
-    function viewPDF(){
-        if(pdfBlob){
+    function viewPDF() {
+        if (pdfBlob instanceof Blob) {
             const url = URL.createObjectURL(pdfBlob);
             window.open(url, '_blank');
+        } else {
+            console.error('Invalid PDF Blob. Cannot open the file.');
         }
     }
 
