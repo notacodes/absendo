@@ -11,7 +11,7 @@ function Login () {
             <Navbar />
             {!isUserLoggedIn ? (
                 <LoginFrom/>
-            ) : window.location.href = "/"}
+            ) : window.location.href = "/dashboard"}
         </div>
     );
 }
