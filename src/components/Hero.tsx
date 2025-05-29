@@ -40,7 +40,7 @@ function Hero() {
                         aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 7 Minuten pro Formular</strong>
                     </p>
                     <button
-                        className="btn btn-primary btn-lg mr-4"
+                        className="btn btn-primary btn-lg mr-4 mb-4"
                         onClick={() => {
                             if (!isUserLoggedIn) {
                                 window.location.href = "/signup";
