@@ -25,7 +25,7 @@ function Hero() {
                     {userCount !== undefined && !error &&(
                         <div className="badge badge-info gap-2 px-4 py-3 rounded-full badge-md font-medium mb-8 animate-pulse">
                             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                            Absendo wird bereits von {userCount} Schüler\*innen genutzt
+                            Absendo wird bereits von {userCount} Schüler*innen genutzt
                         </div>
 
                     )}
@@ -40,7 +40,7 @@ function Hero() {
                         aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 7 Minuten pro Formular</strong>
                     </p>
                     <button
-                        className="btn btn-primary btn-lg mr-4 mt-4"
+                        className="btn btn-primary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
                         onClick={() => {
                             if (!isUserLoggedIn) {
                                 window.location.href = "/signup";
@@ -57,7 +57,7 @@ function Hero() {
                             <path d="m12 5 7 7-7 7"/>
                         </svg>
                     </button>
-                    <button className="btn btn-secondary btn-lg mr-4 mt-4" onClick={() => (window.location.href = "/signup")}>
+                    <button className="btn btn-secondary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
                         So funktioniert’s
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
