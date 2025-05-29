@@ -35,12 +35,12 @@ function Hero() {
                             in 30 Sekunden
                         </span>
                     </h1>
-                    <p className="py-6 text-xl max-w-3xl">
+                    <p className="py-4 text-xl max-w-3xl">
                         Absenz einreichen, ohne Stress! Generiere deine Absenzformulare automatisch
                         aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 7 Minuten pro Formular</strong>
                     </p>
                     <button
-                        className="btn btn-primary btn-lg mr-4 mb-4"
+                        className="btn btn-primary btn-lg mr-4 mt-4"
                         onClick={() => {
                             if (!isUserLoggedIn) {
                                 window.location.href = "/signup";
@@ -57,7 +57,7 @@ function Hero() {
                             <path d="m12 5 7 7-7 7"/>
                         </svg>
                     </button>
-                    <button className="btn btn-secondary btn-lg mr-4" onClick={() => (window.location.href = "/signup")}>
+                    <button className="btn btn-secondary btn-lg mr-4 mt-4" onClick={() => (window.location.href = "/signup")}>
                         So funktioniert’s
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
