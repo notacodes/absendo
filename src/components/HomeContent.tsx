@@ -36,7 +36,7 @@ function HomeContent() {
                                 <div className="text-4xl">⚡</div>
                                 <div>
                                     <h3 className="text-2xl font-bold">Blitzschnell</h3>
-                                    <p className="text-lg">Unter 30 Sekunden vom Start bis zum ausgefüllten Formular</p>
+                                    <p className="text-xl">Unter 30 Sekunden vom Start bis zum ausgefüllten Formular</p>
                                 </div>
                             </div>
 
@@ -44,7 +44,7 @@ function HomeContent() {
                                 <div className="text-4xl">🔄</div>
                                 <div>
                                     <h3 className="text-2xl font-bold">Einmal gemacht, immer bereit</h3>
-                                    <p className="text-lg">Trage deine Daten einmal ein – danach läuft alles automatisch</p>
+                                    <p className="text-xl">Trage deine Daten einmal ein – danach läuft alles automatisch</p>
                                 </div>
                             </div>
 
@@ -52,7 +52,7 @@ function HomeContent() {
                                 <div className="text-4xl">🛠️</div>
                                 <div>
                                     <h3 className="text-2xl font-bold">Open Source</h3>
-                                    <p className="text-lg">Wird als <a className="underline" href="https://github.com/notacodes/absendo" target="_blank">Open-Source-Projekt</a> entwickelt</p>
+                                    <p className="text-xl">Wird als <a className="underline" href="https://github.com/notacodes/absendo" target="_blank">Open-Source-Projekt</a> entwickelt</p>
                                 </div>
                             </div>
                         </div>

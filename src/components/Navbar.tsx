@@ -2,13 +2,15 @@ import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
-    const version = "Beta-Version";
+    const version = "Beta";
 
     return (
         <div className="navbar bg-base-200 shadow-md">
             <div className="navbar-start">
                 <a className="btn btn-ghost normal-case text-xl" href="/home">Absendo</a>
-                <span className="ml-2 text-sm text-gray-500">{version}</span>
+                <span className="ml-3 px-2 py-1 text-xs font-medium bg-orange-200 text-orange-800 rounded-full">
+                    {version}
+                </span>
             </div>
             <div className="navbar-end">
                 { !isUserLoggedIn ? (
