@@ -11,6 +11,8 @@ interface UserProfile {
     last_name_trainer: string;
     isFullNameEnabled?: boolean;
     isFullSubjectEnabled?: boolean;
+    total_absences?: number;
+    time_saved_minutes?: number;
 }
 
 interface PdfFile {
@@ -61,7 +63,18 @@ function DashboardContent() {
                         .single();
 
                     if (error) throw error;
-                    setUserData(data);
+                    const { data: absencesData, error: absencesError } = await supabase
+                        .from("pdf_files")
+                        .select("id")
+                        .eq("user_id", user.id);
+
+                    if (absencesError) throw absencesError;
+                    const enhancedData = {
+                        ...data,
+                        total_absences: absencesData?.length || 0,
+                        time_saved_minutes: (absencesData?.length || 0) * 5
+                    };
+                    setUserData(enhancedData);
 
                     setIsFullNameEnabled(data.isFullNameEnabled || false);
                     setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
@@ -211,7 +224,8 @@ function DashboardContent() {
             <div className="card bg-base-100 shadow-xl">
                 <div className="card-body items-center text-center">
                     <div className="avatar">
-                        <div className="w-24 rounded-full bg-primary text-primary-content grid place-items-center text-xl font-bold">
+                        <div
+                            className="w-24 rounded-full bg-primary text-primary-content grid place-items-center text-xl font-bold">
                             <div className="flex items-center justify-center w-full h-full">{getUserShortName()}</div>
                         </div>
                     </div>
@@ -224,12 +238,41 @@ function DashboardContent() {
                 </div>
             </div>
 
-            {/* Settings Card */}
-            <div className="card bg-base-100 shadow-xl lg:col-span-2">
+            <div className="card bg-base-100 shadow-xl lg:col-span-1">
                 <div className="card-body">
-                    <h2 className="card-title">Absenz-Einstellungen</h2>
-                    <div className="divider"></div>
+                    <h2 className="card-title">Deine Statistik</h2>
 
+                    <div className="stats stats-vertical lg:stats-horizontal shadow mt-4">
+                        <div className="stat">
+                            <div className="stat-title">Generierte Absenzen</div>
+                            <div className="stat-value text-primary">{userData.total_absences || 0}</div>
+                            <div className="stat-desc">Seit der Registrierung</div>
+                        </div>
+
+                        <div className="stat">
+                            <div className="stat-title">Zeit gespart</div>
+                            <div className="stat-value text-accent">
+                                {userData.time_saved_minutes
+                                    ? userData.time_saved_minutes >= 60
+                                        ? `${Math.floor(userData.time_saved_minutes / 60)} Std. ${userData.time_saved_minutes % 60} Min.`
+                                        : `${userData.time_saved_minutes} Min.`
+                                    : '0 Min.'
+                                }
+                            </div>
+                            <div className="stat-desc">Mit Absendo vs. manuell</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 text-sm text-gray-600">
+                        <p>Mit Absendo sparst du dir durchschnittlich 5 Minuten pro Absenz</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Settings Card */}
+            <div className="card bg-base-100 shadow-xl lg:col-span-1">
+                <div className="card-body">
+                    <h2 className="card-title mb-5">Absenz-Einstellungen</h2>
                     {settingsLoading && (
                         <div className="loading loading-spinner loading-sm">
                             <span>Einstellungen werden gespeichert...</span>
@@ -247,12 +290,12 @@ function DashboardContent() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={isFullSubjectEnabled}
-                                onChange={handleFullSubjectToggle}
-                                disabled={settingsLoading}
-                                className="toggle"/>
+                        <input
+                            type="checkbox"
+                            checked={isFullSubjectEnabled}
+                            onChange={handleFullSubjectToggle}
+                            disabled={settingsLoading}
+                            className="toggle"/>
                         <span>Fächer werden im Absenzformular ausgeschrieben statt abgekürzt dargestellt (Hinweis: Module werden weiterhin abgekürzt)</span>
                     </div>
                 </div>
@@ -311,8 +354,11 @@ function DashboardContent() {
                                                 }}
                                                 title="PDF herunterladen"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"
+                                                     fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+                                                     stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                                          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
                                                 </svg>
                                                 Download
                                             </button>
@@ -326,8 +372,11 @@ function DashboardContent() {
                                                 }}
                                                 title="PDF löschen"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"
+                                                     fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+                                                     stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
                                                 </svg>
                                                 Löschen
                                             </button>
