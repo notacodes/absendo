@@ -146,9 +146,9 @@ function HomeContent() {
                                 <p className="text-lg mb-8 max-w-2xl mx-auto">
                                     Schon {" "}
                                     <span className="font-bold">
-                                    {Math.floor(savedTimeMinutes / 60)} Stunden
+                                        {Math.floor(savedTimeMinutes / 60)} {Math.floor(savedTimeMinutes / 60) === 1 ? "Stunde" : "Stunden"}
                                         {savedTimeMinutes % 60 !== 0 ? ` und ${savedTimeMinutes % 60} Minuten` : ""}
-                                </span>
+                                    </span>
                                     {" "}
                                     für alle Schüler*innen eingespart – effizient, oder? ⚡
                                 </p>
