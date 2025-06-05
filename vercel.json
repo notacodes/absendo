@@ -4,11 +4,12 @@
   ],
   "redirects": [
     {
-      "source": "/((?!maintenance).*)",
+      "source": "/((?!maintenance|_next|favicon.ico|.*\\.(js|css|png|jpg|svg|ico)).*)",
       "destination": "/maintenance",
       "permanent": false
     }
   ]
 }
+
 
 
