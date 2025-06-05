@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Contact from "./pages/Contact.tsx";
 import Profile from "./pages/Profile.tsx";
 import AllAbsences from "./pages/AllAbsences.tsx";
+import MaintenancePage from "./pages/Maintenance.tsx";
 
 function AppRoutes() {
     return (
@@ -23,6 +24,7 @@ function AppRoutes() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/absences" element={<AllAbsences />} />
+                <Route path="/maintenance" element={<MaintenancePage />} />
             </Routes>
         </Router>
     );
