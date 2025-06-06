@@ -1,13 +1,6 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
-  ],
-  "redirects": [
-    {
-      "source": "/((?!maintenance|_next|favicon.ico|.*\\.(js|css|png|jpg|svg|ico)).*)",
-      "destination": "/maintenance",
-      "permanent": false
-    }
   ]
 }
 
