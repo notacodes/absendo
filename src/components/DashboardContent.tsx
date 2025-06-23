@@ -11,6 +11,7 @@ interface UserProfile {
     last_name_trainer: string;
     isFullNameEnabled?: boolean;
     isFullSubjectEnabled?: boolean;
+    isDoNotSaveEnabled?: boolean;
     total_absences?: number;
     time_saved_minutes?: number;
 }
@@ -32,6 +33,7 @@ function DashboardContent() {
     const [pdfs, setPdfs] = useState<PdfFile[]>([]);
     const [isFullNameEnabled, setIsFullNameEnabled] = useState(false);
     const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(false);
+    const [isDoNotSaveEnabled, setIsDoNotSaveEnabled] = useState(false);
     const [settingsLoading, setSettingsLoading] = useState(false);
 
     useEffect(() => {
@@ -107,7 +109,7 @@ function DashboardContent() {
         fetchPdfs();
     }, [user]);
 
-    async function updateSetting(field: 'isFullNameEnabled' | 'isFullSubjectEnabled', value: boolean) {
+    async function updateSetting(field: 'isFullNameEnabled' | 'isFullSubjectEnabled' | 'isDoNotSaveEnabled', value: boolean) {
         if (!user) return;
 
         setSettingsLoading(true);
@@ -125,7 +127,10 @@ function DashboardContent() {
             console.error(`Error updating ${field}:`, err);
             if (field === 'isFullNameEnabled') {
                 setIsFullNameEnabled(userData?.isFullNameEnabled || false);
-            } else {
+            }else if (field === 'isDoNotSaveEnabled') {
+                setIsDoNotSaveEnabled(userData?.isDoNotSaveEnabled || false);
+            }
+            else {
                 setIsFullSubjectEnabled(userData?.isFullSubjectEnabled || false);
             }
         } finally {
@@ -146,6 +151,12 @@ function DashboardContent() {
         setIsFullSubjectEnabled(newValue);
         await updateSetting('isFullSubjectEnabled', newValue);
     };
+
+    const handleDoNotSaveToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.checked;
+        setIsDoNotSaveEnabled(newValue);
+        await updateSetting('isDoNotSaveEnabled', newValue);
+    }
 
     function getUserShortName() {
         if (!userData) return "NN";
@@ -297,6 +308,16 @@ function DashboardContent() {
                             disabled={settingsLoading}
                             className="toggle"/>
                         <span>Fächer werden im Absenzformular ausgeschrieben statt abgekürzt dargestellt (Hinweis: Module werden weiterhin abgekürzt)</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={isDoNotSaveEnabled}
+                            onChange={handleDoNotSaveToggle}
+                            disabled={settingsLoading}
+                            className="toggle"/>
+                        <span>Do NOT SAVE</span>
                     </div>
                 </div>
             </div>
