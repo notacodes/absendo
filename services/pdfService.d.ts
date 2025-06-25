@@ -5,5 +5,6 @@ interface formData {
     is_excused: boolean,
     isFullNameEnabled: boolean,
     isFullSubjectEnabled: boolean,
+    isDoNotSaveEnabled: boolean,
 }
 export declare function generatePdf(userId: string, formData: formData): Promise<Blob>;
