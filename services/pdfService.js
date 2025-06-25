@@ -4,6 +4,7 @@ import { PDFDocument } from 'pdf-lib';
 import {supabase} from "../src/supabaseClient.js";
 import teachersData from '../src/data/teachers24-25-bbzw.json';
 import subjectsData from '../src/data/subjects24-25-bbzw.json';
+import {decryptText} from "./cryptoService.js";
 
 export async function generatePdf(user_id, form_data) {
     return  await getPdfData(user_id, form_data);
@@ -31,7 +32,16 @@ async function getUserData(user_id) {
         .select('*')
         .eq('id', user_id)
         .single();
-    return data;
+    const result = {}
+    for (const key in data) {
+        const value = data[key];
+        if (typeof value === 'boolean' || key === 'id') {
+            result[key] = value;
+        } else {
+            result[key] = decryptText(value)
+        }
+    }
+    return result;
 }
 
 async function getICALData(url) {

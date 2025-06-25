@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
+import {decryptText} from "../../services/cryptoService.ts";
 
 interface UserProfile {
     id: string;
@@ -161,8 +162,8 @@ function DashboardContent() {
 
     function getUserShortName() {
         if (!userData) return "NN";
-        const first = userData.first_name?.charAt(0).toUpperCase() || "";
-        const last = userData.last_name?.charAt(0).toUpperCase() || "";
+        const first = decryptText(userData.first_name)?.charAt(0).toUpperCase() || "";
+        const last = decryptText(userData.last_name)?.charAt(0).toUpperCase() || "";
         return `${first}${last}`;
     }
 
@@ -241,9 +242,9 @@ function DashboardContent() {
                             <div className="flex items-center justify-center w-full h-full">{getUserShortName()}</div>
                         </div>
                     </div>
-                    <h2 className="card-title mt-4">{userData.first_name} {userData.last_name}</h2>
-                    <p className="text-sm text-gray-500">{userData.birthday}</p>
-                    <p className="text-sm text-gray-500">{userData.first_name_trainer} {userData.last_name_trainer}</p>
+                    <h2 className="card-title mt-4">{decryptText(userData.first_name)} {decryptText(userData.last_name)}</h2>
+                    <p className="text-sm text-gray-500">{decryptText(userData.birthday)}</p>
+                    <p className="text-sm text-gray-500">{decryptText(userData.first_name_trainer)} {decryptText(userData.last_name_trainer)}</p>
                     <div className="card-actions justify-center mt-4">
                         <a className="btn btn-sm btn-outline" href="/profile">Zu deinem Profil</a>
                     </div>

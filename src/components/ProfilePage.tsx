@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
 import {supabase} from "../supabaseClient.ts";
+import { encryptText, decryptText} from '../../services/cryptoService.ts';
 
 export const ProfilePage = () => {
     interface UserProfile {
@@ -105,14 +106,14 @@ export const ProfilePage = () => {
 
                     setFormData({
                         id: user.id,
-                        first_name: data.first_name || '',
-                        last_name: data.last_name || '',
-                        birthday: data.birthday || '',
-                        calendar_url: data.calendar_url || '',
-                        first_name_trainer: data.first_name_trainer || '',
-                        last_name_trainer: data.last_name_trainer || '',
-                        phone_number_trainer: data.phone_number_trainer || '',
-                        email_trainer: data.email_trainer || ''
+                        first_name: decryptText(data.first_name) || '',
+                        last_name: decryptText(data.last_name) || '',
+                        birthday: decryptText(data.birthday) || '',
+                        calendar_url: decryptText(data.calendar_url) || '',
+                        first_name_trainer: decryptText(data.first_name_trainer) || '',
+                        last_name_trainer: decryptText(data.last_name_trainer) || '',
+                        phone_number_trainer: decryptText(data.phone_number_trainer) || '',
+                        email_trainer: decryptText(data.email_trainer) || ''
                     });
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -181,14 +182,14 @@ export const ProfilePage = () => {
                 .from("profiles")
                 .upsert({
                     id: formData.id,
-                    first_name: formData.first_name,
-                    last_name: formData.last_name,
-                    birthday: formData.birthday,
-                    calendar_url: formData.calendar_url,
-                    first_name_trainer: formData.first_name_trainer,
-                    last_name_trainer: formData.last_name_trainer,
-                    phone_number_trainer: formData.phone_number_trainer,
-                    email_trainer: formData.email_trainer
+                    first_name: encryptText(formData.first_name),
+                    last_name: encryptText(formData.last_name),
+                    birthday: encryptText(formData.birthday),
+                    calendar_url: encryptText(formData.calendar_url),
+                    first_name_trainer: encryptText(formData.first_name_trainer),
+                    last_name_trainer: encryptText(formData.last_name_trainer),
+                    phone_number_trainer: encryptText(formData.phone_number_trainer),
+                    email_trainer: encryptText(formData.email_trainer)
                 });
 
             if (error) throw error;
@@ -230,9 +231,9 @@ export const ProfilePage = () => {
                                 <div className="flex items-center justify-center w-full h-full">{getUserShortName()}</div>
                             </div>
                         </div>
-                        <h2 className="card-title mt-4">{userData.first_name} {userData.last_name}</h2>
-                        <p className="text-sm text-gray-500">{userData.birthday}</p>
-                        <p className="text-sm text-gray-500">Ausbilder: {userData.first_name_trainer} {userData.last_name_trainer}</p>
+                        <h2 className="card-title mt-4">{decryptText(userData.first_name)} {decryptText(userData.last_name)}</h2>
+                        <p className="text-sm text-gray-500">{decryptText(userData.birthday)}</p>
+                        <p className="text-sm text-gray-500">Ausbilder: {decryptText(userData.first_name_trainer)} {decryptText(userData.last_name_trainer)}</p>
                     </div>
                 </div>
 
