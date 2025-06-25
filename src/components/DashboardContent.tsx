@@ -80,6 +80,7 @@ function DashboardContent() {
 
                     setIsFullNameEnabled(data.isFullNameEnabled || false);
                     setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -317,7 +318,7 @@ function DashboardContent() {
                             onChange={handleDoNotSaveToggle}
                             disabled={settingsLoading}
                             className="toggle"/>
-                        <span>Do NOT SAVE</span>
+                        <span>Absenz nicht speichern (nur lokal generieren)</span>
                     </div>
                 </div>
             </div>
