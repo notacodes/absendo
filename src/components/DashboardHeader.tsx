@@ -8,6 +8,7 @@ function DashboardHeader() {
     const [user, setUser] = useState<User | null>(null);
     const [isFullNameEnabled, setIsFullNameEnabled] = useState(true);
     const [isFullSubjectEnabled, setIsFullSubjectEnabled] = useState(false);
+    const [isDoNotSaveEnabled, setIsDoNotSaveEnabled] = useState(false);
 
     useEffect(() => {
         async function fetchUser() {
@@ -31,6 +32,7 @@ function DashboardHeader() {
 
                     setIsFullNameEnabled(data.isFullNameEnabled || true);
                     setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -48,10 +50,12 @@ function DashboardHeader() {
         fileName: '',
         is_excused: true,
         isFullNameEnabled: isFullNameEnabled,
-        isFullSubjectEnabled: isFullSubjectEnabled
+        isFullSubjectEnabled: isFullSubjectEnabled,
+        isDoNotSaveEnabled: isDoNotSaveEnabled,
     });
     const [, setIsGenerating] = useState(false);
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -62,7 +66,8 @@ function DashboardHeader() {
             fileName: 'Absenz',
             is_excused: true,
             isFullNameEnabled: isFullNameEnabled,
-            isFullSubjectEnabled: isFullSubjectEnabled
+            isFullSubjectEnabled: isFullSubjectEnabled,
+            isDoNotSaveEnabled: isDoNotSaveEnabled,
         });
     };
 
@@ -83,7 +88,7 @@ function DashboardHeader() {
         if (currentStep === 1) {
             setIsGenerating(true);
             setCurrentStep(2);
-            getPDF()
+            getPDF();
             setIsGenerating(true);
         }
 
@@ -98,24 +103,31 @@ function DashboardHeader() {
 
     async function getPDF() {
         if (!user) {
-            alert('User not logged in');
+            setErrorMessage('Du bist nicht eingeloggt. Bitte logge dich ein.');
+            setIsGenerating(false);
             return;
         }
         setFormData({
             ...formData,
             isFullNameEnabled: isFullNameEnabled,
             isFullSubjectEnabled: isFullSubjectEnabled,
+            isDoNotSaveEnabled: isDoNotSaveEnabled,
             fileName: addPDFExtension(formData.fileName)
         });
-        const blob = await generatePdf(user.id, formData)
-        if(blob){
-            setPdfBlob(blob);
+        try {
+            const blob = await generatePdf(user.id, formData);
+            if(blob){
+                setPdfBlob(blob);
+                setIsGenerating(false);
+                setCurrentStep(3);
+            }else{
+                setIsGenerating(false);
+                setErrorMessage('PDF konnte nicht generiert werden. Prüfe deine Kalender-URL oder versuche es später erneut.');
+                return;
+            }
+        } catch (err: any) {
             setIsGenerating(false);
-            setCurrentStep(3);
-        }else{
-            setIsGenerating(false);
-            console.error('Failed to generate PDF: Blob is null');
-            return;
+            setErrorMessage('Fehler beim Generieren der Absenz: ' + (err?.message || err));
         }
     }
 
@@ -158,7 +170,6 @@ function DashboardHeader() {
                 <div className="modal modal-open">
                     <div className="modal-box max-w-2xl">
                         <h3 className="font-bold text-lg mb-4">Neue Absenz erstellen</h3>
-
                         <ul className="steps w-full mb-6">
                             <li className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>Daten eingeben</li>
                             <li className={`step ${currentStep >= 2 ? 'step-primary' : ''}`}>Generieren</li>
@@ -254,6 +265,16 @@ function DashboardHeader() {
                                 <div className="radial-progress animate-spin"
                                      style={{"--value": "70"} as React.CSSProperties}></div>
                                 <p className="mt-4 text-lg">Absenz wird generiert...</p>
+                                {errorMessage && (
+                                    <div className="alert alert-error mb-4 mt-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>{errorMessage}</span>
+                                        <a href="/contact" className="btn btn-sm btn-secondary ml-4">Bug melden</a>
+                                        <button className="btn btn-sm btn-ghost ml-2" onClick={() => { setErrorMessage(null); closeModal(); }}>Schließen</button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
