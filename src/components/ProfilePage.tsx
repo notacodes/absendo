@@ -202,6 +202,7 @@ export const ProfilePage = () => {
             setTimeout(() => {
                 setSubmitSuccess(false);
             }, 3000);
+            window.location.reload();
         } catch (err) {
             console.error("Error updating profile:", err);
         } finally {
