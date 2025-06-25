@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
+import {encryptText} from "../../services/cryptoService.ts";
 
 interface FormData {
     id: string;
@@ -141,10 +142,24 @@ export default function AbsendoOnboarding() {
         }
     };
 
+    function encryptFormData(formData: FormData) {
+        const result = {};
+        for (const key in formData) {
+            const typedKey = key as keyof FormData;
+            const value = formData[typedKey];
+            if (typeof value === 'boolean' || typedKey === 'id') {
+                (result as Record<string, unknown>)[typedKey] = value;
+            } else {
+                (result as Record<string, unknown>)[typedKey] = encryptText(value);
+            }
+        }
+        return result;
+        }
+
     const submitForm = () => {
         setLoading(true);
-
-        insertFormData(formData);
+        const result: FormData = encryptFormData(formData) as FormData;
+        insertFormData(result);
 
         setTimeout(() => {
             console.log('Formular übermittelt:', formData);
