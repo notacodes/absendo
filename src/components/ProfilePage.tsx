@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
 import {supabase} from "../supabaseClient.ts";
+import EncryptionService from "../services/encryptionService.ts";
 
 export const ProfilePage = () => {
     interface UserProfile {
@@ -88,6 +89,10 @@ export const ProfilePage = () => {
 
                     if (error) throw error;
 
+                    // Decrypt the data if it's encrypted
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+
                     const { data: absencesData, error: absencesError } = await supabase
                         .from("pdf_files")
                         .select("id")
@@ -95,8 +100,8 @@ export const ProfilePage = () => {
 
                     if (absencesError) throw absencesError;
 
-                    const enhancedData = {
-                        ...data,
+                    const enhancedData: UserProfile = {
+                        ...decryptedData,
                         total_absences: absencesData?.length || 0,
                         time_saved_minutes: (absencesData?.length || 0) * 3
                     };
@@ -105,14 +110,14 @@ export const ProfilePage = () => {
 
                     setFormData({
                         id: user.id,
-                        first_name: data.first_name || '',
-                        last_name: data.last_name || '',
-                        birthday: data.birthday || '',
-                        calendar_url: data.calendar_url || '',
-                        first_name_trainer: data.first_name_trainer || '',
-                        last_name_trainer: data.last_name_trainer || '',
-                        phone_number_trainer: data.phone_number_trainer || '',
-                        email_trainer: data.email_trainer || ''
+                        first_name: decryptedData.first_name || '',
+                        last_name: decryptedData.last_name || '',
+                        birthday: decryptedData.birthday || '',
+                        calendar_url: decryptedData.calendar_url || '',
+                        first_name_trainer: decryptedData.first_name_trainer || '',
+                        last_name_trainer: decryptedData.last_name_trainer || '',
+                        phone_number_trainer: decryptedData.phone_number_trainer || '',
+                        email_trainer: decryptedData.email_trainer || ''
                     });
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -177,19 +182,24 @@ export const ProfilePage = () => {
 
         setIsSubmitting(true);
         try {
+            const encryptionService = EncryptionService.getInstance();
+            
+            // Encrypt the form data before storing
+            const dataToStore = encryptionService.encryptProfileData({
+                id: formData.id,
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                birthday: formData.birthday,
+                calendar_url: formData.calendar_url,
+                first_name_trainer: formData.first_name_trainer,
+                last_name_trainer: formData.last_name_trainer,
+                phone_number_trainer: formData.phone_number_trainer,
+                email_trainer: formData.email_trainer
+            });
+
             const { error } = await supabase
                 .from("profiles")
-                .upsert({
-                    id: formData.id,
-                    first_name: formData.first_name,
-                    last_name: formData.last_name,
-                    birthday: formData.birthday,
-                    calendar_url: formData.calendar_url,
-                    first_name_trainer: formData.first_name_trainer,
-                    last_name_trainer: formData.last_name_trainer,
-                    phone_number_trainer: formData.phone_number_trainer,
-                    email_trainer: formData.email_trainer
-                });
+                .upsert(dataToStore);
 
             if (error) throw error;
             setSubmitSuccess(true);

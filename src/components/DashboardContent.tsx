@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
+import EncryptionService from "../services/encryptionService.ts";
 
 interface UserProfile {
     id: string;
@@ -65,22 +66,27 @@ function DashboardContent() {
                         .single();
 
                     if (error) throw error;
+                    
+                    // Decrypt the data if it's encrypted
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                    
                     const { data: absencesData, error: absencesError } = await supabase
                         .from("pdf_files")
                         .select("id")
                         .eq("user_id", user.id);
 
                     if (absencesError) throw absencesError;
-                    const enhancedData = {
-                        ...data,
+                    const enhancedData: UserProfile = {
+                        ...decryptedData,
                         total_absences: absencesData?.length || 0,
                         time_saved_minutes: (absencesData?.length || 0) * 5
                     };
                     setUserData(enhancedData);
 
-                    setIsFullNameEnabled(data.isFullNameEnabled || false);
-                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
+                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || false);
+                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -115,9 +121,16 @@ function DashboardContent() {
 
         setSettingsLoading(true);
         try {
+            const encryptionService = EncryptionService.getInstance();
+            
+            // We need to encrypt the update with all existing data
+            const currentData = userData || {};
+            const updatedData = { ...currentData, [field]: value };
+            const encryptedData = encryptionService.encryptProfileData(updatedData);
+            
             const { error } = await supabase
                 .from("profiles")
-                .update({ [field]: value })
+                .update(encryptedData)
                 .eq("id", user.id);
 
             if (error) throw error;
