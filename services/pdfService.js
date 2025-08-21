@@ -4,6 +4,7 @@ import { PDFDocument } from 'pdf-lib';
 import {supabase} from "../src/supabaseClient.js";
 import teachersData from '../src/data/teachers24-25-bbzw.json';
 import subjectsData from '../src/data/subjects24-25-bbzw.json';
+import EncryptionService from '../src/services/encryptionService.ts';
 
 export async function generatePdf(user_id, form_data) {
     return  await getPdfData(user_id, form_data);
@@ -31,7 +32,12 @@ async function getUserData(user_id) {
         .select('*')
         .eq('id', user_id)
         .single();
-    return data;
+    
+    // Decrypt the data if it's encrypted
+    const encryptionService = EncryptionService.getInstance();
+    const decryptedData = encryptionService.decryptProfileData(data);
+    
+    return decryptedData;
 }
 
 async function getICALData(url) {
