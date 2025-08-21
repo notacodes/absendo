@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.tsx";
 import DashboardHeader from "../components/DashboardHeader.tsx";
 import DashboardLastAbsences from "../components/DashboardContent.tsx";
+import AuthWrapper from "../components/AuthWrapper.tsx";
 import { supabase } from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
 
@@ -47,12 +48,18 @@ function Dashboard() {
         );
     }
 
-    return user ? (
+    const DashboardContent = () => (
         <div className="min-h-screen bg-base-100">
             <Navbar />
             <DashboardHeader />
             <DashboardLastAbsences />
         </div>
+    );
+
+    return user ? (
+        <AuthWrapper user={user}>
+            <DashboardContent />
+        </AuthWrapper>
     ) : (
         <div className="min-h-screen bg-base-100">
             <Navbar />
