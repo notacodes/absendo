@@ -7,6 +7,22 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Enhanced logout function that clears encryption keys
+export const secureLogout = async (): Promise<void> => {
+  try {
+    // Clear encryption keys first
+    const encryptionService = EncryptionService.getInstance();
+    await encryptionService.clearKey();
+    
+    // Then sign out from Supabase
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error('Error during secure logout:', error);
+    // Still try to sign out even if encryption cleanup fails
+    await supabase.auth.signOut();
+  }
+};
+
 export function useIsUserLoggedIn() {
     const [user, setUser] = useState<User | null>(null);
 
@@ -20,20 +36,14 @@ export function useIsUserLoggedIn() {
         checkUser();
 
         // Listen for auth state changes
-        const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user || null);
+        const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
+            const newUser = session?.user || null;
+            setUser(newUser);
             
-            // Handle encryption key for OAuth users
-            if (session?.user && session.user.app_metadata?.provider) {
-                // This is an OAuth user, initialize encryption with user ID
+            // Clear encryption keys on sign out
+            if (event === 'SIGNED_OUT') {
                 const encryptionService = EncryptionService.getInstance();
-                encryptionService.initializeKeyForOAuth(session.user.id, session.user.email || '');
-            }
-            
-            // Clear encryption key on logout
-            if (!session?.user) {
-                const encryptionService = EncryptionService.getInstance();
-                encryptionService.clearKey();
+                await encryptionService.clearKey();
             }
         });
 

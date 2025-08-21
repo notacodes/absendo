@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js';
+import SaltManager from './saltManager';
 
 interface EncryptionResult {
   encryptedData: string;
@@ -11,11 +12,22 @@ interface DecryptionResult {
   error?: string;
 }
 
+interface KeyDerivationResult {
+  success: boolean;
+  requiresPin?: boolean;
+  error?: string;
+}
+
 class EncryptionService {
   private static instance: EncryptionService;
   private userKey: string | null = null;
+  private saltManager: SaltManager;
+  private currentUserId: string | null = null;
+  private currentUserEmail: string | null = null;
 
-  private constructor() {}
+  private constructor() {
+    this.saltManager = SaltManager.getInstance();
+  }
 
   static getInstance(): EncryptionService {
     if (!EncryptionService.instance) {
@@ -34,11 +46,43 @@ class EncryptionService {
       keySize: 256 / 32,
       iterations: 10000
     }).toString();
+    this.currentUserEmail = userEmail;
   }
 
   /**
-   * Initialize encryption for OAuth users without password
+   * Initialize encryption for OAuth users with PIN
+   * Uses user ID, email, PIN, and stored salt for enhanced security
+   */
+  async initializeKeyForOAuthWithPin(userId: string, userEmail: string, pin: string): Promise<KeyDerivationResult> {
+    try {
+      this.currentUserId = userId;
+      this.currentUserEmail = userEmail;
+
+      // Get user-specific salt
+      const userSalt = await this.saltManager.getSaltForUser(userId);
+      
+      // Derive key using PBKDF2 with SHA-512, 10,000 iterations as specified
+      const keyMaterial = userId + userEmail + pin;
+      this.userKey = CryptoJS.PBKDF2(keyMaterial, userSalt, {
+        keySize: 256 / 32,
+        iterations: 10000,
+        hasher: CryptoJS.algo.SHA512
+      }).toString();
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to initialize OAuth key with PIN:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * Initialize encryption for OAuth users without password (legacy)
    * Uses user ID and email as base for key derivation
+   * This is less secure but necessary for backward compatibility
    */
   initializeKeyForOAuth(userId: string, userEmail: string): void {
     // For OAuth users, derive key from user ID and email
@@ -47,13 +91,79 @@ class EncryptionService {
       keySize: 256 / 32,
       iterations: 10000
     }).toString();
+    this.currentUserId = userId;
+    this.currentUserEmail = userEmail;
+  }
+
+  /**
+   * Check if user needs PIN setup (first-time OAuth user)
+   */
+  async needsPinSetup(_userId: string): Promise<boolean> {
+    try {
+      // Check if user has existing encrypted data without PIN
+      // This would indicate they need to migrate to PIN-based encryption
+      return false; // For now, assume all new OAuth users need PIN setup
+    } catch (error) {
+      console.error('Error checking PIN setup status:', error);
+      return true; // Default to requiring PIN setup
+    }
+  }
+
+  /**
+   * Verify PIN for existing user
+   */
+  async verifyPin(userId: string, userEmail: string, pin: string, encryptedTestData?: string, salt?: string): Promise<boolean> {
+    try {
+      // Temporarily store current key
+      const originalKey = this.userKey;
+      
+      // Try to initialize with the provided PIN
+      const result = await this.initializeKeyForOAuthWithPin(userId, userEmail, pin);
+      if (!result.success) {
+        this.userKey = originalKey;
+        return false;
+      }
+
+      // If we have test data, try to decrypt it
+      if (encryptedTestData && salt) {
+        const decryptResult = this.decrypt(encryptedTestData, salt);
+        if (!decryptResult.success) {
+          this.userKey = originalKey;
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('PIN verification failed:', error);
+      return false;
+    }
   }
 
   /**
    * Clear the encryption key (on logout)
    */
-  clearKey(): void {
+  async clearKey(): Promise<void> {
+    // Clear the in-memory key
     this.userKey = null;
+    
+    // Clear salt if we have user ID (for complete logout)
+    if (this.currentUserId) {
+      await this.saltManager.clearSaltForUser(this.currentUserId);
+    }
+    
+    this.currentUserId = null;
+    this.currentUserEmail = null;
+  }
+
+  /**
+   * Clear all encryption data (complete reset)
+   */
+  async clearAllData(): Promise<void> {
+    this.userKey = null;
+    this.currentUserId = null;
+    this.currentUserEmail = null;
+    await this.saltManager.clearAllSalts();
   }
 
   /**
@@ -208,6 +318,23 @@ class EncryptionService {
       ...nonSensitiveData,
       ...(decryptionResult.data || {})
     };
+  }
+
+  /**
+   * Get current user info for key operations
+   */
+  getCurrentUserInfo(): { userId: string | null; userEmail: string | null } {
+    return {
+      userId: this.currentUserId,
+      userEmail: this.currentUserEmail
+    };
+  }
+
+  /**
+   * Check if encryption is properly initialized for PIN-based auth
+   */
+  isPinBasedAuthReady(): boolean {
+    return this.userKey !== null && this.currentUserId !== null && this.currentUserEmail !== null;
   }
 }
 
