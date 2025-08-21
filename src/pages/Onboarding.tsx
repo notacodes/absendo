@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
+import EncryptionService from "../services/encryptionService.ts";
 
 interface FormData {
     id: string;
@@ -154,16 +155,23 @@ export default function AbsendoOnboarding() {
     };
 
     async function insertFormData(formData: FormData) {
+        const encryptionService = EncryptionService.getInstance();
+        
+        // Encrypt the form data before storing
+        const dataToStore = encryptionService.encryptProfileData({
+            ...formData, 
+            onboarding_completed: true
+        });
+
         const { error } = await supabase
             .from('profiles')
-            .upsert({ ...formData, onboarding_completed: true }, { onConflict: 'id' });
+            .upsert(dataToStore, { onConflict: 'id' });
 
         if (error) {
             console.error('Fehler beim Speichern:', error);
         } else {
             console.log('Daten gespeichert (insert oder update)');
         }
-
     }
 
     return (

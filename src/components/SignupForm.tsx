@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase} from "../supabaseClient.ts";
+import EncryptionService from "../services/encryptionService.ts";
 
 function SignupForm() {
     const [email, setEmail] = useState('');
@@ -23,6 +24,10 @@ function SignupForm() {
             })
             if (signUpError) throw signUpError;
             if (!error) {
+                // Initialize encryption key for new user after successful signup
+                const encryptionService = EncryptionService.getInstance();
+                encryptionService.initializeKey(password, email);
+                
                 window.location.href = '/email-verification';
             }
 
