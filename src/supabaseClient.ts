@@ -2,8 +2,8 @@ import { createClient, User } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import EncryptionService from './services/encryptionService';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -27,10 +27,21 @@ export function useIsUserLoggedIn() {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
+        // Only try to check user if we have valid Supabase config
+        if (supabaseUrl === 'https://placeholder.supabase.co') {
+            setUser(null);
+            return;
+        }
+
         // Check the current user session
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+            } catch (error) {
+                console.warn('Supabase auth check failed:', error);
+                setUser(null);
+            }
         };
 
         checkUser();
