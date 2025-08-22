@@ -1,35 +1,104 @@
-import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
+import { Box, Flex, Heading, Button, Spacer, Badge, useColorModeValue } from '@chakra-ui/react'
+import { supabase, useIsUserLoggedIn } from "../supabaseClient.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
     const version = "Beta";
+    
+    const bg = useColorModeValue('white', 'gray.800')
+    const borderColor = useColorModeValue('gray.200', 'gray.700')
 
     return (
-        <div className="navbar bg-base-200 shadow-md">
-            <div className="navbar-start">
-                <a className="btn btn-ghost normal-case text-xl" href="/home">Absendo</a>
-                <span className="ml-3 px-2 py-1 text-xs font-medium bg-orange-200 text-orange-800 rounded-full">
-                    {version}
-                </span>
-            </div>
-            <div className="navbar-end">
-                { !isUserLoggedIn ? (
-                    <div>
-                        <a className="btn btn-secondary ml-2" href="/signup">Sign Up</a>
-                        <a className="btn btn-primary ml-2" href="/login">Login</a>
-                    </div>
-                ) : (
-                    <>
-                        <button className="btn btn-secondary" onClick={() => window.location.href = "/dashboard"}>
-                            Dashboard
-                        </button>
-                        <button className="btn btn-error ml-2" onClick={()=> supabase.auth.signOut().then(() => {window.location.href = "/home";})}>
-                            Logout
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
+        <Box 
+            as="nav" 
+            bg={bg} 
+            borderBottom="1px" 
+            borderColor={borderColor} 
+            px={{ base: 4, md: 8 }} 
+            py={4}
+            position="sticky"
+            top={0}
+            zIndex={1000}
+            backdropFilter="blur(10px)"
+            boxShadow="sm"
+        >
+            <Flex align="center" maxW="7xl" mx="auto">
+                <Flex align="center" gap={3}>
+                    <Heading 
+                        as="a" 
+                        href="/home" 
+                        size="lg" 
+                        fontWeight="bold"
+                        color="brand.600"
+                        _hover={{ color: 'brand.700', textDecoration: 'none' }}
+                        transition="color 0.2s"
+                    >
+                        Absendo
+                    </Heading>
+                    <Badge 
+                        colorScheme="orange" 
+                        variant="subtle" 
+                        fontSize="xs"
+                        fontWeight="medium"
+                        px={2}
+                        py={1}
+                        borderRadius="full"
+                    >
+                        {version}
+                    </Badge>
+                </Flex>
+                
+                <Spacer />
+                
+                <Flex gap={3} align="center">
+                    {!isUserLoggedIn ? (
+                        <>
+                            <Button
+                                as="a"
+                                href="/signup"
+                                variant="outline"
+                                colorScheme="brand"
+                                size="md"
+                                fontWeight="semibold"
+                            >
+                                Sign Up
+                            </Button>
+                            <Button
+                                as="a"
+                                href="/login"
+                                variant="solid"
+                                colorScheme="brand"
+                                size="md"
+                                fontWeight="semibold"
+                            >
+                                Login
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                onClick={() => window.location.href = "/dashboard"}
+                                variant="outline"
+                                colorScheme="brand"
+                                size="md"
+                                fontWeight="semibold"
+                            >
+                                Dashboard
+                            </Button>
+                            <Button
+                                onClick={() => supabase.auth.signOut().then(() => {window.location.href = "/home";})}
+                                variant="outline"
+                                colorScheme="red"
+                                size="md"
+                                fontWeight="semibold"
+                            >
+                                Logout
+                            </Button>
+                        </>
+                    )}
+                </Flex>
+            </Flex>
+        </Box>
     );
 }
 

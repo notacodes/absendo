@@ -1,16 +1,36 @@
-import {useEffect, useState} from "react";
-import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
+import { useEffect, useState } from "react";
+import { 
+    Box, 
+    Flex, 
+    Heading, 
+    Text, 
+    Button, 
+    VStack, 
+    HStack, 
+    Badge, 
+    Icon,
+    useColorModeValue,
+    Container
+} from '@chakra-ui/react'
+import { HiArrowRight, HiLightBulb } from 'react-icons/hi'
+import { supabase, useIsUserLoggedIn } from "../supabaseClient.ts";
 
 function Hero() {
     const [userCount, setUserCount] = useState(undefined);
     const [error, setError] = useState(false);
     const isUserLoggedIn = useIsUserLoggedIn();
+    
+    const bgGradient = useColorModeValue(
+        'linear(to-br, white, blue.50, purple.50)',
+        'linear(to-br, gray.900, blue.900, purple.900)'
+    )
+    
     useEffect(() => {
         const fetchUserCount = async () => {
             const { data, error } = await supabase.rpc('count_profiles');
-            if( error) {
+            if (error) {
                 setError(true);
-            }else{
+            } else {
                 setError(false);
                 setUserCount(data);
             }
@@ -19,58 +39,134 @@ function Hero() {
     }, []);
 
     return (
-        <div className="hero min-h-[60vh] bg-base-100">
-            <div className="hero-content text-center">
-                <div>
-                    {userCount !== undefined && !error &&(
-                        <div className="badge badge-info gap-2 px-4 py-3 rounded-full badge-md font-medium mb-8 animate-pulse">
-                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+        <Box 
+            bgGradient={bgGradient}
+            minH="70vh" 
+            display="flex" 
+            alignItems="center"
+            position="relative"
+            overflow="hidden"
+        >
+            {/* Background Pattern */}
+            <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                opacity={0.1}
+                bgImage="radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)"
+                bgSize="20px 20px"
+            />
+            
+            <Container maxW="7xl" zIndex={1}>
+                <Flex 
+                    direction="column" 
+                    align="center" 
+                    textAlign="center"
+                    py={{ base: 16, md: 20 }}
+                >
+                    {userCount !== undefined && !error && (
+                        <Badge
+                            colorScheme="green"
+                            variant="subtle"
+                            fontSize="sm"
+                            fontWeight="medium"
+                            px={4}
+                            py={2}
+                            borderRadius="full"
+                            mb={8}
+                            display="flex"
+                            alignItems="center"
+                            gap={2}
+                            animation="pulse 2s infinite"
+                        >
+                            <Box w={2} h={2} bg="green.400" borderRadius="full" />
                             Absendo wird bereits von {userCount} Schüler*innen genutzt
-                        </div>
-
+                        </Badge>
                     )}
-                    <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-                        BBZW Absenzformulare
-                        <span className="block bg-clip-text bg-gradient-to-r text-primary">
-                            in 30 Sekunden
-                        </span>
-                    </h1>
-                    <p className="py-4 text-xl max-w-3xl">
-                        Absenz einreichen, ohne Stress! Generiere deine Absenzformulare automatisch
-                        aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 7 Minuten pro Formular</strong>
-                    </p>
-                    <button
-                        className="btn btn-primary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
-                        onClick={() => {
-                            if (!isUserLoggedIn) {
-                                window.location.href = "/signup";
-                            } else {
-                                window.location.href = "/dashboard";
-                            }
-                        }}
-                    >
-                        Jetzt kostenlos nutzen
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             className="lucide lucide-arrow-right-icon lucide-arrow-right">
-                            <path d="M5 12h14"/>
-                            <path d="m12 5 7 7-7 7"/>
-                        </svg>
-                    </button>
-                    <button className="btn btn-secondary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
-                        So funktioniert’s
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             className="lucide lucide-lightbulb-icon lucide-lightbulb">
-                            <path
-                                d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-                            <path d="M9 18h6"/>
-                            <path d="M10 22h4"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
+
+                    <VStack spacing={6} maxW="4xl">
+                        <Heading
+                            as="h1"
+                            size={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                            fontWeight="bold"
+                            lineHeight="shorter"
+                            color="gray.800"
+                        >
+                            BBZW Absenzformulare{" "}
+                            <Text
+                                as="span"
+                                bgGradient="linear(to-r, brand.500, purple.500)"
+                                bgClip="text"
+                                fontWeight="extrabold"
+                            >
+                                in 30 Sekunden
+                            </Text>
+                        </Heading>
+
+                        <Text
+                            fontSize={{ base: "lg", md: "xl" }}
+                            color="gray.600"
+                            maxW="3xl"
+                            lineHeight="tall"
+                        >
+                            Absenz einreichen, ohne Stress! Generiere deine Absenzformulare automatisch
+                            aus deinem Schulnetz-Kalender und spare dir{" "}
+                            <Text as="span" fontWeight="bold" color="gray.800">
+                                bis zu 7 Minuten pro Formular
+                            </Text>
+                        </Text>
+
+                        <HStack spacing={4} pt={4} flexWrap="wrap" justify="center">
+                            <Button
+                                size="lg"
+                                colorScheme="brand"
+                                rightIcon={<Icon as={HiArrowRight} />}
+                                onClick={() => {
+                                    if (!isUserLoggedIn) {
+                                        window.location.href = "/signup";
+                                    } else {
+                                        window.location.href = "/dashboard";
+                                    }
+                                }}
+                                boxShadow="xl"
+                                _hover={{
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '2xl',
+                                }}
+                                transition="all 0.3s"
+                                px={8}
+                                py={6}
+                                fontSize="lg"
+                                fontWeight="semibold"
+                            >
+                                Jetzt kostenlos nutzen
+                            </Button>
+
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                colorScheme="brand"
+                                rightIcon={<Icon as={HiLightBulb} />}
+                                onClick={() => window.location.hash = "#how-it-works"}
+                                _hover={{
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: 'lg',
+                                }}
+                                transition="all 0.3s"
+                                px={8}
+                                py={6}
+                                fontSize="lg"
+                                fontWeight="semibold"
+                            >
+                                So funktioniert's
+                            </Button>
+                        </HStack>
+                    </VStack>
+                </Flex>
+            </Container>
+        </Box>
     );
 }
 
