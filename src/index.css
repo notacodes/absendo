@@ -1,7 +1,5 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: retro --default;
-}
+
 html {
   scroll-behavior: smooth;
 }
