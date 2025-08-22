@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import { supabase} from "../supabaseClient.ts";
+import {
+    EncryptedPayload,
+    generateBackupToken,
+    deriveKeyFromToken,
+    encryptBackupTokenWithPassword,
+    decryptBackupTokenWithPassword
+} from '../../services/cryptoService.ts';
 
 function SignupForm() {
     const [email, setEmail] = useState('');
@@ -23,6 +30,28 @@ function SignupForm() {
             })
             if (signUpError) throw signUpError;
             if (!error) {
+                // 1. Generate backup token
+                const backupToken = generateBackupToken();
+
+                // 2. Generate salt and encrypt backup token
+                const salt = generateBackupToken();
+                const encryptedPayload = await encryptBackupTokenWithPassword(backupToken, password, salt);
+
+                // 3. Save to Supabase
+
+                    )
+
+
+                await mockSupabase.saveEncryptedToken(userId, encryptedPayload, salt);
+
+                // 4. Show backup token to user
+                setGeneratedBackupToken(backupToken);
+                setMessage('Registrierung erfolgreich! Speichern Sie den Backup-Token sicher ab.');
+                setMessageType('success');
+
+
+
+
                 window.location.href = '/email-verification';
             }
 
