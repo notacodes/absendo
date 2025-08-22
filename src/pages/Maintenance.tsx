@@ -1,4 +1,11 @@
 import { useState, useEffect } from 'react';
+import { 
+    Flex, 
+    Box, 
+    Heading, 
+    Text, 
+    Button
+} from '@chakra-ui/react';
 
 export default function MaintenancePage() {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -12,53 +19,69 @@ export default function MaintenancePage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-base-200 flex items-center justify-center p-4" data-theme="retro">
-            <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
-                <div className="card-body text-center">
+        <Flex 
+            minH="100vh" 
+            className="bg-gray-100" 
+            align="center" 
+            justify="center" 
+            p={4}
+        >
+            <Box 
+                w="full" 
+                maxW="2xl" 
+                bg="white" 
+                shadow="xl" 
+                rounded="lg" 
+                p={8}
+                textAlign="center"
+            >
+                <Heading size="2xl" mb={6}>Absendo</Heading>
+                <Box h="1px" bg="gray.200" w="full" mb={6} />
 
-                    <h1 className="text-5xl font-bold mb-2">Absendo</h1>
-                    <div className="divider"></div>
+                <Heading size="lg" color="gray.700" mb={6}>
+                    Wir arbeiten an etwas Grossartigem! 🚀
+                </Heading>
 
-                    <h2 className="card-title justify-center text-2xl mb-4">
-                        Wir arbeiten an etwas Grossartigem! 🚀
-                    </h2>
+                <Text color="gray.600" mb={8}>
+                    Absendo ist gerade in Wartung. Wir bereiten die erste Vollversion vor
+                    und werden bald zurück sein!
+                </Text>
 
-                    <p className="text-base-content/70 mb-6">
-                        Absendo ist gerade in Wartung. Wir bereiten die erste Vollversion vor
-                        und werden bald zurück sein!
-                    </p>
+                <Box w="full" mb={8}>
+                    <Flex justify="center" align="center" mb={2}>
+                        <Text fontSize="sm" color="gray.500">Fortschritt</Text>
+                    </Flex>
+                    <Box w="full" bg="gray.200" rounded="lg" h={3}>
+                        <Box w="45%" bg="blue.500" h="full" rounded="lg" />
+                    </Box>
+                    <Text fontSize="sm" color="gray.500" mt={2}>45% abgeschlossen</Text>
+                </Box>
 
-                    <div className="mb-6">
-                        <div className="flex justify-center items-center mb-2">
-                            <span className="text-sm text-base-content/60">Fortschritt</span>
-                        </div>
-                        <progress className="progress progress-primary w-full h-3" value="45" max="100"></progress>
-                        <p className="text-sm text-base-content/60 mt-2">45% abgeschlossen</p>
-                    </div>
+                <Box mb={6}>
+                    <Text color="gray.600" mb={4}>
+                        Fragen? Kontaktiere mich unter:
+                    </Text>
+                    <Button 
+                        onClick={() => window.location.href = "mailto:mail@absendo.app"}
+                        variant="outline" 
+                        colorScheme="blue" 
+                    >
+                        info@absendo.com
+                    </Button>
+                </Box>
 
-                    <div className="mb-4">
-                        <p className="text-base-content/60 mb-4">
-                            Fragen? Kontaktiere mich unter:
-                        </p>
-                        <a href="mailto:mail@absendo.app" className="btn btn-outline btn-primary mb-4">
-                            info@absendo.com
-                        </a>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-base-300">
-                        <p className="text-base-content/50 text-sm">
-                            Letzte Aktualisierung: {currentTime.toLocaleString('de-DE')}
-                        </p>
-                        <div className="flex justify-center space-x-2 mt-2">
-                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+                <Box mt={8} pt={4} borderTop="1px" borderColor="gray.200" w="full">
+                    <Text color="gray.400" fontSize="sm">
+                        Letzte Aktualisierung: {currentTime.toLocaleString('de-DE')}
+                    </Text>
+                    <Flex justify="center" gap={2} mt={2}>
+                        <Box w={2} h={2} bg="blue.500" rounded="full" className="animate-pulse" />
+                        <Box w={2} h={2} bg="purple.500" rounded="full" className="animate-pulse" />
+                        <Box w={2} h={2} bg="green.500" rounded="full" className="animate-pulse" />
+                    </Flex>
+                </Box>
+            </Box>
+        </Flex>
     );
 }
 

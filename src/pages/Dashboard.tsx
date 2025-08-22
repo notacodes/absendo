@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { Box, Flex, Spinner, Heading, Button } from "@chakra-ui/react";
 import Navbar from "../components/Navbar.tsx";
 import DashboardHeader from "../components/DashboardHeader.tsx";
 import DashboardLastAbsences from "../components/DashboardContent.tsx";
 import { supabase } from "../supabaseClient.ts";
-import {User} from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
 
 function Dashboard() {
     const [user, setUser] = useState<User | null>(null);
@@ -41,26 +42,28 @@ function Dashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-base-100 flex items-center justify-center">
-                <span className="loading loading-spinner loading-lg" />
-            </div>
+            <Flex minH="100vh" className="bg-gray-50" align="center" justify="center">
+                <Spinner size="xl" />
+            </Flex>
         );
     }
 
     return user ? (
-        <div className="min-h-screen bg-base-100">
+        <Box minH="100vh" className="bg-gray-50">
             <Navbar />
             <DashboardHeader />
             <DashboardLastAbsences />
-        </div>
+        </Box>
     ) : (
-        <div className="min-h-screen bg-base-100">
+        <Box minH="100vh" className="bg-gray-50">
             <Navbar />
-            <div className="flex flex-col items-center justify-center py-10">
-                <h1 className="text-2xl font-bold">Please log in to access the dashboard</h1>
-                <a href="/login" className="btn btn-primary mt-4">Login</a>
-            </div>
-        </div>
+            <Flex direction="column" align="center" justify="center" py={10}>
+                <Heading size="lg" mb={4}>Please log in to access the dashboard</Heading>
+                <Button colorScheme="blue" onClick={() => window.location.href = "/login"}>
+                    Login
+                </Button>
+            </Flex>
+        </Box>
     );
 }
 
