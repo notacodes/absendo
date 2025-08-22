@@ -1,4 +1,14 @@
 import { useEffect, useState } from "react";
+import {
+    Box,
+    Flex,
+    Grid,
+    GridItem,
+    Heading,
+    Text,
+    Button,
+    Spinner
+} from "@chakra-ui/react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
 
@@ -168,14 +178,20 @@ function DashboardContent() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <span className="loading loading-spinner loading-lg" />
-            </div>
+            <Flex minH="100vh" align="center" justify="center">
+                <Spinner size="xl" />
+            </Flex>
         );
     }
 
     if (!userData) {
-        return <div className="text-center text-red-500 mt-10">Benutzerdaten konnten nicht geladen werden.</div>;
+        return (
+            <Flex justify="center" mt={10}>
+                <Text color="red.500" textAlign="center">
+                    Benutzerdaten konnten nicht geladen werden.
+                </Text>
+            </Flex>
+        );
     }
 
     async function getPdf(pdf:PdfFile) {
@@ -231,196 +247,168 @@ function DashboardContent() {
     }
 
     return (
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* User Profile Card */}
-            <div className="card bg-base-100 shadow-xl">
-                <div className="card-body items-center text-center">
-                    <div className="avatar">
-                        <div
-                            className="w-24 rounded-full bg-primary text-primary-content grid place-items-center text-xl font-bold">
-                            <div className="flex items-center justify-center w-full h-full">{getUserShortName()}</div>
-                        </div>
-                    </div>
-                    <h2 className="card-title mt-4">{userData.first_name} {userData.last_name}</h2>
-                    <p className="text-sm text-gray-500">{userData.birthday}</p>
-                    <p className="text-sm text-gray-500">{userData.first_name_trainer} {userData.last_name_trainer}</p>
-                    <div className="card-actions justify-center mt-4">
-                        <a className="btn btn-sm btn-outline" href="/profile">Zu deinem Profil</a>
-                    </div>
-                </div>
-            </div>
+        <Box p={6}>
+            <Grid templateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }} gap={6}>
+                {/* User Profile Card */}
+                <GridItem>
+                    <Box bg="white" shadow="xl" rounded="lg" p={6} textAlign="center">
+                        <Box
+                            w={24}
+                            h={24}
+                            rounded="full"
+                            bg="blue.500"
+                            color="white"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            fontSize="xl"
+                            fontWeight="bold"
+                            mx="auto"
+                            mb={4}
+                        >
+                            {getUserShortName()}
+                        </Box>
+                        <Heading size="md" mb={2}>
+                            {userData.first_name} {userData.last_name}
+                        </Heading>
+                        <Text fontSize="sm" color="gray.500" mb={1}>
+                            {userData.birthday}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500" mb={4}>
+                            {userData.first_name_trainer} {userData.last_name_trainer}
+                        </Text>
+                        <Button size="sm" variant="outline" onClick={() => window.location.href = "/profile"}>
+                            Zu deinem Profil
+                        </Button>
+                    </Box>
+                </GridItem>
 
-            <div className="card bg-base-100 shadow-xl lg:col-span-1">
-                <div className="card-body">
-                    <h2 className="card-title">Deine Statistik</h2>
+                {/* Statistics Card */}
+                <GridItem>
+                    <Box bg="white" shadow="xl" rounded="lg" p={6}>
+                        <Heading size="md" mb={4}>Deine Statistik</Heading>
+                        <Flex direction="column" gap={4}>
+                            <Box>
+                                <Text fontSize="2xl" fontWeight="bold" color="blue.500">
+                                    {userData.total_absences || 0}
+                                </Text>
+                                <Text fontSize="sm" color="gray.500">
+                                    Absenzen erstellt
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Text fontSize="2xl" fontWeight="bold" color="green.500">
+                                    {userData.time_saved_minutes || 0} Min
+                                </Text>
+                                <Text fontSize="sm" color="gray.500">
+                                    Zeit gespart
+                                </Text>
+                            </Box>
+                        </Flex>
+                    </Box>
+                </GridItem>
 
-                    <div className="stats stats-vertical lg:stats-horizontal shadow mt-4">
-                        <div className="stat">
-                            <div className="stat-title">Generierte Absenzen</div>
-                            <div className="stat-value text-primary">{userData.total_absences || 0}</div>
-                            <div className="stat-desc">Seit der Registrierung</div>
-                        </div>
+                {/* Settings Card */}
+                <GridItem>
+                    <Box bg="white" shadow="xl" rounded="lg" p={6}>
+                        <Heading size="md" mb={4}>Einstellungen</Heading>
+                        <Flex direction="column" gap={4}>
+                            <Flex align="center" justify="space-between">
+                                <Text>Vollständiger Name</Text>
+                                <input
+                                    type="checkbox"
+                                    checked={isFullNameEnabled}
+                                    onChange={handleFullNameToggle}
+                                    disabled={settingsLoading}
+                                />
+                            </Flex>
+                            
+                            <Flex align="center" justify="space-between">
+                                <Text>Vollständiger Fachname</Text>
+                                <input
+                                    type="checkbox"
+                                    checked={isFullSubjectEnabled}
+                                    onChange={handleFullSubjectToggle}
+                                    disabled={settingsLoading}
+                                />
+                            </Flex>
+                            
+                            <Flex align="center" justify="space-between">
+                                <Text>Nicht speichern</Text>
+                                <input
+                                    type="checkbox"
+                                    checked={isDoNotSaveEnabled}
+                                    onChange={handleDoNotSaveToggle}
+                                    disabled={settingsLoading}
+                                />
+                            </Flex>
+                        </Flex>
+                    </Box>
+                </GridItem>
 
-                        <div className="stat">
-                            <div className="stat-title">Zeit gespart</div>
-                            <div className="stat-value text-accent">
-                                {userData.time_saved_minutes
-                                    ? userData.time_saved_minutes >= 60
-                                        ? `${Math.floor(userData.time_saved_minutes / 60)} Std. ${userData.time_saved_minutes % 60} Min.`
-                                        : `${userData.time_saved_minutes} Min.`
-                                    : '0 Min.'
-                                }
-                            </div>
-                            <div className="stat-desc">Mit Absendo vs. manuell</div>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 text-sm text-gray-600">
-                        <p>Mit Absendo sparst du dir durchschnittlich 5 Minuten pro Absenz</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Settings Card */}
-            <div className="card bg-base-100 shadow-xl lg:col-span-1">
-                <div className="card-body">
-                    <h2 className="card-title mb-5">Absenz-Einstellungen</h2>
-                    {settingsLoading && (
-                        <div className="loading loading-spinner loading-sm">
-                            <span>Einstellungen werden gespeichert...</span>
-                        </div>
-                    )}
-
-                    <div className="flex items-center gap-2 mb-4">
-                        <input
-                            type="checkbox"
-                            checked={isFullNameEnabled}
-                            onChange={handleFullNameToggle}
-                            disabled={settingsLoading}
-                            className="toggle"/>
-                        <span>Statt Kürzeln werden die Namen der Lehrpersonen vollständig ausgeschrieben</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={isFullSubjectEnabled}
-                            onChange={handleFullSubjectToggle}
-                            disabled={settingsLoading}
-                            className="toggle"/>
-                        <span>Fächer werden im Absenzformular ausgeschrieben statt abgekürzt dargestellt (Hinweis: Module werden weiterhin abgekürzt)</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={isDoNotSaveEnabled}
-                            onChange={handleDoNotSaveToggle}
-                            disabled={settingsLoading}
-                            className="toggle"/>
-                        <span>Absenz nicht speichern (nur lokal generieren)</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* PDF Table */}
-            <div className="card bg-base-100 shadow-xl lg:col-span-3">
-                <div className="card-body">
-                    <h2 className="card-title mb-4">Letzte Absenzen</h2>
-                    <div className="overflow-x-auto">
-                        <table className="table table-zebra w-full">
-                            <thead>
-                            <tr>
-                                <th>Datum</th>
-                                <th>Grund</th>
-                                <th>Formular</th>
-                                <th>Erstellt am</th>
-                                <th>Aktionen</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {pdfs.slice(0, 5).map((pdf) => (
-                                <tr key={pdf.id}>
-                                    <td>
-                                        <span className="font-medium">
+                {/* Recent Absences Card */}
+                <GridItem colSpan={{ base: 1, lg: 3 }}>
+                    <Box bg="white" shadow="xl" rounded="lg" p={6}>
+                        <Heading size="md" mb={4}>Deine letzten Absenzen</Heading>
+                        {pdfs.length === 0 ? (
+                            <Text color="gray.500" textAlign="center" py={8}>
+                                Noch keine Absenzen erstellt.
+                            </Text>
+                        ) : (
+                            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={4}>
+                                {pdfs.slice(0, 6).map((pdf) => (
+                                    <Box key={pdf.id} border="1px" borderColor="gray.200" rounded="lg" p={4}>
+                                        <Flex justify="space-between" align="start" mb={2}>
+                                            <Heading size="sm" flex={1} className="truncate">
+                                                {pdf.pdf_name}
+                                            </Heading>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                colorScheme="red"
+                                                onClick={() => deletePdf(pdf)}
+                                                ml={2}
+                                            >
+                                                ✕
+                                            </Button>
+                                        </Flex>
+                                        <Text fontSize="sm" color="gray.500" mb={2}>
                                             {formatDate(pdf.date_of_absence)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {pdf.reason}
-                                    </td>
-                                    <td>
-                                        <a
-                                            onClick={async (e) => {
-                                                e.preventDefault();
-                                                const pdfBlob = await getPdf(pdf);
-                                                if (pdfBlob) viewPdf(pdfBlob);
-                                            }}
-                                            className="link link-primary hover:link-hover"
-                                            href="#"
-                                        >
-                                            {pdf.pdf_name}
-                                        </a>
-                                    </td>
-                                    <td className="text-sm text-gray-500">
-                                        {formatDate(pdf.created_at)}
-                                    </td>
-                                    <td>
-                                        <div className="flex gap-2">
-                                            <button
-                                                className="btn btn-xs btn-secondary"
-                                                onClick={async (e) => {
-                                                    e.preventDefault();
-                                                    const pdfBlob = await getPdf(pdf);
-                                                    if (pdfBlob) downloadPDF(pdfBlob, pdf);
-                                                }}
-                                                title="PDF herunterladen"
+                                        </Text>
+                                        <Text fontSize="sm" mb={4} className="line-clamp-2">
+                                            {pdf.reason}
+                                        </Text>
+                                        <Flex gap={2}>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                onClick={() => getPdf(pdf).then(blob => blob && viewPdf(blob))}
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"
-                                                     fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                                     stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                                          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-                                                </svg>
+                                                Ansehen
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                colorScheme="blue" 
+                                                onClick={() => getPdf(pdf).then((blob) => blob && downloadPDF(blob, pdf))}
+                                            >
                                                 Download
-                                            </button>
-                                            <button
-                                                className="btn btn-xs btn-error"
-                                                onClick={async (e) => {
-                                                    e.preventDefault();
-                                                    if (confirm('Bist du sicher, dass Sie diese Absenz löschen möchtest?')) {
-                                                        await deletePdf(pdf);
-                                                    }
-                                                }}
-                                                title="PDF löschen"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"
-                                                     fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                                     stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                                                </svg>
-                                                Löschen
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {pdfs.length === 0 ? (
-                        <div className="text-center mt-4">
-                            <p className="text-gray-500">Keine Absenzen gefunden</p>
-                        </div>
-                    ) : (
-                        <div className="card-actions justify-center mt-4">
-                            <a className="btn btn-outline" href="/absences">Alle Absenzen anzeigen</a>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                                            </Button>
+                                        </Flex>
+                                    </Box>
+                                ))}
+                            </Grid>
+                        )}
+                        {pdfs.length > 6 && (
+                            <Flex justify="center" mt={6}>
+                                <Button variant="outline" onClick={() => window.location.href = "/absences"}>
+                                    Alle Absenzen anzeigen
+                                </Button>
+                            </Flex>
+                        )}
+                    </Box>
+                </GridItem>
+            </Grid>
+        </Box>
     );
 }
 
