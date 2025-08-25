@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 import EncryptionService from '../services/encryptionService';
@@ -17,7 +17,7 @@ interface AuthState {
   error: string | null;
 }
 
-const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, user }) => {
+const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     needsPinSetup: false,
