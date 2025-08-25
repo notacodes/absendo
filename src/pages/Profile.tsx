@@ -3,6 +3,7 @@ import {supabase } from "../supabaseClient.ts";
 import {ProfilePage} from "../components/ProfilePage.tsx";
 import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
+import AuthWrapper from "../components/AuthWrapper.tsx";
 
 
 function Profile () {
@@ -26,11 +27,17 @@ function Profile () {
         );
     }
 
-    return user ? (
+    const ProfileContent = () => (
         <div className="min-h-screen bg-base-100">
             <Navbar />
             <ProfilePage />
         </div>
+    );
+
+    return user ? (
+        <AuthWrapper user={user}>
+            <ProfileContent />
+        </AuthWrapper>
     ) : (
         <div className="min-h-screen bg-base-100">
             <Navbar />
