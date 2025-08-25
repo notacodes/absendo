@@ -3,6 +3,7 @@ import {supabase } from "../supabaseClient.ts";
 import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
 import AllAbsencesComponent from "../components/AllAbsencesComponent.tsx";
+import AuthWrapper from "../components/AuthWrapper.tsx";
 
 
 function AllAbsences () {
@@ -26,11 +27,17 @@ function AllAbsences () {
         );
     }
 
-    return user ? (
+    const AllAbsencesContent = () => (
         <div className="min-h-screen bg-base-100">
             <Navbar />
             <AllAbsencesComponent />
         </div>
+    );
+
+    return user ? (
+        <AuthWrapper user={user}>
+            <AllAbsencesContent />
+        </AuthWrapper>
     ) : (
         <div className="min-h-screen bg-base-100">
             <Navbar />
