@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface PinEntryProps {
   isOpen: boolean;
@@ -9,14 +9,14 @@ interface PinEntryProps {
   isFirstTime?: boolean;
 }
 
-const PinEntry: React.FC<PinEntryProps> = ({ 
+const PinEntry = ({ 
   isOpen, 
   onSubmit, 
   onCancel, 
   error, 
   loading = false,
   isFirstTime = false 
-}) => {
+}: PinEntryProps) => {
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const [confirmPin, setConfirmPin] = useState(['', '', '', '', '', '']);
   const [isConfirming, setIsConfirming] = useState(false);
