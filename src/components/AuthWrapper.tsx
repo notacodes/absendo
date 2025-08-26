@@ -46,11 +46,43 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      // Check if user authenticated with OAuth
-      const isOAuthUser = user.app_metadata?.provider !== 'email';
+      if(encryptionService.isInitialized()){
+        setAuthState({
+          isAuthenticated: true,
+          needsPinSetup: false,
+          needsPinEntry: false,
+          isLoading: false,
+          error: null
+        });
+        return
+      }
+
+      // const isOAuthUser = user.app_metadata?.provider !== 'email';
       
-      if (!isOAuthUser) {
-        // Email/password users don't need PIN
+      // if (!isOAuthUser) {
+      //   const userKey = sessionStorage.getItem('userKey');
+      //   if (!userKey) {
+      //     setAuthState({
+      //       isAuthenticated: false,
+      //       needsPinSetup: false,
+      //       needsPinEntry: false,
+      //       isLoading: false,
+      //       error: null
+      //     });
+      //     return;
+      //   }
+      //   encryptionService.setUserKey(userKey);
+      //   setAuthState({
+      //     isAuthenticated: true,
+      //     needsPinSetup: false,
+      //     needsPinEntry: false,
+      //     isLoading: false,
+      //     error: null
+      //   });
+      //   return;
+      // }
+      const savedPin = sessionStorage.getItem("userPin");
+      if(savedPin){
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -58,39 +90,20 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
+        await handlePinEntry(savedPin);
         return;
       }
 
-      // Check if encryption is already initialized
-      if (encryptionService.isPinBasedAuthReady()) {
+      if (await encryptionService.isPinBasedAuthReady(user.id)) {
         setAuthState({
           isAuthenticated: true,
-          needsPinSetup: false,
-          needsPinEntry: false,
-          isLoading: false,
-          error: null
-        });
-        return;
-      }
-
-      // Check if user has encrypted data (to determine if they need PIN setup or entry)
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_encrypted, encrypted_data')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData?.is_encrypted) {
-        // User has encrypted data, needs to enter PIN
-        setAuthState({
-          isAuthenticated: false,
           needsPinSetup: false,
           needsPinEntry: true,
           isLoading: false,
           error: null
         });
-      } else {
-        // New user or user without encrypted data, needs PIN setup
+        return;
+      }
         setAuthState({
           isAuthenticated: false,
           needsPinSetup: true,
@@ -98,7 +111,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
-      }
     } catch (error) {
       console.error('Error checking authentication status:', error);
       setAuthState({
@@ -106,7 +118,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         needsPinSetup: true,
         needsPinEntry: false,
         isLoading: false,
-        error: 'Authentifizierungsfehler aufgetreten'
+        error: 'Fehler:' + error
       });
     }
   };
@@ -131,6 +143,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
+        sessionStorage.setItem("userPin", pin);
       } else {
         setAuthState(prev => ({
           ...prev,
@@ -154,19 +167,18 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      // Get user's encrypted data to verify PIN
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('encrypted_data, encryption_salt')
+        .select('encrypted_data')
         .eq('id', user.id)
         .single();
-
+      const userSalt = await encryptionService.saltManager.getSaltForUser(user.id);
       const isValidPin = await encryptionService.verifyPin(
         user.id,
         user.email || '',
         pin,
         profileData?.encrypted_data,
-        profileData?.encryption_salt
+        userSalt
       );
 
       if (isValidPin) {
@@ -177,6 +189,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
+        sessionStorage.setItem("userPin", pin);
       } else {
         setAuthState(prev => ({
           ...prev,
@@ -195,7 +208,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
   };
 
   const handleCancel = async () => {
-    // Sign out the user if they cancel PIN entry
     await supabase.auth.signOut();
   };
 
@@ -228,7 +240,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     );
   }
 
-  // Show PIN entry for returning OAuth users
   if (authState.needsPinEntry) {
     return (
       <>
@@ -245,17 +256,18 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     );
   }
 
-  // Show children if authenticated
   if (authState.isAuthenticated) {
     return <>{children}</>;
   }
 
-  // Fallback - should not reach here
   return (
     <div className="min-h-screen bg-base-100 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4">Authentifizierungsfehler</h1>
         <p className="mb-4">Ein unerwarteter Fehler ist aufgetreten.</p>
+        {authState.error && (
+          <p className="mb-4 text-red-600">{authState.error}</p>
+        )}
         <button 
           className="btn btn-primary"
           onClick={() => window.location.href = '/login'}
