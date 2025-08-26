@@ -6,12 +6,11 @@ import teachersData from '../src/data/teachers24-25-bbzw.json';
 import subjectsData from '../src/data/subjects24-25-bbzw.json';
 import EncryptionService from '../src/services/encryptionService.ts';
 
-export async function generatePdf(user_id, form_data) {
-    return  await getPdfData(user_id, form_data);
+export async function generatePdf(userData, form_data) {
+    return  await getPdfData(userData, form_data);
 }
 
-async function getPdfData(user_id, form_data) {
-    const userData = await getUserData(user_id);
+async function getPdfData(userData, form_data) {
     const url = userData.calendar_url;
     const events = await getICALData(url);
     const date = new Date(form_data.date);
@@ -42,7 +41,7 @@ async function getUserData(user_id) {
 
 async function getICALData(url) {
     try {
-        const response = await fetch(`https://srv770938.hstgr.cloud:443/proxy?url=${url}`);
+        const response = await fetch(`https://api.absendo.notyou.dev/proxy?url=${url}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

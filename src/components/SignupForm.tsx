@@ -23,14 +23,7 @@ function SignupForm() {
                 }
             })
             if (signUpError) throw signUpError;
-            if (!error) {
-                // Initialize encryption key for new user after successful signup
-                const encryptionService = EncryptionService.getInstance();
-                encryptionService.initializeKey(password, email);
-                
                 window.location.href = '/email-verification';
-            }
-
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');
         }

@@ -159,7 +159,7 @@ export default function AbsendoOnboarding() {
         const encryptionService = EncryptionService.getInstance();
         
         // Encrypt the form data before storing
-        const dataToStore = encryptionService.encryptProfileData({
+        let dataToStore = await encryptionService.encryptProfileData({
             ...formData, 
             onboarding_completed: true
         });

@@ -40,6 +40,7 @@ function DashboardHeader() {
                     // Decrypt the data if it's encrypted
                     const encryptionService = EncryptionService.getInstance();
                     const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                    setUserData(decryptedData);
 
                     setIsFullNameEnabled(decryptedData.isFullNameEnabled || true);
                     setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
@@ -54,6 +55,7 @@ function DashboardHeader() {
     }, [user]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userData, setUserData] = useState<any>(null);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         date: '',
@@ -126,7 +128,7 @@ function DashboardHeader() {
             fileName: addPDFExtension(formData.fileName)
         });
         try {
-            const blob = await generatePdf(user.id, formData);
+            const blob = await generatePdf(userData, formData);
             if(blob){
                 setPdfBlob(blob);
                 setIsGenerating(false);
