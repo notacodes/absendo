@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
-import EncryptionService from '../services/encryptionService';
 
 function LoginFrom() {
     const [email, setEmail] = useState('');
@@ -17,12 +16,8 @@ function LoginFrom() {
         }
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-
-            // Initialize encryption key after successful login
-            const encryptionService = EncryptionService.getInstance();
-            encryptionService.initializeKey(password, email);
 
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');

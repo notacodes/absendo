@@ -58,7 +58,6 @@ const PinEntry = ({
     newArray[index] = value;
     setCurrentArray(newArray);
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }

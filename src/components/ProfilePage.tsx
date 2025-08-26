@@ -185,7 +185,7 @@ export const ProfilePage = () => {
             const encryptionService = EncryptionService.getInstance();
             
             // Encrypt the form data before storing
-            const dataToStore = encryptionService.encryptProfileData({
+            const dataToStore =  await encryptionService.encryptProfileData({
                 id: formData.id,
                 first_name: formData.first_name,
                 last_name: formData.last_name,
@@ -194,7 +194,7 @@ export const ProfilePage = () => {
                 first_name_trainer: formData.first_name_trainer,
                 last_name_trainer: formData.last_name_trainer,
                 phone_number_trainer: formData.phone_number_trainer,
-                email_trainer: formData.email_trainer
+                email_trainer: formData.email_trainer,
             });
 
             const { error } = await supabase
