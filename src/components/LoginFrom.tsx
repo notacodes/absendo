@@ -16,7 +16,7 @@ function LoginFrom() {
         }
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
 
         } catch (err: unknown) {

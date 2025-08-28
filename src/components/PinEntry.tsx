@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import E2EEModal from "./E2EEModal.tsx";
 
 interface PinEntryProps {
   isOpen: boolean;
@@ -22,8 +23,8 @@ const PinEntry = ({
   const [isConfirming, setIsConfirming] = useState(false);
   const [localError, setLocalError] = useState('');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [isE2EEModalOpen, setIsE2EEModalOpen] = useState(true);
 
-  // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setPin(['', '', '', '', '', '']);
@@ -113,6 +114,7 @@ const PinEntry = ({
     if (isFirstTime && !isConfirming) {
       // First time setup - ask for confirmation
       setIsConfirming(true);
+      setIsE2EEModalOpen(true);
       setConfirmPin(['', '', '', '', '', '']);
       setTimeout(() => {
         inputRefs.current[0]?.focus();
@@ -153,6 +155,10 @@ const PinEntry = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <E2EEModal
+          isOpen={isE2EEModalOpen}
+          onClose={() => setIsE2EEModalOpen(false)}
+      />
       <div className="bg-base-100 rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
         <h2 className="text-2xl font-bold text-center mb-2">
           {isFirstTime 
@@ -239,6 +245,12 @@ const PinEntry = ({
             </button>
           )}
         </div>
+
+        {isFirstTime && !isConfirming && (
+            <div className="mb-4 mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm rounded">
+              <p><strong>Wichtiger Hinweis:</strong> Ohne dein PIN kannst du nicht mehr auf deine Daten zugreifen.</p>
+            </div>
+        )}
 
         <div className="mt-4 text-xs text-gray-500 text-center">
           <p>Ihre PIN wird niemals gespeichert oder übertragen.</p>

@@ -239,6 +239,28 @@ class EncryptionService {
         }
     }
 
+    async decryptField(encryptedField: string, userId: string): Promise<string | null> {
+        if (!this.userKey) {
+            console.error('Encryption key not initialized');
+            return null;
+        }
+        const userSalt = await this.saltManager.getSaltForUser(userId);
+        try {
+            const key = CryptoJS.PBKDF2(this.userKey, userSalt, {
+                keySize: 256 / 32,
+                iterations: 1000
+            });
+
+            const decryptedBytes = CryptoJS.AES.decrypt(encryptedField, key.toString());
+            const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+            return decryptedData || null;
+        } catch (error) {
+            console.error('Field decryption failed:', error);
+            return null;
+        }
+    }
+
     /**
      * Encrypt profile data specifically
      */
