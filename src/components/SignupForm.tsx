@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { supabase} from "../supabaseClient.ts";
-import EncryptionService from "../services/encryptionService.ts";
 
 function SignupForm() {
     const [email, setEmail] = useState('');
