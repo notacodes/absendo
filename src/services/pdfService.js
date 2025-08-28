@@ -1,17 +1,16 @@
 import ical from 'ical';
 import fs from 'fs';
 import { PDFDocument } from 'pdf-lib';
-import {supabase} from "../src/supabaseClient.js";
-import teachersData from '../src/data/teachers24-25-bbzw.json';
-import subjectsData from '../src/data/subjects24-25-bbzw.json';
-import EncryptionService from '../src/services/encryptionService.ts';
+import {supabase} from "../supabaseClient.ts";
+import teachersData from '../data/teachers24-25-bbzw.json';
+import subjectsData from '../data/subjects24-25-bbzw.json';
+import EncryptionService from './encryptionService.ts';
 
-export async function generatePdf(user_id, form_data) {
-    return  await getPdfData(user_id, form_data);
+export async function generatePdf(userData, form_data) {
+    return  await getPdfData(userData, form_data);
 }
 
-async function getPdfData(user_id, form_data) {
-    const userData = await getUserData(user_id);
+async function getPdfData(userData, form_data) {
     const url = userData.calendar_url;
     const events = await getICALData(url);
     const date = new Date(form_data.date);
@@ -32,8 +31,7 @@ async function getUserData(user_id) {
         .select('*')
         .eq('id', user_id)
         .single();
-    
-    // Decrypt the data if it's encrypted
+
     const encryptionService = EncryptionService.getInstance();
     const decryptedData = encryptionService.decryptProfileData(data);
     
@@ -42,7 +40,7 @@ async function getUserData(user_id) {
 
 async function getICALData(url) {
     try {
-        const response = await fetch(`https://srv770938.hstgr.cloud:443/proxy?url=${url}`);
+        const response = await fetch(`https://api.absendo.notyou.dev/proxy?url=${url}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -246,14 +244,23 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
             }
         });
 
+    const encryptionService = EncryptionService.getInstance();
+    const dataToEncrypt = {
+        filePath: filePath,
+        dateOfAbsence: dateOfAbsence,
+        reason: reason,
+        pdfName: fileName
+    }
+    const encryptedData = encryptionService.encrypt(dataToEncrypt, userId);
+
     const { error: dbError } = await supabase
         .from('pdf_files')
         .insert({
             user_id: userId,
-            file_path: filePath,
-            date_of_absence: dateOfAbsence,
-            reason: reason,
-            pdf_name: fileName
+            file_path: encryptedData.filePath,
+            date_of_absence: encryptedData.dateOfAbsence,
+            reason: encryptedData.reason,
+            pdf_name: encryptedData.fileName
         })
 
     if (dbError) {

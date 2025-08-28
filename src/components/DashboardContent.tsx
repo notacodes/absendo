@@ -66,8 +66,7 @@ function DashboardContent() {
                         .single();
 
                     if (error) throw error;
-                    
-                    // Decrypt the data if it's encrypted
+
                     const encryptionService = EncryptionService.getInstance();
                     const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
                     
@@ -107,7 +106,22 @@ function DashboardContent() {
                         .order("created_at", { ascending: false });
 
                     if (error) throw error;
-                    setPdfs((data || []));
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedPdfs: PdfFile[] = [];
+                    for (const pdf of data || []) {
+                        const file_path = await encryptionService.decryptField(pdf.file_path, user.id);
+                        const date_of_absence = await encryptionService.decryptField(pdf.date_of_absence, user.id);
+                        const reason = await encryptionService.decryptField(pdf.reason, user.id);
+                        const pdf_name = await encryptionService.decryptField(pdf.pdf_name, user.id);
+                        decryptedPdfs.push({
+                            ...pdf,
+                            file_path: file_path ?? "",
+                            date_of_absence: date_of_absence ?? "",
+                            reason: reason ?? "",
+                            pdf_name: pdf_name ?? "",
+                        });
+                    }
+                    setPdfs(decryptedPdfs);
                 } catch (err) {
                     console.error("Error fetching PDFs:", err);
                 }
@@ -122,8 +136,7 @@ function DashboardContent() {
         setSettingsLoading(true);
         try {
             const encryptionService = EncryptionService.getInstance();
-            
-            // We need to encrypt the update with all existing data
+
             const currentData = userData || {};
             const updatedData = { ...currentData, [field]: value };
             const encryptedData = encryptionService.encryptProfileData(updatedData);

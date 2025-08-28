@@ -7,4 +7,4 @@ interface formData {
     isFullSubjectEnabled: boolean,
     isDoNotSaveEnabled: boolean,
 }
-export declare function generatePdf(userId: string, formData: formData): Promise<Blob>;
+export declare function generatePdf(userData, formData: formData): Promise<Blob>;
