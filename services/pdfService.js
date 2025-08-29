@@ -36,7 +36,7 @@ async function getUserData(user_id) {
 
 async function getICALData(url) {
     try {
-        const response = await fetch(`https://api.absendo.notyou.dev/proxy?url=${url}`);
+        const response = await fetch(`https://api.absendo.app/proxy?url=${url}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
