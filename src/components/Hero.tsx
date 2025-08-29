@@ -40,7 +40,7 @@ function Hero() {
                     </h1>
                     <p className="py-4 text-xl max-w-3xl">
                         Absenz einreichen, ohne Stress! Generiere deine Absenzformulare automatisch
-                        aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 7 Minuten pro Formular</strong>
+                        aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 5 Minuten pro Formular</strong>
                     </p>
                     <button
                         className="btn btn-primary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
