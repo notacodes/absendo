@@ -18,7 +18,9 @@ async function getPdfData(user_id, form_data) {
     const processedEvents = processEvents(events, date);
     const pdfForm = await fillForm(userData, processedEvents, form_data);
     const pdfBlob = new Blob([pdfForm], { type: 'application/pdf' });
-    await savePdfInDB(pdfBlob, user_id, form_data.fileName, date, form_data.reason);
+    if(!form_data.isDoNotSaveEnabled) {
+        await savePdfInDB(pdfBlob, user_id, form_data.fileName, date, form_data.reason);
+    }
     return pdfBlob
 }
 
@@ -34,7 +36,7 @@ async function getUserData(user_id) {
 
 async function getICALData(url) {
     try {
-        const response = await fetch(`https://srv770938.hstgr.cloud:443/proxy?url=${url}`);
+        const response = await fetch(`https://api.absendo.app/proxy?url=${url}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -42,8 +44,7 @@ async function getICALData(url) {
 
         const data = await response.text();
 
-        const events = ical.parseICS(data);
-        return events;
+        return ical.parseICS(data);
 
     } catch (error) {
         throw new Error(`Failed to fetch iCal data: ${error.message}`);
@@ -187,7 +188,7 @@ async function fillForm(userData, processedEvents, form_data) {
             }
             if(form_data.isFullSubjectEnabled === true) {
                 event.fach = getSubjectName(event.fach);
-            }
+            }  
 
             form.getTextField(`Anzahl LektionenRow${i + 1}`).setText(event.count.toString());
             form.getTextField(`Wochentag und Da tumRow${i + 1}`).setText(event.datum);
