@@ -1,21 +1,25 @@
 import {useEffect, useState} from "react";
-import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
+import {useIsUserLoggedIn} from "../supabaseClient.ts";
 
 function HomeContent() {
     const [error, setError] = useState(false);
     const isUserLoggedIn = useIsUserLoggedIn();
-    const [savedTimeMinutes, setSavedTimeMinutes] = useState<number | undefined>(undefined);
+    const [savedTimeMinutes, setSavedTimeMinutes] = useState(0);
+    const [savedTimeHouers, setSavedTimeHouers] = useState(0);
+
     useEffect(() => {
-        const fetchUserCount = async () => {
-            const { data, error } = await supabase.rpc('count_generated_absences');
-            if (error) {
-                setError(true);
-            } else {
-                setError(false);
-                setSavedTimeMinutes(data * 5);
-            }
-        };
-        fetchUserCount();
+        const response = fetch("https://api.absendo.app/stats/time-saved");
+        try{
+            response.then(res => res.json()).then(data => {
+                setSavedTimeMinutes(data.timeSaved.minutes);
+                setSavedTimeHouers(data.timeSaved.hours);
+            });
+
+        }catch (err) {
+            console.error('Error fetching user count:', err);
+            setError(true);
+        }
+
     }, []);
     return (
         <>
@@ -142,15 +146,19 @@ function HomeContent() {
                             Bereit, Zeit zu sparen? 🎉
                         </h2>
                         <p className="text-xl mb-4 max-w-2xl mx-auto">
-                            {savedTimeMinutes !== undefined && !error && (
+                            {!error && (
                                 <p className="text-lg mb-8 max-w-2xl mx-auto">
                                     Schon {" "}
                                     <span className="font-bold">
-                                        {Math.floor(savedTimeMinutes / 60)} {Math.floor(savedTimeMinutes / 60) < 2 ? "Stunde" : "Stunden"}
-                                        {savedTimeMinutes % 60 !== 0 ? ` und ${savedTimeMinutes % 60} Minuten` : ""}
+                                        {savedTimeHouers}
+                                        {" "}
+                                        {savedTimeHouers < 2 ? "Stunde " : "Stunden "}
+                                        {"und"}{" "}
+                                        {savedTimeMinutes}
+                                        {" "}Minuten
                                     </span>
                                     {" "}
-                                    für alle Schüler*innen eingespart – effizient, oder? ⚡
+                                    für alle Schüler*innen eingespart – effizient, oder?
                                 </p>
                             )}
                         </p>

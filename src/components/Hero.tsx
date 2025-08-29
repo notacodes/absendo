@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {supabase, useIsUserLoggedIn} from "../supabaseClient.ts";
+import {useIsUserLoggedIn} from "../supabaseClient.ts";
 
 function Hero() {
     const [userCount, setUserCount] = useState(undefined);
@@ -7,12 +7,15 @@ function Hero() {
     const isUserLoggedIn = useIsUserLoggedIn();
     useEffect(() => {
         const fetchUserCount = async () => {
-            const { data, error } = await supabase.rpc('count_profiles');
-            if( error) {
+            try {
+                const response = await fetch("https://api.absendo.app/stats/user-count");
+                if(response) {
+                    const { userCount } = await response.json();
+                    setUserCount(userCount);
+                }
+            } catch (err) {
+                console.error('Error fetching user count:', err);
                 setError(true);
-            }else{
-                setError(false);
-                setUserCount(data);
             }
         };
         fetchUserCount();
