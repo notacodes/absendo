@@ -24,7 +24,7 @@ class EncryptionService {
     private userKey: string | null = null;
     saltManager: SaltManager;
     private currentUserId: string | null = null;
-    private currentUserEmail: string | null = null;
+    
 
     private constructor() {
         this.saltManager = SaltManager.getInstance();
@@ -47,7 +47,6 @@ class EncryptionService {
             keySize: 256 / 32,
             iterations: 10000
         }).toString();
-        this.currentUserEmail = userEmail;
         sessionStorage.setItem('userKey', this.userKey);
     }
 
@@ -58,7 +57,6 @@ class EncryptionService {
     async initializeKeyForOAuthWithPin(userId: string, userEmail: string, pin: string): Promise<KeyDerivationResult> {
         try {
             this.currentUserId = userId;
-            this.currentUserEmail = userEmail;
 
             const userSalt = await this.saltManager.getSaltForUser(userId);
 
@@ -130,7 +128,6 @@ class EncryptionService {
         }
 
         this.currentUserId = null;
-        this.currentUserEmail = null;
     }
 
     /**
@@ -139,7 +136,6 @@ class EncryptionService {
     async clearAllData(): Promise<void> {
         this.userKey = null;
         this.currentUserId = null;
-        this.currentUserEmail = null;
         //evtl noch salts löschen
     }
 
@@ -319,13 +315,12 @@ class EncryptionService {
             return profileData;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const {
-            encrypted_data: _encrypted_data,
-            encryption_salt: _encryption_salt,
-            is_encrypted: _is_encrypted,
-            ...nonSensitiveData
-        } = profileData;
+        const nonSensitiveData: Record<string, unknown> = {};
+        for (const key in profileData) {
+            if (key !== 'encrypted_data' && key !== 'encryption_salt' && key !== 'is_encrypted') {
+                nonSensitiveData[key] = profileData[key];
+            }
+        }
         return {
             ...nonSensitiveData,
             ...(decryptionResult.data || {})
@@ -335,10 +330,10 @@ class EncryptionService {
     async isPinBasedAuthReady(userId: string): Promise<boolean> {
         const {data} = await supabase
             .from('profiles')
-            .select('is_encrypted, encrypted_data')
+            .select('has_pin')
             .eq('id', userId)
             .single();
-        return !!data?.is_encrypted;
+        return data?.has_pin || false
     }
 
     async encryptBlob(pdfBlob: Blob, userId: string): Promise<Blob> {
