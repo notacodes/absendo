@@ -31,7 +31,6 @@ const PinEntry = ({
       setConfirmPin(['', '', '', '', '', '']);
       setIsConfirming(false);
       setLocalError('');
-      // Focus first input
       setTimeout(() => {
         inputRefs.current[0]?.focus();
       }, 100);
@@ -41,7 +40,6 @@ const PinEntry = ({
     }
   }, [isOpen]);
 
-  // Clear local error when pin changes
   useEffect(() => {
     if (localError) {
       setLocalError('');
@@ -49,10 +47,8 @@ const PinEntry = ({
   }, [pin, confirmPin, localError]);
 
   const handleInputChange = (index: number, value: string) => {
-    // Only allow digits
     if (!/^\d*$/.test(value)) return;
-    
-    // Only allow single digit
+
     if (value.length > 1) return;
 
     const currentArray = isConfirming ? confirmPin : pin;
@@ -71,7 +67,6 @@ const PinEntry = ({
     const currentArray = isConfirming ? confirmPin : pin;
     
     if (e.key === 'Backspace' && !currentArray[index] && index > 0) {
-      // Focus previous input on backspace if current is empty
       inputRefs.current[index - 1]?.focus();
     }
     
@@ -92,8 +87,7 @@ const PinEntry = ({
       } else {
         setPin(newArray);
       }
-      
-      // Focus last filled input
+
       const lastIndex = Math.min(digits.length - 1, 5);
       inputRefs.current[lastIndex]?.focus();
     }
