@@ -19,7 +19,7 @@ async function getPdfData(userData, form_data) {
     const pdfForm = await fillForm(userData, processedEvents, form_data);
     const pdfBlob = new Blob([pdfForm], { type: 'application/pdf' });
     if(!form_data.isDoNotSaveEnabled) {
-        await savePdfInDB(pdfBlob, user_id, form_data.fileName, date, form_data.reason);
+        await savePdfInDB(pdfBlob, userData.id, form_data.fileName, date, form_data.reason);
     }
     return pdfBlob
 }
@@ -31,7 +31,6 @@ async function getUserData(user_id) {
         .select('*')
         .eq('id', user_id)
         .single();
-
     const encryptionService = EncryptionService.getInstance();
     const decryptedData = encryptionService.decryptProfileData(data);
     
@@ -40,7 +39,7 @@ async function getUserData(user_id) {
 
 async function getICALData(url) {
     try {
-        const response = await fetch(`https://api.absendo.notyou.dev/proxy?url=${url}`);
+        const response = await fetch(`https://api.absendo.app/proxy?url=${url}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -235,32 +234,30 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
     }
 
     const filePath = `${filePathBase}${uniqueFileName}`;
+    const encryptionService = EncryptionService.getInstance();
+    const encryptedFilePath = await encryptionService.encrypt({filePath: filePath}, userId);
+    const encryptedDateOfAbsence = await encryptionService.encrypt({dateOfAbsence: dateOfAbsence}, userId);
+    const encryptedReason = await encryptionService.encrypt({reason: reason}, userId);
+    const encryptedPdfName = await encryptionService.encrypt({pdfName: fileName}, userId);
+
+    const pdf = await encryptionService.encryptBlob(pdfForm, userId)
     const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('pdf-files')
-        .upload(filePath, pdfForm, {
+        .upload(filePath, pdf, {
             metadata: {
                 dateOfAbsence: dateOfAbsence
             }
         });
 
-    const encryptionService = EncryptionService.getInstance();
-    const dataToEncrypt = {
-        filePath: filePath,
-        dateOfAbsence: dateOfAbsence,
-        reason: reason,
-        pdfName: fileName
-    }
-    const encryptedData = encryptionService.encrypt(dataToEncrypt, userId);
-
     const { error: dbError } = await supabase
         .from('pdf_files')
         .insert({
             user_id: userId,
-            file_path: encryptedData.filePath,
-            date_of_absence: encryptedData.dateOfAbsence,
-            reason: encryptedData.reason,
-            pdf_name: encryptedData.fileName
+            file_path: encryptedFilePath.encryptedData,
+            date_of_absence: encryptedDateOfAbsence.encryptedData,
+            reason: encryptedReason.encryptedData,
+            pdf_name: encryptedPdfName.encryptedData,
         })
 
     if (dbError) {

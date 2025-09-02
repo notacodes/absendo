@@ -37,7 +37,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         needsPinSetup: false,
         needsPinEntry: false,
         isLoading: false,
-        error: null
+        error: null,
       });
     }
   }, [user]);
@@ -57,30 +57,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         return
       }
 
-      // const isOAuthUser = user.app_metadata?.provider !== 'email';
-      
-      // if (!isOAuthUser) {
-      //   const userKey = sessionStorage.getItem('userKey');
-      //   if (!userKey) {
-      //     setAuthState({
-      //       isAuthenticated: false,
-      //       needsPinSetup: false,
-      //       needsPinEntry: false,
-      //       isLoading: false,
-      //       error: null
-      //     });
-      //     return;
-      //   }
-      //   encryptionService.setUserKey(userKey);
-      //   setAuthState({
-      //     isAuthenticated: true,
-      //     needsPinSetup: false,
-      //     needsPinEntry: false,
-      //     isLoading: false,
-      //     error: null
-      //   });
-      //   return;
-      // }
       const savedPin = sessionStorage.getItem("userPin");
       if(savedPin){
         setAuthState({
