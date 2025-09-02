@@ -197,7 +197,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     }
   }, [user, encryptionService, handlePinEntry]);
 
-  // Show loading spinner
   if (authState.isLoading) {
     return (
       <div className="min-h-screen bg-base-100 flex items-center justify-center">
