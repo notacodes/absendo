@@ -26,24 +26,24 @@ function Hero() {
             <div className="hero-content text-center">
                 <div>
                     {userCount !== undefined && !error &&(
-                        <div className="badge badge-info gap-2 px-4 py-3 rounded-full badge-md font-medium mb-8 animate-pulse">
+                        <div className="badge badge-info gap-2 px-4 py-3 rounded-full badge-md font-medium mb-8 animate-pulse text-xs md:text-sm">
                             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                             Absendo wird bereits von {userCount} Schüler*innen genutzt
                         </div>
 
                     )}
-                    <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+                    <h1 className="text-4xl md:text-7xl font-bold leading-tight bg-gradient-to-r from-primary via-blue-500 to-blue-300 bg-clip-text text-transparent">
                         BBZW Absenzformulare
-                        <span className="block bg-clip-text bg-gradient-to-r text-primary">
+                        <span className="block bg-clip-text bg-gradient-to-r">
                             in 30 Sekunden
                         </span>
                     </h1>
-                    <p className="py-4 text-xl max-w-3xl">
+                    <p className="py-4 md:text-xl text-m max-w-3xl">
                         Absenz einreichen, ohne Stress! Generiere deine Absenzformulare automatisch
                         aus deinem Schulnetz-Kalender und spare dir <strong className="text-gray-900">bis zu 5 Minuten pro Formular</strong>
                     </p>
                     <button
-                        className="btn btn-primary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
+                        className="btn btn-success btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
                         onClick={() => {
                             if (!isUserLoggedIn) {
                                 window.location.href = "/signup";
@@ -60,7 +60,7 @@ function Hero() {
                             <path d="m12 5 7 7-7 7"/>
                         </svg>
                     </button>
-                    <button className="btn btn-secondary btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
+                    <button className="btn btn-warning btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
                         So funktioniert’s
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
