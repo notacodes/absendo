@@ -22,10 +22,7 @@ function SignupForm() {
                 }
             })
             if (signUpError) throw signUpError;
-            if (!error) {
                 window.location.href = '/email-verification';
-            }
-
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');
         }
