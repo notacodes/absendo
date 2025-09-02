@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
+import EncryptionService from "../services/encryptionService.ts";
 
 interface UserProfile {
     id: string;
@@ -65,22 +66,26 @@ function DashboardContent() {
                         .single();
 
                     if (error) throw error;
+
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                    
                     const { data: absencesData, error: absencesError } = await supabase
                         .from("pdf_files")
                         .select("id")
                         .eq("user_id", user.id);
 
                     if (absencesError) throw absencesError;
-                    const enhancedData = {
-                        ...data,
+                    const enhancedData: UserProfile = {
+                        ...decryptedData,
                         total_absences: absencesData?.length || 0,
                         time_saved_minutes: (absencesData?.length || 0) * 5
                     };
                     setUserData(enhancedData);
 
-                    setIsFullNameEnabled(data.isFullNameEnabled || false);
-                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
+                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || false);
+                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -101,7 +106,22 @@ function DashboardContent() {
                         .order("created_at", { ascending: false });
 
                     if (error) throw error;
-                    setPdfs((data || []));
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedPdfs: PdfFile[] = [];
+                    for (const pdf of data || []) {
+                        const file_path = await encryptionService.decryptField(pdf.file_path, user.id);
+                        const date_of_absence = await encryptionService.decryptField(pdf.date_of_absence, user.id);
+                        const reason = await encryptionService.decryptField(pdf.reason, user.id);
+                        const pdf_name = await encryptionService.decryptField(pdf.pdf_name, user.id);
+                        decryptedPdfs.push({
+                            ...pdf,
+                            file_path: file_path ?? "",
+                            date_of_absence: date_of_absence ?? "",
+                            reason: reason ?? "",
+                            pdf_name: pdf_name ?? "",
+                        });
+                    }
+                    setPdfs(decryptedPdfs);
                 } catch (err) {
                     console.error("Error fetching PDFs:", err);
                 }
@@ -115,9 +135,15 @@ function DashboardContent() {
 
         setSettingsLoading(true);
         try {
+            const encryptionService = EncryptionService.getInstance();
+
+            const currentData = userData || {};
+            const updatedData = { ...currentData, [field]: value };
+            const encryptedData = encryptionService.encryptProfileData(updatedData);
+            
             const { error } = await supabase
                 .from("profiles")
-                .update({ [field]: value })
+                .update(encryptedData)
                 .eq("id", user.id);
 
             if (error) throw error;
@@ -183,8 +209,15 @@ function DashboardContent() {
             .storage
             .from('pdf-files')
             .download(pdf.file_path)
-        if(!error){
-            return data
+        if(user?.id) {
+            const userId = user?.id
+            console.log(userId);
+            const encryptionService = EncryptionService.getInstance();
+            const pdfBlob = await encryptionService.decryptBlob(data as Blob, userId);
+            console.log(pdfBlob);
+            if(!error){
+                return pdfBlob
+            }
         }
         console.log("Error");
     }
