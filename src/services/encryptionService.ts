@@ -41,8 +41,8 @@ class EncryptionService {
      * Initialize encryption with user password
      * This should be called after user authentication
      */
-    async initializeKey(userPassword: string, userEmail: string,): Promise<void> {
-        const userSalt = '1234'
+    async initializeKey(userPassword: string, userEmail: string, userId: string): Promise<void> {
+        const userSalt = await this.saltManager.getSaltForUser(userId);
         this.userKey = CryptoJS.PBKDF2(userPassword + userEmail, userSalt, {
             keySize: 256 / 32,
             iterations: 10000
@@ -80,33 +80,14 @@ class EncryptionService {
         }
     }
 
-    /**
-     * Check if user needs PIN setup (first-time OAuth user)
-     */
-    async needsPinSetup(_userId: string): Promise<boolean> {
-        try {
-            // Check if user has existing encrypted data without PIN
-            // This would indicate they need to migrate to PIN-based encryption
-            return false; // For now, assume all new OAuth users need PIN setup
-        } catch (error) {
-            console.error('Error checking PIN setup status:', error);
-            return true; // Default to requiring PIN setup
-        }
-    }
 
-    /**
-     * Verify PIN for existing user
-     */
     async verifyPin(userId: string, userEmail: string, pin: string, encryptedTestData?: string, salt?: string): Promise<boolean> {
         try {
             // Temporarily store current key
             const originalKey = this.userKey;
-            console.log(originalKey);
-            console.log(this.userKey);
 
             // Try to initialize with the provided PIN
             const result = await this.initializeKeyForOAuthWithPin(userId, userEmail, pin);
-            console.log(result);
             if (!result.success) {
                 this.userKey = originalKey;
                 return false;
@@ -114,9 +95,7 @@ class EncryptionService {
 
             // If we have test data, try to decrypt it
             if (encryptedTestData && salt) {
-                console.log(encryptedTestData, 'salt:', salt);
                 const decryptResult = this.decrypt(encryptedTestData, salt);
-                console.log(decryptResult);
                 if (!decryptResult.success) {
                     this.userKey = originalKey;
                     return false;
@@ -254,6 +233,15 @@ class EncryptionService {
             const decryptedBytes = CryptoJS.AES.decrypt(encryptedField, key.toString());
             const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
 
+            try {
+                const parsed = JSON.parse(decryptedData);
+                if (parsed && typeof parsed === 'object' && Object.keys(parsed).length === 1) {
+                    return Object.values(parsed)[0] as string;
+                }
+            } catch {
+                console.warn("Cant find any Key")
+            }
+
             return decryptedData || null;
         } catch (error) {
             console.error('Field decryption failed:', error);
@@ -313,12 +301,12 @@ class EncryptionService {
      */
     decryptProfileData(profileData: Record<string, unknown>): Record<string, unknown> {
         if (!profileData.is_encrypted) {
-            return profileData; // Data is not encrypted
+            return profileData;
         }
 
         if (!this.isInitialized()) {
             console.error('Cannot decrypt data - encryption not initialized');
-            return profileData; // Return encrypted data as-is
+            return profileData;
         }
 
         const decryptionResult = this.decrypt(
@@ -328,10 +316,9 @@ class EncryptionService {
 
         if (!decryptionResult.success) {
             console.error('Failed to decrypt profile data:', decryptionResult.error);
-            return profileData; // Return encrypted data as-is
+            return profileData;
         }
 
-        // Merge decrypted sensitive data with non-sensitive data
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const {
             encrypted_data: _encrypted_data,
@@ -345,19 +332,6 @@ class EncryptionService {
         };
     }
 
-    /**
-     * Get current user info for key operations
-     */
-    getCurrentUserInfo(): { userId: string | null; userEmail: string | null } {
-        return {
-            userId: this.currentUserId,
-            userEmail: this.currentUserEmail
-        };
-    }
-
-    /**
-     * Check if encryption is properly initialized for PIN-based auth
-     */
     async isPinBasedAuthReady(userId: string): Promise<boolean> {
         const {data} = await supabase
             .from('profiles')
@@ -365,6 +339,73 @@ class EncryptionService {
             .eq('id', userId)
             .single();
         return !!data?.is_encrypted;
+    }
+
+    async encryptBlob(pdfBlob: Blob, userId: string): Promise<Blob> {
+        if (!this.userKey) {
+            throw new Error("Encryption key not initialized");
+        }
+
+        const arrayBuffer = await pdfBlob.arrayBuffer();
+        const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+
+        const salt = await this.saltManager.getSaltForUser(userId);
+        const key = CryptoJS.PBKDF2(this.userKey, salt, {
+            keySize: 256 / 32,
+            iterations: 1000
+        });
+
+        const encrypted = CryptoJS.AES.encrypt(wordArray, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+
+        const encryptedWords = encrypted.ciphertext.words;
+        const encryptedBlob = new Blob([
+            Uint8Array.from(encryptedWords.map(w => [
+                (w >> 24) & 0xff,
+                (w >> 16) & 0xff,
+                (w >> 8) & 0xff,
+                w & 0xff
+            ]).flat())
+        ], { type: "application/octet-stream" });
+
+        return encryptedBlob;
+    }
+
+    async decryptBlob(encryptedBlob: Blob, userId: string): Promise<Blob> {
+        if (!this.userKey) {
+            throw new Error("Encryption key not initialized");
+        }
+
+        const encryptedArrayBuffer = await encryptedBlob.arrayBuffer();
+        const encryptedWordArray = CryptoJS.lib.WordArray.create(new Uint8Array(encryptedArrayBuffer));
+
+        const salt = await this.saltManager.getSaltForUser(userId);
+        const key = CryptoJS.PBKDF2(this.userKey, salt, {
+            keySize: 256 / 32,
+            iterations: 1000
+        });
+
+        const cipherParams = CryptoJS.lib.CipherParams.create({
+            ciphertext: encryptedWordArray,
+        });
+
+
+        const decryptedWordArray = CryptoJS.AES.decrypt(cipherParams, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+
+        const decryptedWords = decryptedWordArray.words;
+        const decryptedArrayBuffer = new Uint8Array(decryptedWords.map(w => [
+            (w >> 24) & 0xff,
+            (w >> 16) & 0xff,
+            (w >> 8) & 0xff,
+            w & 0xff
+        ]).flat()).buffer;
+
+        return new Blob([decryptedArrayBuffer], { type: "application/pdf" });
     }
 }
 

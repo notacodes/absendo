@@ -149,7 +149,6 @@ export default function AbsendoOnboarding() {
         insertFormData(formData);
 
         setTimeout(() => {
-            console.log('Formular übermittelt:', formData);
             setLoading(false);
             setComplete(true);
         }, 1500);
@@ -157,10 +156,9 @@ export default function AbsendoOnboarding() {
 
     async function insertFormData(formData: FormData) {
         const encryptionService = EncryptionService.getInstance();
-        
-        // Encrypt the form data before storing
-        let dataToStore = await encryptionService.encryptProfileData({
-            ...formData, 
+
+        const dataToStore = await encryptionService.encryptProfileData({
+            ...formData,
             onboarding_completed: true
         });
 
@@ -178,9 +176,9 @@ export default function AbsendoOnboarding() {
     return (
         <div className="flex justify-center items-center min-h-screen bg-base-200">
             {hasUserCompletedOnboarding ? (
-                <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
-                    <h1 className="text-3xl font-bold text-center">Onboarding bereits abgeschlossen</h1>
-                    <p className="text-center mt-4">Du hast das Onboarding bereits abgeschlossen. Du kannst jetzt zum Dashboard gehen.</p>
+                <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8 border border-base-300">
+                    <h1 className="text-3xl font-bold text-center text-base-content">Onboarding bereits abgeschlossen</h1>
+                    <p className="text-center mt-4 text-base-content/70">Du hast das Onboarding bereits abgeschlossen. Du kannst jetzt zum Dashboard gehen.</p>
                     <div className="flex justify-center mt-6">
                         <a href="/dashboard" className="btn btn-primary">Zum Dashboard</a>
                     </div>
@@ -188,7 +186,7 @@ export default function AbsendoOnboarding() {
             ) : (
                 user ? (
                     <AuthWrapper user={user}>
-                        <OnboardingContent 
+                        <OnboardingContent
                             user={user}
                             step={step}
                             setStep={setStep}
@@ -207,9 +205,9 @@ export default function AbsendoOnboarding() {
                         />
                     </AuthWrapper>
                 ) : (
-                    <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
-                        <h1 className="text-3xl font-bold text-center">Bitte melde dich an</h1>
-                        <p className="text-center mt-4">Du musst angemeldet sein, um auf diese Seite zuzugreifen.</p>
+                    <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8 border border-base-300">
+                        <h1 className="text-3xl font-bold text-center text-base-content">Bitte melde dich an</h1>
+                        <p className="text-center mt-4 text-base-content/70">Du musst angemeldet sein, um auf diese Seite zuzugreifen.</p>
                         <div className="flex justify-center mt-6">
                             <a href="/login" className="btn btn-primary">Zur Anmeldung</a>
                         </div>
@@ -240,21 +238,21 @@ interface OnboardingContentProps {
 }
 
 const OnboardingContent: React.FC<OnboardingContentProps> = ({
-    step,
-    formData,
-    errors,
-    loading,
-    complete,
-    totalSteps,
-    handleChange,
-    nextStep,
-    prevStep
-}) => {
+                                                                 step,
+                                                                 formData,
+                                                                 errors,
+                                                                 loading,
+                                                                 complete,
+                                                                 totalSteps,
+                                                                 handleChange,
+                                                                 nextStep,
+                                                                 prevStep
+                                                             }) => {
     return (
-        <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8">
+        <div className="w-full max-w-2xl bg-base-100 rounded-lg shadow-xl p-8 border border-base-300">
             <div className="text-center mb-10">
                 <h1 className="font-bold text-3xl text-primary mb-2">Absendo</h1>
-                <p className="text-gray-600">Dein automatischer Absenzformular-Ausfüller</p>
+                <p className="text-base-content/60">Dein automatischer Absenzformular-Ausfüller</p>
             </div>
 
             <div className="mb-8">
@@ -274,13 +272,13 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
 
             {complete ? (
                 <div className="text-center py-10">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
-                        <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20 mb-6 border border-success/30">
+                        <svg className="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Onboarding abgeschlossen!</h2>
-                    <p className="text-gray-600 mb-6">Vielen Dank für deine Angaben. Absendo ist jetzt bereit für dich.</p>
+                    <h2 className="text-2xl font-bold text-base-content mb-2">Onboarding abgeschlossen!</h2>
+                    <p className="text-base-content/70 mb-6">Vielen Dank für deine Angaben. Absendo ist jetzt bereit für dich.</p>
                     <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard'}>
                         Zum Dashboard
                     </button>
@@ -289,7 +287,7 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
                 <form>
                     {step === 1 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold text-gray-700 mb-6">Deine persönlichen Daten</h2>
+                            <h2 className="text-xl font-bold text-base-content mb-6">Deine persönlichen Daten</h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="form-control w-full">
@@ -323,26 +321,26 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
                                 </div>
                             </div>
 
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">Geburtsdatum</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="birthday"
-                                        value={formData.birthday}
-                                        onChange={handleChange}
-                                        className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
-                                    />
-                                    {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
-                                </div>
+                            <div className="form-control w-full">
+                                <label className="label">
+                                    <span className="label-text">Geburtsdatum</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    name="birthday"
+                                    value={formData.birthday}
+                                    onChange={handleChange}
+                                    className={`input input-bordered w-full ${errors.birthday ? 'input-error' : ''}`}
+                                />
+                                {errors.birthday && <span className="text-error text-xs mt-1">{errors.birthday}</span>}
+                            </div>
 
                         </div>
                     )}
 
                     {step === 2 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold text-gray-700 mb-6">Kalender-Einstellungen</h2>
+                            <h2 className="text-xl font-bold text-base-content mb-6">Kalender-Einstellungen</h2>
 
                             <div className="form-control w-full">
                                 <label className="label">
@@ -358,14 +356,14 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
                                 />
                                 {errors.calendar_url && <span className="text-error text-xs mt-1">{errors.calendar_url}</span>}
                                 <label className="label">
-                                    <span className="label-text-alt text-gray-500">Dies ist die URL, von der Absendo deine Absenzen auslesen wird</span>
+                                    <span className="label-text-alt text-base-content/50">Dies ist die URL, von der Absendo deine Absenzen auslesen wird</span>
                                 </label>
                             </div>
 
-                            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <div className="mt-6 p-4 bg-info/10 rounded-lg border border-info/20">
                                 <div className="flex items-start">
                                     <div className="flex-shrink-0">
-                                        <svg className="w-5 h-5 text-blue-600" fill="currentColor"
+                                        <svg className="w-5 h-5 text-info" fill="currentColor"
                                              viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path fillRule="evenodd"
                                                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -373,10 +371,10 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
                                         </svg>
                                     </div>
                                     <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-blue-800">So findest du deine
+                                        <h3 className="text-sm font-medium text-info">So findest du deine
                                             Kalender-URL</h3>
-                                        <div className="mt-2 text-sm text-blue-700">
-                                            <ol className="list-decimal list-inside">
+                                        <div className="mt-2 text-sm text-base-content/70">
+                                            <ol className="list-decimal list-inside space-y-1">
                                                 <li>Melde dich im Schulnetz an</li>
                                                 <li>Scrolle ganz nach unten und aktiviere dein Kalender-Abo</li>
                                                 <li>Fordere den Kalender-Link per E-Mail an</li>
@@ -392,7 +390,7 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
 
                     {step === 3 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold text-gray-700 mb-6">Ausbilder-Informationen</h2>
+                            <h2 className="text-xl font-bold text-base-content mb-6">Ausbilder-Informationen</h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="form-control w-full">
@@ -462,7 +460,7 @@ const OnboardingContent: React.FC<OnboardingContentProps> = ({
                         <button
                             type="button"
                             onClick={prevStep}
-                            className="btn btn-outline"
+                            className="btn btn-outline btn-neutral"
                             disabled={step === 1}
                         >
                             Zurück

@@ -42,7 +42,6 @@ class SaltManager {
     }
 
     const newSalt = this.generateSalt();
-    console.log(userId, newSalt);
     const { error: updateError } = await supabase
         .from("profiles")
         .update({ encryption_salt: newSalt })

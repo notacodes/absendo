@@ -209,8 +209,15 @@ function DashboardContent() {
             .storage
             .from('pdf-files')
             .download(pdf.file_path)
-        if(!error){
-            return data
+        if(user?.id) {
+            const userId = user?.id
+            console.log(userId);
+            const encryptionService = EncryptionService.getInstance();
+            const pdfBlob = await encryptionService.decryptBlob(data as Blob, userId);
+            console.log(pdfBlob);
+            if(!error){
+                return pdfBlob
+            }
         }
         console.log("Error");
     }
