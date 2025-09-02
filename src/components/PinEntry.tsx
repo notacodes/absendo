@@ -36,6 +36,9 @@ const PinEntry = ({
         inputRefs.current[0]?.focus();
       }, 100);
     }
+    if(isFirstTime && !isConfirming){
+      setIsE2EEModalOpen(true);
+    }
   }, [isOpen]);
 
   // Clear local error when pin changes
@@ -113,7 +116,6 @@ const PinEntry = ({
 
     if (isFirstTime && !isConfirming) {
       setIsConfirming(true);
-      setIsE2EEModalOpen(true);
       setConfirmPin(['', '', '', '', '', '']);
       setTimeout(() => {
         inputRefs.current[0]?.focus();
