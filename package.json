@@ -17,7 +17,7 @@
     "@types/crypto-js": "^4.2.2",
     "cally": "^0.8.0",
     "crypto-js": "^4.2.0",
-    "daisyui": "^5.0.17",
+    "daisyui": "^5.1.5",
     "ical": "^0.8.0",
     "ical.js": "^2.1.0",
     "pdf-lib": "^1.17.1",

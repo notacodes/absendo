@@ -135,15 +135,9 @@ function DashboardContent() {
 
         setSettingsLoading(true);
         try {
-            const encryptionService = EncryptionService.getInstance();
-
-            const currentData = userData || {};
-            const updatedData = { ...currentData, [field]: value };
-            const encryptedData = encryptionService.encryptProfileData(updatedData);
-            
             const { error } = await supabase
                 .from("profiles")
-                .update(encryptedData)
+                .update({ [field]: value })
                 .eq("id", user.id);
 
             if (error) throw error;
@@ -154,16 +148,13 @@ function DashboardContent() {
             console.error(`Error updating ${field}:`, err);
             if (field === 'isFullNameEnabled') {
                 setIsFullNameEnabled(userData?.isFullNameEnabled || false);
-            }else if (field === 'isDoNotSaveEnabled') {
-                setIsDoNotSaveEnabled(userData?.isDoNotSaveEnabled || false);
-            }
-            else {
+            } else if (field === 'isFullSubjectEnabled') {
                 setIsFullSubjectEnabled(userData?.isFullSubjectEnabled || false);
+            } else if (field === 'isDoNotSaveEnabled') {
+                setIsDoNotSaveEnabled(userData?.isDoNotSaveEnabled || false);
             }
         } finally {
             setSettingsLoading(false);
-            window.location.reload();
-            //TO-DO: remove reload and add something to update the Values in DashboardHeader
         }
     }
 
@@ -318,12 +309,6 @@ function DashboardContent() {
             <div className="card bg-base-100 shadow-xl lg:col-span-1">
                 <div className="card-body">
                     <h2 className="card-title mb-5">Absenz-Einstellungen</h2>
-                    {settingsLoading && (
-                        <div className="loading loading-spinner loading-sm">
-                            <span>Einstellungen werden gespeichert...</span>
-                        </div>
-                    )}
-
                     <div className="flex items-center gap-2 mb-4">
                         <input
                             type="checkbox"
@@ -353,6 +338,11 @@ function DashboardContent() {
                             className="toggle"/>
                         <span>Absenz nicht speichern (nur lokal generieren)</span>
                     </div>
+                    {settingsLoading && (
+                        <div className="loading loading-spinner loading-sm">
+                            <span>Einstellungen werden gespeichert...</span>
+                        </div>
+                    )}
                 </div>
             </div>
 

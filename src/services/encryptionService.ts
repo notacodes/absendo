@@ -50,6 +50,17 @@ class EncryptionService {
                 hasher: CryptoJS.algo.SHA512
             }).toString();
 
+            const pinHash = CryptoJS.SHA256(this.userKey).toString();
+
+            const { error } = await supabase
+                .from('profiles')
+                .update({ pin_hash: pinHash })
+                .eq('id', userId);
+
+            if (error) {
+                throw error;
+            }
+
             return {success: true};
         } catch (error) {
             console.error('Failed to initialize OAuth key with PIN:', error);
@@ -61,25 +72,35 @@ class EncryptionService {
     }
 
 
-    async verifyPin(userId: string, userEmail: string, pin: string, encryptedTestData?: string, salt?: string): Promise<boolean> {
+        async verifyPin(userId: string, userEmail: string, pin: string): Promise<boolean> {
         try {
-            const originalKey = this.userKey;
+            const { data: profileData, error } = await supabase
+                .from('profiles')
+                .select('pin_hash')
+                .eq('id', userId)
+                .single();
 
-            const result = await this.initializeKeyForOAuthWithPin(userId, userEmail, pin);
-            if (!result.success) {
-                this.userKey = originalKey;
+            if (error || !profileData) {
+                console.error('Error fetching pin hash:', error);
                 return false;
             }
 
-            if (encryptedTestData && salt) {
-                const decryptResult = this.decrypt(encryptedTestData, salt);
-                if (!decryptResult.success) {
-                    this.userKey = originalKey;
-                    return false;
-                }
+            const userSalt = await this.saltManager.getSaltForUser(userId);
+            const keyMaterial = userId + userEmail + pin;
+            const userKey = CryptoJS.PBKDF2(keyMaterial, userSalt, {
+                keySize: 256 / 32,
+                iterations: 10000,
+                hasher: CryptoJS.algo.SHA512
+            }).toString();
+
+            const pinHash = CryptoJS.SHA256(userKey).toString();
+
+            if (pinHash === profileData.pin_hash) {
+                this.userKey = userKey;
+                return true;
             }
 
-            return true;
+            return false;
         } catch (error) {
             console.error('PIN verification failed:', error);
             return false;

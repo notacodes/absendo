@@ -16,6 +16,12 @@ async function getPdfData(userData, form_data) {
     const date = new Date(form_data.date);
     getWeekday(date);
     const processedEvents = processEvents(events, date);
+
+    if (processedEvents.length === 0) {
+        const formattedDate = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        throw new Error(`Absendo findet keine Daten am ${formattedDate}`);
+    }
+
     const pdfForm = await fillForm(userData, processedEvents, form_data);
     const pdfBlob = new Blob([pdfForm], { type: 'application/pdf' });
     if(!form_data.isDoNotSaveEnabled) {

@@ -141,7 +141,7 @@ function HomeContent() {
                 </div>
 
                 <div className="py-20">
-                    <div className="container mx-auto px-4 text-center text-primary-content">
+                    <div className="container mx-auto px-4 text-center text-primary">
                         <h2 className="text-5xl font-bold mb-6">
                             Bereit, Zeit zu sparen? 🎉
                         </h2>
@@ -149,7 +149,7 @@ function HomeContent() {
                             {!error && (
                                 <p className="text-lg mb-8 max-w-2xl mx-auto">
                                     Schon {" "}
-                                    <span className="font-bold">
+                                    <span className="font-bold text">
                                         {savedTimeHouers}
                                         {" "}
                                         {savedTimeHouers < 2 ? "Stunde " : "Stunden "}
@@ -164,7 +164,7 @@ function HomeContent() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
                             <button
-                                className="btn btn-primary btn-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
+                                className="btn btn-success btn-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
                                 onClick={() => {
                                     if (!isUserLoggedIn) {
                                         window.location.href = "/signup";
