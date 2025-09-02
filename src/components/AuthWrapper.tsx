@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 import EncryptionService from '../services/encryptionService';
@@ -28,78 +28,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
 
   const encryptionService = EncryptionService.getInstance();
 
-  useEffect(() => {
-    if (user) {
-      checkAuthenticationStatus(user);
-    } else {
-      setAuthState({
-        isAuthenticated: false,
-        needsPinSetup: false,
-        needsPinEntry: false,
-        isLoading: false,
-        error: null,
-      });
-    }
-  }, [user]);
-
-  const checkAuthenticationStatus = async (user: User) => {
-    try {
-      setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-
-      if(encryptionService.isInitialized()){
-        setAuthState({
-          isAuthenticated: true,
-          needsPinSetup: false,
-          needsPinEntry: false,
-          isLoading: false,
-          error: null
-        });
-        return
-      }
-
-      const savedPin = sessionStorage.getItem("userPin");
-      if(savedPin){
-        setAuthState({
-          isAuthenticated: true,
-          needsPinSetup: false,
-          needsPinEntry: false,
-          isLoading: false,
-          error: null
-        });
-        await handlePinEntry(savedPin);
-        return;
-      }
-
-      if (await encryptionService.isPinBasedAuthReady(user.id)) {
-        setAuthState({
-          isAuthenticated: true,
-          needsPinSetup: false,
-          needsPinEntry: true,
-          isLoading: false,
-          error: null
-        });
-        return;
-      }
-        setAuthState({
-          isAuthenticated: false,
-          needsPinSetup: true,
-          needsPinEntry: false,
-          isLoading: false,
-          error: null
-        });
-    } catch (error) {
-      console.error('Error checking authentication status:', error);
-      setAuthState({
-        isAuthenticated: false,
-        needsPinSetup: true,
-        needsPinEntry: false,
-        isLoading: false,
-        error: 'Fehler:' + error
-      });
-    }
-  };
-
-  const handlePinSetup = async (pin: string) => {
+  const handlePinSetup = useCallback(async (pin: string) => {
     if (!user) return;
 
     try {
@@ -112,6 +41,16 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
       );
 
       if (result.success) {
+        const { error } = await supabase.from('profiles').update({ has_pin: true }).eq('id', user.id);
+        if(error){
+          setAuthState({
+            isAuthenticated: false,
+            needsPinSetup: false,
+            needsPinEntry: false,
+            isLoading: false,
+            error: "Pin Setup fehlgeschlagen"
+          });
+        }
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -135,9 +74,9 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         error: 'PIN-Setup fehlgeschlagen'
       }));
     }
-  };
+  }, [user, encryptionService]);
 
-  const handlePinEntry = async (pin: string) => {
+  const handlePinEntry = useCallback(async (pin: string) => {
     if (!user) return;
 
     try {
@@ -181,11 +120,82 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         error: 'PIN-Überprüfung fehlgeschlagen'
       }));
     }
-  };
+  }, [user, encryptionService]);
 
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
     await supabase.auth.signOut();
-  };
+  }, []);
+
+  useEffect(() => {
+    const checkAuthenticationStatus = async (user: User) => {
+      try {
+        setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+  
+        if(encryptionService.isInitialized()){
+          setAuthState({
+            isAuthenticated: true,
+            needsPinSetup: false,
+            needsPinEntry: false,
+            isLoading: false,
+            error: null
+          });
+          return
+        }
+  
+        const savedPin = sessionStorage.getItem("userPin");
+        if(savedPin){
+          setAuthState({
+            isAuthenticated: true,
+            needsPinSetup: false,
+            needsPinEntry: false,
+            isLoading: false,
+            error: null
+          });
+          await handlePinEntry(savedPin);
+          return;
+        }
+  
+        if (await encryptionService.isPinBasedAuthReady(user.id)) {
+          setAuthState({
+            isAuthenticated: true,
+            needsPinSetup: false,
+            needsPinEntry: true,
+            isLoading: false,
+            error: null
+          });
+          return;
+        }
+          setAuthState({
+            isAuthenticated: false,
+            needsPinSetup: true,
+            needsPinEntry: false,
+            isLoading: false,
+            error: null
+          });
+      } catch (error) {
+        console.error('Error checking authentication status:', error);
+        setAuthState({
+          isAuthenticated: false,
+          needsPinSetup: true,
+          needsPinEntry: false,
+          isLoading: false,
+          error: 'Fehler:' + error
+        });
+      }
+    };
+
+    if (user) {
+      checkAuthenticationStatus(user);
+    } else {
+      setAuthState({
+        isAuthenticated: false,
+        needsPinSetup: false,
+        needsPinEntry: false,
+        isLoading: false,
+        error: null,
+      });
+    }
+  }, [user, encryptionService, handlePinEntry]);
 
   // Show loading spinner
   if (authState.isLoading) {
@@ -199,7 +209,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     );
   }
 
-  // Show PIN setup for first-time OAuth users
   if (authState.needsPinSetup) {
     return (
       <>

@@ -23,7 +23,7 @@ const PinEntry = ({
   const [isConfirming, setIsConfirming] = useState(false);
   const [localError, setLocalError] = useState('');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [isE2EEModalOpen, setIsE2EEModalOpen] = useState(true);
+  const [isE2EEModalOpen, setIsE2EEModalOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,7 +43,7 @@ const PinEntry = ({
     if (localError) {
       setLocalError('');
     }
-  }, [pin, confirmPin]);
+  }, [pin, confirmPin, localError]);
 
   const handleInputChange = (index: number, value: string) => {
     // Only allow digits
@@ -112,7 +112,6 @@ const PinEntry = ({
     }
 
     if (isFirstTime && !isConfirming) {
-      // First time setup - ask for confirmation
       setIsConfirming(true);
       setIsE2EEModalOpen(true);
       setConfirmPin(['', '', '', '', '', '']);
@@ -123,7 +122,7 @@ const PinEntry = ({
     }
 
     if (isFirstTime && isConfirming) {
-      // Confirm PIN matches
+      setIsE2EEModalOpen(false);
       const confirmPinString = confirmPin.join('');
       if (currentPin !== confirmPinString) {
         setLocalError('PINs stimmen nicht überein');
