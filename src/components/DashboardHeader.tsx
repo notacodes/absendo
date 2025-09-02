@@ -139,7 +139,12 @@ function DashboardHeader() {
             }
         } catch (err: unknown) {
             setIsGenerating(false);
-            setErrorMessage('Fehler beim Generieren der Absenz: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            if (errorMessage.startsWith('Absendo findet keine Daten')) {
+                setErrorMessage(errorMessage);
+            } else {
+                setErrorMessage('Fehler beim Generieren der Absenz: ' + errorMessage);
+            }
         }
     }
 

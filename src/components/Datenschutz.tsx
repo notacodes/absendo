@@ -1,12 +1,11 @@
 export default function Datenschutz() {
     return (
         <div className="max-w-4xl mx-auto p-8">
-            <h1 className="text-4xl font-bold mb-4">Datenschutzerklärung für Absendo</h1>
+            <h1 className="text-4xl font-bold mb-4">Datenschutzerklärung Absendo</h1>
             <p className="text-gray-700 mb-6">
-                Letzte Aktualisierung: 29. August 2025
+                Letzte Aktualisierung: 02. September 2025
             </p>
 
-            {/* Einleitung */}
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">1. Einleitung und Verantwortlichkeit</h2>
                 <p className="mb-2">
@@ -28,6 +27,7 @@ export default function Datenschutz() {
                     <li>Stammdaten: Name, Vorname, E-Mail-Adresse, Geburtsdatum</li>
                     <li>Kalenderdaten</li>
                     <li>Daten zur Ausbildungsperson: Name, Vorname, E-Mail-Adresse und Telefonnummer der Ausbildungsperson in der Lehre</li>
+                    <li>Abwesenheitsgrund und Datum der Abwesenheit</li>
                 </ul>
                 <p className="mb-2 font-semibold">Besonders schützenswerte Daten</p>
                 <p>
@@ -68,7 +68,6 @@ export default function Datenschutz() {
                 </p>
             </section>
 
-            {/* Dauer der Datenspeicherung */}
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">7. Dauer der Datenspeicherung</h2>
                 <p>
@@ -77,7 +76,6 @@ export default function Datenschutz() {
                 </p>
             </section>
 
-            {/* Rechte der Nutzer */}
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">8. Ihre Rechte als betroffene Person</h2>
                 <p className="mb-2">
@@ -93,7 +91,6 @@ export default function Datenschutz() {
                 </ul>
             </section>
 
-            {/* Änderungen */}
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">9. Änderungen dieser Datenschutzerklärung</h2>
                 <p>

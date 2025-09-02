@@ -82,18 +82,10 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('encrypted_data')
-        .eq('id', user.id)
-        .single();
-      const userSalt = await encryptionService.saltManager.getSaltForUser(user.id);
       const isValidPin = await encryptionService.verifyPin(
         user.id,
         user.email || '',
-        pin,
-        profileData?.encrypted_data,
-        userSalt
+        pin
       );
 
       if (isValidPin) {
