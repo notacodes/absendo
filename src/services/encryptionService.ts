@@ -37,30 +37,12 @@ class EncryptionService {
         return EncryptionService.instance;
     }
 
-    /**
-     * Initialize encryption with user password
-     * This should be called after user authentication
-     */
-    async initializeKey(userPassword: string, userEmail: string, userId: string): Promise<void> {
-        const userSalt = await this.saltManager.getSaltForUser(userId);
-        this.userKey = CryptoJS.PBKDF2(userPassword + userEmail, userSalt, {
-            keySize: 256 / 32,
-            iterations: 10000
-        }).toString();
-        sessionStorage.setItem('userKey', this.userKey);
-    }
-
-    /**
-     * Initialize encryption for OAuth users with PIN
-     * Uses user ID, email, PIN, and stored salt for enhanced security
-     */
     async initializeKeyForOAuthWithPin(userId: string, userEmail: string, pin: string): Promise<KeyDerivationResult> {
         try {
             this.currentUserId = userId;
 
             const userSalt = await this.saltManager.getSaltForUser(userId);
 
-            // Derive key using PBKDF2 with SHA-512, 10,000 iterations as specified
             const keyMaterial = userId + userEmail + pin;
             this.userKey = CryptoJS.PBKDF2(keyMaterial, userSalt, {
                 keySize: 256 / 32,
@@ -81,17 +63,14 @@ class EncryptionService {
 
     async verifyPin(userId: string, userEmail: string, pin: string, encryptedTestData?: string, salt?: string): Promise<boolean> {
         try {
-            // Temporarily store current key
             const originalKey = this.userKey;
 
-            // Try to initialize with the provided PIN
             const result = await this.initializeKeyForOAuthWithPin(userId, userEmail, pin);
             if (!result.success) {
                 this.userKey = originalKey;
                 return false;
             }
 
-            // If we have test data, try to decrypt it
             if (encryptedTestData && salt) {
                 const decryptResult = this.decrypt(encryptedTestData, salt);
                 if (!decryptResult.success) {
@@ -107,14 +86,9 @@ class EncryptionService {
         }
     }
 
-    /**
-     * Clear the encryption key (on logout)
-     */
     async clearKey(): Promise<void> {
-        // Clear the in-memory key
         this.userKey = null;
 
-        // Clear salt if we have user ID (for complete logout)
         if (this.currentUserId) {
             await this.saltManager.clearSaltForUser(this.currentUserId);
         }
@@ -130,25 +104,10 @@ class EncryptionService {
         this.currentUserId = null;
     }
 
-    /**
-     * Clear all encryption data (complete reset)
-     */
-    async clearAllData(): Promise<void> {
-        this.userKey = null;
-        this.currentUserId = null;
-        //evtl noch salts löschen
-    }
-
-    /**
-     * Check if encryption is initialized
-     */
     isInitialized(): boolean {
         return this.userKey !== null;
     }
 
-    /**
-     * Encrypt sensitive data
-     */
     async encrypt(data: Record<string, unknown>, userId: string): Promise<EncryptionResult | null> {
         if (!this.userKey) {
             console.error('Encryption key not initialized');
@@ -175,9 +134,6 @@ class EncryptionService {
         }
     }
 
-    /**
-     * Decrypt sensitive data
-     */
     decrypt(encryptedData: string, salt: string): DecryptionResult {
         if (!this.userKey) {
             return {
@@ -245,9 +201,6 @@ class EncryptionService {
         }
     }
 
-    /**
-     * Encrypt profile data specifically
-     */
     async encryptProfileData(profileData: Record<string, unknown>): Promise<Record<string, unknown>> {
         if (!this.isInitialized()) {
             console.warn('Encryption not initialized, storing data unencrypted');
@@ -267,7 +220,6 @@ class EncryptionService {
         const sensitiveData: Record<string, unknown> = {};
         const nonSensitiveData: Record<string, unknown> = {};
 
-        // Separate sensitive and non-sensitive data
         Object.keys(profileData).forEach(key => {
             if (sensitiveFields.includes(key)) {
                 sensitiveData[key] = profileData[key];
@@ -276,11 +228,10 @@ class EncryptionService {
             }
         });
 
-        // Encrypt sensitive data
         const encryptionResult = await this.encrypt(sensitiveData, profileData['id'] as string);
         if (!encryptionResult) {
             console.error('Failed to encrypt profile data');
-            return profileData; // Fallback to unencrypted
+            return profileData;
         }
 
         return {
@@ -292,9 +243,6 @@ class EncryptionService {
         };
     }
 
-    /**
-     * Decrypt profile data
-     */
     decryptProfileData(profileData: Record<string, unknown>): Record<string, unknown> {
         if (!profileData.is_encrypted) {
             return profileData;
