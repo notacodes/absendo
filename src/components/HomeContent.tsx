@@ -40,15 +40,15 @@ function HomeContent() {
                                 <div className="text-4xl">⚡</div>
                                 <div>
                                     <h3 className="text-2xl font-bold">Blitzschnell</h3>
-                                    <p className="text-xl">Unter 30 Sekunden vom Start bis zum ausgefüllten Formular</p>
+                                    <p className="text-xl">Unter 20 Sekunden vom Start bis zum ausgefüllten Formular</p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-4">
-                                <div className="text-4xl">🔄</div>
+                                <div className="text-4xl">🔒</div>
                                 <div>
-                                    <h3 className="text-2xl font-bold">Einmal gemacht, immer bereit</h3>
-                                    <p className="text-xl">Trage deine Daten einmal ein – danach läuft alles automatisch</p>
+                                    <h3 className="text-2xl font-bold">Ende-zu-Ende-Verschlüsselung</h3>
+                                    <p className="text-xl">Deine Daten gehören nur dir. Niemand kann darauf zugreifen oder sie wiederherstellen.</p>
                                 </div>
                             </div>
 

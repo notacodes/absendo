@@ -1,7 +1,14 @@
 import {useEffect, useState} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
-import {generatePdf} from "../../services/pdfService";
+import {generatePdf} from "../services/pdfService";
+import EncryptionService from "../services/encryptionService.ts";
+
+interface UserProfile {
+    isFullNameEnabled?: boolean;
+    isFullSubjectEnabled?: boolean;
+    isDoNotSaveEnabled?: boolean;
+}
 
 function DashboardHeader() {
 
@@ -30,9 +37,13 @@ function DashboardHeader() {
 
                     if (error) throw error;
 
-                    setIsFullNameEnabled(data.isFullNameEnabled || true);
-                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                    setUserData(decryptedData);
+
+                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || true);
+                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -43,6 +54,7 @@ function DashboardHeader() {
     }, [user]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userData, setUserData] = useState<any>(null);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         date: '',
@@ -115,7 +127,7 @@ function DashboardHeader() {
             fileName: addPDFExtension(formData.fileName)
         });
         try {
-            const blob = await generatePdf(user.id, formData);
+            const blob = await generatePdf(userData, formData);
             if(blob){
                 setPdfBlob(blob);
                 setIsGenerating(false);
@@ -125,9 +137,9 @@ function DashboardHeader() {
                 setErrorMessage('PDF konnte nicht generiert werden. Prüfe deine Kalender-URL oder versuche es später erneut.');
                 return;
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             setIsGenerating(false);
-            setErrorMessage('Fehler beim Generieren der Absenz: ' + (err?.message || err));
+            setErrorMessage('Fehler beim Generieren der Absenz: ' + (err instanceof Error ? err.message : 'Unknown error'));
         }
     }
 
