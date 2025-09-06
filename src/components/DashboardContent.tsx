@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
+import EncryptionService from "../services/encryptionService.ts";
 
 interface UserProfile {
     id: string;
@@ -65,22 +66,26 @@ function DashboardContent() {
                         .single();
 
                     if (error) throw error;
+
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                    
                     const { data: absencesData, error: absencesError } = await supabase
                         .from("pdf_files")
                         .select("id")
                         .eq("user_id", user.id);
 
                     if (absencesError) throw absencesError;
-                    const enhancedData = {
-                        ...data,
+                    const enhancedData: UserProfile = {
+                        ...decryptedData,
                         total_absences: absencesData?.length || 0,
                         time_saved_minutes: (absencesData?.length || 0) * 5
                     };
                     setUserData(enhancedData);
 
-                    setIsFullNameEnabled(data.isFullNameEnabled || false);
-                    setIsFullSubjectEnabled(data.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(data.isDoNotSaveEnabled || false);
+                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || false);
+                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
+                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
 
                 } catch (err) {
                     console.error("Error fetching user data:", err);
@@ -101,7 +106,22 @@ function DashboardContent() {
                         .order("created_at", { ascending: false });
 
                     if (error) throw error;
-                    setPdfs((data || []));
+                    const encryptionService = EncryptionService.getInstance();
+                    const decryptedPdfs: PdfFile[] = [];
+                    for (const pdf of data || []) {
+                        const file_path = await encryptionService.decryptField(pdf.file_path, user.id);
+                        const date_of_absence = await encryptionService.decryptField(pdf.date_of_absence, user.id);
+                        const reason = await encryptionService.decryptField(pdf.reason, user.id);
+                        const pdf_name = await encryptionService.decryptField(pdf.pdf_name, user.id);
+                        decryptedPdfs.push({
+                            ...pdf,
+                            file_path: file_path ?? "",
+                            date_of_absence: date_of_absence ?? "",
+                            reason: reason ?? "",
+                            pdf_name: pdf_name ?? "",
+                        });
+                    }
+                    setPdfs(decryptedPdfs);
                 } catch (err) {
                     console.error("Error fetching PDFs:", err);
                 }
@@ -128,16 +148,13 @@ function DashboardContent() {
             console.error(`Error updating ${field}:`, err);
             if (field === 'isFullNameEnabled') {
                 setIsFullNameEnabled(userData?.isFullNameEnabled || false);
-            }else if (field === 'isDoNotSaveEnabled') {
-                setIsDoNotSaveEnabled(userData?.isDoNotSaveEnabled || false);
-            }
-            else {
+            } else if (field === 'isFullSubjectEnabled') {
                 setIsFullSubjectEnabled(userData?.isFullSubjectEnabled || false);
+            } else if (field === 'isDoNotSaveEnabled') {
+                setIsDoNotSaveEnabled(userData?.isDoNotSaveEnabled || false);
             }
         } finally {
             setSettingsLoading(false);
-            window.location.reload();
-            //TO-DO: remove reload and add something to update the Values in DashboardHeader
         }
     }
 
@@ -183,8 +200,15 @@ function DashboardContent() {
             .storage
             .from('pdf-files')
             .download(pdf.file_path)
-        if(!error){
-            return data
+        if(user?.id) {
+            const userId = user?.id
+            console.log(userId);
+            const encryptionService = EncryptionService.getInstance();
+            const pdfBlob = await encryptionService.decryptBlob(data as Blob, userId);
+            console.log(pdfBlob);
+            if(!error){
+                return pdfBlob
+            }
         }
         console.log("Error");
     }
@@ -285,12 +309,6 @@ function DashboardContent() {
             <div className="card bg-base-100 shadow-xl lg:col-span-1">
                 <div className="card-body">
                     <h2 className="card-title mb-5">Absenz-Einstellungen</h2>
-                    {settingsLoading && (
-                        <div className="loading loading-spinner loading-sm">
-                            <span>Einstellungen werden gespeichert...</span>
-                        </div>
-                    )}
-
                     <div className="flex items-center gap-2 mb-4">
                         <input
                             type="checkbox"
@@ -320,6 +338,11 @@ function DashboardContent() {
                             className="toggle"/>
                         <span>Absenz nicht speichern (nur lokal generieren)</span>
                     </div>
+                    {settingsLoading && (
+                        <div className="loading loading-spinner loading-sm">
+                            <span>Einstellungen werden gespeichert...</span>
+                        </div>
+                    )}
                 </div>
             </div>
 
