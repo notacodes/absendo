@@ -253,8 +253,8 @@ const PinEntry = ({
         )}
 
         <div className="mt-4 text-xs text-gray-500 text-center">
-          <p>Ihre PIN wird niemals gespeichert oder übertragen.</p>
-          <p>Sie wird nur zur lokalen Verschlüsselung verwendet.</p>
+          <p>Dein PIN wird niemals gespeichert oder übertragen.</p>
+          <p>Er wird nur zur lokalen Verschlüsselung verwendet.</p>
         </div>
       </div>
     </div>
