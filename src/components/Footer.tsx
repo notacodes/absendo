@@ -24,6 +24,7 @@ function Footer() {
                 <h6 className="footer-title">Development</h6>
                 <a className="link link-hover" href="https://github.com/notacodes/absendo" target="_blank">Open
                     source</a>
+                <a className="link link-hover" href="https://absendo.betteruptime.com/">System Status</a>
             </nav>
 
             <nav className="flex flex-col items-center md:items-start">

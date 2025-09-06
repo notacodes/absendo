@@ -32,7 +32,7 @@ function Hero() {
                         </div>
 
                     )}
-                    <h1 className="text-4xl md:text-7xl font-bold leading-tight bg-gradient-to-r from-primary via-blue-500 to-blue-300 bg-clip-text text-transparent">
+                    <h1 className="text-4xl md:text-7xl sm:text-5xl font-bold leading-tight bg-gradient-to-r from-primary via-blue-500 to-blue-300 bg-clip-text text-transparent">
                         BBZW Absenzformulare
                         <span className="block bg-clip-text bg-gradient-to-r">
                             in 30 Sekunden
