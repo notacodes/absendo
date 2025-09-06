@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import {supabase} from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
 import {generatePdf} from "../services/pdfService";
@@ -26,35 +26,36 @@ function DashboardHeader() {
     }, []);
 
     useEffect(() => {
-        async function fetchUserData() {
-            if (user) {
-                try {
-                    const { data, error } = await supabase
-                        .from("profiles")
-                        .select("*")
-                        .eq("id", user.id)
-                        .single();
-
-                    if (error) throw error;
-
-                    const encryptionService = EncryptionService.getInstance();
-                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
-                    setUserData(decryptedData);
-
-                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || true);
-                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
-
-                } catch (err) {
-                    console.error("Error fetching user data:", err);
-                }
-            }
-        }
         fetchUserData();
     }, [user]);
 
+    const fetchUserData = useCallback(async () => {
+        if (user) {
+            try {
+                const { data, error } = await supabase
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", user.id)
+                    .single();
+
+                if (error) throw error;
+
+                const encryptionService = EncryptionService.getInstance();
+                const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+                setUserData(decryptedData);
+
+                setIsFullNameEnabled(decryptedData.isFullNameEnabled || true);
+                setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
+                setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
+
+            } catch (err) {
+                console.error("Error fetching user data:", err);
+            }
+        }
+    }, [user]);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [userData, setUserData] = useState<any>(null);
+    const [userData, setUserData] = useState<UserProfile | null>(null);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         date: '',
@@ -69,7 +70,8 @@ function DashboardHeader() {
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const openModal = () => {
+    const openModal = async () => {
+        await fetchUserData();
         setIsModalOpen(true);
         setCurrentStep(1);
         setFormData({
@@ -172,9 +174,9 @@ function DashboardHeader() {
 
     return (
         <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 flex-wrap">
                 <h1 className="text-2xl font-bold">Absendo Dashboard</h1>
-                <button className="btn btn-primary btn-xl" onClick={openModal}>
+                <button className="btn btn-primary btn-xl sm:mt-0 mt-4" onClick={openModal}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                          stroke="currentColor" className="w-6 h-6 mr-2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
