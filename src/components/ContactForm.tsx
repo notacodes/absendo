@@ -123,7 +123,7 @@ export default function ContactForm() {
                     </div>
 
                     <button type="submit" className="btn btn-primary w-full">
-                        Abschicken
+                        Absenden
                     </button>
                 </form>
             )}

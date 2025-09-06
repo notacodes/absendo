@@ -54,7 +54,7 @@ class EncryptionService {
 
             const { error } = await supabase
                 .from('profiles')
-                .update({ pin_hash: pinHash })
+                .update({ pin_hash: pinHash, has_pin: true })
                 .eq('id', userId);
 
             if (error) {
