@@ -35,10 +35,15 @@ const PinEntry = ({
         inputRefs.current[0]?.focus();
       }, 100);
     }
-    if(isFirstTime && !isConfirming){
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isFirstTime && !isConfirming) {
       setIsE2EEModalOpen(true);
+    } else {
+      setIsE2EEModalOpen(false);
     }
-  }, [isOpen, isFirstTime, isConfirming]);
+  }, [isFirstTime, isConfirming]);
 
   useEffect(() => {
     if (localError) {
