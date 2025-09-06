@@ -38,7 +38,7 @@ const PinEntry = ({
     if(isFirstTime && !isConfirming){
       setIsE2EEModalOpen(true);
     }
-  }, [isOpen]);
+  }, [isOpen, isFirstTime, isConfirming]);
 
   useEffect(() => {
     if (localError) {

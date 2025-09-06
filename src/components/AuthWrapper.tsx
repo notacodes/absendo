@@ -41,7 +41,20 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
       );
 
       if (result.success) {
-        const { error } = await supabase.from('profiles').update({ has_pin: true }).eq('id', user.id);
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        const encryptedProfile = await encryptionService.encryptProfileData(profileData);
+
+        const { error } = await supabase.from('profiles').update(encryptedProfile).eq('id', user.id);
+
         if(error){
           setAuthState({
             isAuthenticated: false,
@@ -202,33 +215,27 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
 
   if (authState.needsPinSetup) {
     return (
-      <>
-        {children}
-        <PinEntry
-          isOpen={true}
-          onSubmit={handlePinSetup}
-          onCancel={handleCancel}
-          error={authState.error || undefined}
-          loading={authState.isLoading}
-          isFirstTime={true}
-        />
-      </>
+      <PinEntry
+        isOpen={true}
+        onSubmit={handlePinSetup}
+        onCancel={handleCancel}
+        error={authState.error || undefined}
+        loading={authState.isLoading}
+        isFirstTime={true}
+      />
     );
   }
 
   if (authState.needsPinEntry) {
     return (
-      <>
-        {children}
-        <PinEntry
-          isOpen={true}
-          onSubmit={handlePinEntry}
-          onCancel={handleCancel}
-          error={authState.error || undefined}
-          loading={authState.isLoading}
-          isFirstTime={false}
-        />
-      </>
+      <PinEntry
+        isOpen={true}
+        onSubmit={handlePinEntry}
+        onCancel={handleCancel}
+        error={authState.error || undefined}
+        loading={authState.isLoading}
+        isFirstTime={false}
+      />
     );
   }
 
