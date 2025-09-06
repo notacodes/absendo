@@ -54,7 +54,7 @@ function Hero() {
                     >
                         Jetzt kostenlos nutzen
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                              className="lucide lucide-arrow-right-icon lucide-arrow-right">
                             <path d="M5 12h14"/>
                             <path d="m12 5 7 7-7 7"/>
@@ -63,7 +63,7 @@ function Hero() {
                     <button className="btn btn-warning btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
                         So funktioniert’s
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                              className="lucide lucide-lightbulb-icon lucide-lightbulb">
                             <path
                                 d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
