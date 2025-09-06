@@ -2,13 +2,13 @@ import { secureLogout, useIsUserLoggedIn } from "../supabaseClient.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
-    const version = "Beta";
+    const version = "1.0.0";
 
     return (
-        <div className="navbar shadow-md">
+        <div className="navbar shadow-sm">
             <div className="navbar-start">
                 <a className="btn btn-ghost normal-case text-xl" href="/home">Absendo</a>
-                <span className="ml-3 px-2 py-1 text-xs font-medium bg-orange-200 text-orange-800 rounded-full">
+                <span className="px-2 py-1 text-xs font-medium bg-success rounded-full hidden md:block">
                     {version}
                 </span>
             </div>
