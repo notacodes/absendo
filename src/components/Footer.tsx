@@ -1,23 +1,32 @@
 function Footer() {
     return (
-        <footer className="footer p-8 bg-base-300 text-base-content">
-            <div className="container mx-auto flex flex-wrap justify-between gap-8 text-center md:text-left">
-                <div className="flex flex-col items-center md:items-start">
-                    <span className="footer-title">Absenz-Tool</span>
-                    <p className="max-w-xs">
-                        Ein einfaches Tool zum Ausfüllen von Absenzformularen.
-                    </p>
+        <footer className="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
+            <aside className="flex flex-col items-center md:items-start gap-4">
+                <div className="mt-10">
+                <p className="text-center md:text-left">
+                    Absendo<br/>
+                    Ein einfaches Tool zum Ausfüllen von Absenzformularen
+                </p>
                 </div>
-                <div className="flex flex-col items-center md:items-start">
-                    <span className="footer-title">Links</span>
-                    <a className="link link-hover" href="https://github.com/notacodes/absendo" target="_blank">Github Repository</a>
-                    <a className="link link-hover" href="/contact">Kontaktformular</a>
-                </div>
-                <div className="flex flex-col items-center md:items-start">
-                    <span className="footer-title">Kontakt</span>
-                    <a className="link link-hover" href="mailto:contact@absendo.app">contact@absendo.app</a>
-                </div>
-            </div>
+            </aside>
+
+            <nav className="flex flex-col items-center md:items-start">
+                <h6 className="footer-title">Development</h6>
+                <a className="link link-hover" href="https://github.com/notacodes/absendo" target="_blank">Open
+                    source</a>
+                <a className="link link-hover" href="https://absendo.betteruptime.com/">System Status</a>
+            </nav>
+
+            <nav className="flex flex-col items-center md:items-start">
+                <h6 className="footer-title">Kontakt</h6>
+                <a className="link link-hover" href="/contact">Kontaktformular</a>
+                <a className="link link-hover" href="mailto:contact@absendo.app">contact@absendo.app</a>
+            </nav>
+
+            <nav className="flex flex-col items-center md:items-start">
+                <h6 className="footer-title">Links</h6>
+                <a className="link link-hover" href="/datenschutz">Datenschutzerklärung</a>
+            </nav>
         </footer>
     );
 }

@@ -1,25 +1,31 @@
 import ical from 'ical';
 import fs from 'fs';
 import { PDFDocument } from 'pdf-lib';
-import {supabase} from "../src/supabaseClient.js";
-import teachersData from '../src/data/teachers24-25-bbzw.json';
-import subjectsData from '../src/data/subjects24-25-bbzw.json';
+import {supabase} from "../supabaseClient.ts";
+import teachersData from '../data/teachers24-25-bbzw.json';
+import subjectsData from '../data/subjects24-25-bbzw.json';
+import EncryptionService from './encryptionService.ts';
 
-export async function generatePdf(user_id, form_data) {
-    return  await getPdfData(user_id, form_data);
+export async function generatePdf(userData, form_data) {
+    return  await getPdfData(userData, form_data);
 }
 
-async function getPdfData(user_id, form_data) {
-    const userData = await getUserData(user_id);
+async function getPdfData(userData, form_data) {
     const url = userData.calendar_url;
     const events = await getICALData(url);
     const date = new Date(form_data.date);
     getWeekday(date);
     const processedEvents = processEvents(events, date);
+
+    if (processedEvents.length === 0) {
+        const formattedDate = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        throw new Error(`Absendo findet keine Daten am ${formattedDate}`);
+    }
+
     const pdfForm = await fillForm(userData, processedEvents, form_data);
     const pdfBlob = new Blob([pdfForm], { type: 'application/pdf' });
     if(!form_data.isDoNotSaveEnabled) {
-        await savePdfInDB(pdfBlob, user_id, form_data.fileName, date, form_data.reason);
+        await savePdfInDB(pdfBlob, userData.id, form_data.fileName, date, form_data.reason);
     }
     return pdfBlob
 }
@@ -31,7 +37,10 @@ async function getUserData(user_id) {
         .select('*')
         .eq('id', user_id)
         .single();
-    return data;
+    const encryptionService = EncryptionService.getInstance();
+    const decryptedData = encryptionService.decryptProfileData(data);
+    
+    return decryptedData;
 }
 
 async function getICALData(url) {
@@ -231,10 +240,17 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
     }
 
     const filePath = `${filePathBase}${uniqueFileName}`;
+    const encryptionService = EncryptionService.getInstance();
+    const encryptedFilePath = await encryptionService.encrypt({filePath: filePath}, userId);
+    const encryptedDateOfAbsence = await encryptionService.encrypt({dateOfAbsence: dateOfAbsence}, userId);
+    const encryptedReason = await encryptionService.encrypt({reason: reason}, userId);
+    const encryptedPdfName = await encryptionService.encrypt({pdfName: fileName}, userId);
+
+    const pdf = await encryptionService.encryptBlob(pdfForm, userId)
     const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('pdf-files')
-        .upload(filePath, pdfForm, {
+        .upload(filePath, pdf, {
             metadata: {
                 dateOfAbsence: dateOfAbsence
             }
@@ -244,10 +260,10 @@ async function savePdfInDB(pdfForm, userId, fileName, dateOfAbsence, reason) {
         .from('pdf_files')
         .insert({
             user_id: userId,
-            file_path: filePath,
-            date_of_absence: dateOfAbsence,
-            reason: reason,
-            pdf_name: fileName
+            file_path: encryptedFilePath.encryptedData,
+            date_of_absence: encryptedDateOfAbsence.encryptedData,
+            reason: encryptedReason.encryptedData,
+            pdf_name: encryptedPdfName.encryptedData,
         })
 
     if (dbError) {

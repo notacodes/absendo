@@ -5,6 +5,7 @@ function SignupForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [agreed, setAgreed] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,10 +23,7 @@ function SignupForm() {
                 }
             })
             if (signUpError) throw signUpError;
-            if (!error) {
                 window.location.href = '/email-verification';
-            }
-
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Login failed.');
         }
@@ -52,12 +50,12 @@ function SignupForm() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-base-100">
             <div className="card w-96 bg-base-200 shadow-xl">
-                <div className="card-body">
+                <div className="card-body mb-0">
                     <h2 className="card-title text-2xl font-bold mb-4">
                         Hallo 👋, registriere dich, um fortzufahren
                     </h2>
 
-                    <button className="btn btn-primary w-full mb-3 flex items-center gap-2" onClick={signInWithGoogle}>
+                    <button className="btn btn-primary w-full mb-3 flex items-center gap-2" onClick={signInWithGoogle} disabled={!agreed}>
                         <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill="#4285F4"
@@ -79,7 +77,7 @@ function SignupForm() {
                         Weiter mit Google
                     </button>
 
-                    <button className="btn btn-secondary w-full mb-3 flex items-center gap-2" onClick={signInWithGithub}>
+                    <button className="btn btn-secondary w-full mb-3 flex items-center gap-2" onClick={signInWithGithub} disabled={!agreed}>
                         <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill="currentColor"
@@ -122,13 +120,13 @@ function SignupForm() {
                         {error ? (
                             <div role="alert" className="alert alert-error mb-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span>{error}</span>
                             </div>
                         ) : null}
 
-                        <button className="btn btn-primary w-full">
+                        <button className="btn btn-primary w-full" disabled={!agreed}>
                             Sign up
                             <svg
                                 className="w-5 h-5 ml-2"
@@ -145,12 +143,19 @@ function SignupForm() {
                                 />
                             </svg>
                         </button>
+
+                        <div className="form-control mt-4">
+                            <label className="label cursor-pointer">
+                                <input type="checkbox" checked={agreed} onChange={() => setAgreed(!agreed)} className="checkbox checkbox-primary" />
+                                <span className="label-text ml-2">Ich stimme den <a href="/datenschutz" className="link">Datenschutzbestimmungen</a> zu</span>
+                            </label>
+                        </div>
+                        <div className="text-center mt-6">
+                            <p className="text-xs">
+                                <p>Du hast schon einen Account? <a href="/login" className="link">Log in!</a></p>
+                            </p>
+                        </div>
                     </form>
-                </div>
-                <div className="card-footer text-center mb-4">
-                    <p className="text-sm">
-                        <p>Du hast schon einen Account? <a href="/login" className="link">Log in!</a></p>
-                    </p>
                 </div>
             </div>
         </div>

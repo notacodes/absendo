@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
+import EncryptionService from "../services/encryptionService.ts";
 
 interface PdfFile {
     id: string;
@@ -35,25 +36,40 @@ function AllAbsencesComponent() {
         fetchUser();
     }, []);
 
-    useEffect(() => {
-        async function fetchPdfs() {
-            if (user) {
-                try {
-                    const { data, error } = await supabase
-                        .from("pdf_files")
-                        .select("*")
-                        .eq("user_id", user.id)
-                        .order("created_at", { ascending: false });
+        useEffect(() => {
+            async function fetchPdfs() {
+                if (user) {
+                    try {
+                        const { data, error } = await supabase
+                            .from("pdf_files")
+                            .select("*")
+                            .eq("user_id", user.id)
+                            .order("created_at", { ascending: false });
 
-                    if (error) throw error;
-                    setPdfs(data || []);
-                } catch (err) {
-                    console.error("Error fetching PDFs:", err);
+                        if (error) throw error;
+                        const encryptionService = EncryptionService.getInstance();
+                        const decryptedPdfs: PdfFile[] = [];
+                        for (const pdf of data || []) {
+                            const file_path = await encryptionService.decryptField(pdf.file_path, user.id);
+                            const date_of_absence = await encryptionService.decryptField(pdf.date_of_absence, user.id);
+                            const reason = await encryptionService.decryptField(pdf.reason, user.id);
+                            const pdf_name = await encryptionService.decryptField(pdf.pdf_name, user.id);
+                            decryptedPdfs.push({
+                                ...pdf,
+                                file_path: file_path ?? "",
+                                date_of_absence: date_of_absence ?? "",
+                                reason: reason ?? "",
+                                pdf_name: pdf_name ?? "",
+                            });
+                        }
+                        setPdfs(decryptedPdfs);
+                    } catch (err) {
+                        console.error("Error fetching PDFs:", err);
+                    }
                 }
             }
-        }
-        fetchPdfs();
-    }, [user]);
+            fetchPdfs();
+        }, [user]);
 
     async function getPdf(pdf: PdfFile) {
         const { data, error } = await supabase
