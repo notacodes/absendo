@@ -8,7 +8,7 @@ function Navbar() {
         <div className="navbar shadow-sm">
             <div className="navbar-start">
                 <a className="btn btn-ghost normal-case text-xl" href="/home">Absendo</a>
-                <span className="px-2 py-1 text-xs font-medium bg-success rounded-full hidden md:block">
+                <span className="px-2 py-1 mx-2 text-xs font-medium bg-success rounded-full hidden md:block">
                     {version}
                 </span>
             </div>

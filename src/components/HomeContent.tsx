@@ -24,7 +24,34 @@ function HomeContent() {
     return (
         <>
             <div className="py-12 container mx-auto px-4 mb-14">
-                <div className="py-12 mt-10">
+
+                <h2 id="how-it-works" className="text-5xl font-bold text-center mb-8 mt-14 scroll-mt-40">So einfach geht's</h2>
+
+                <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
+                    <div className="text-center">
+                        <div className="text-7xl mb-4">📝</div>
+                        <h3 className="text-3xl font-bold mb-2">Anmelden</h3>
+                        <p className="text-lg max-w-xs mx-auto">Registriere dich mit deiner Schulnetz-Kalender-URL und füge deine persönlichen Informationen hinzu</p>
+                    </div>
+
+                    <div className="text-4xl md:text-6xl rotate-90 md:rotate-0">➔</div>
+
+                    <div className="text-center">
+                        <div className="text-7xl mb-4">📅</div>
+                        <h3 className="text-3xl font-bold mb-2">Datum wählen</h3>
+                        <p className="text-lg max-w-xs mx-auto">Wähle einfach den Zeitraum deiner Abwesenheit im Kalender aus</p>
+                    </div>
+
+                    <div className="text-4xl md:text-6xl rotate-90 md:rotate-0">➔</div>
+
+                    <div className="text-center">
+                        <div className="text-7xl mb-4">✅</div>
+                        <h3 className="text-3xl font-bold mb-2">Herunterladen & fertig</h3>
+                        <p className="text-lg max-w-xs mx-auto">Lade das fertig ausgefüllte Formular herunter, unterschreibe es und du bist fertig!</p>
+                    </div>
+                </div>
+
+                <div className="py-12 mt-20">
                     <div className="container mx-auto px-4">
                         <h2 className="text-5xl font-bold text-center mb-12">Warum Absendo?</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-14">
@@ -63,33 +90,23 @@ function HomeContent() {
                     </div>
                 </div>
 
-                <h2 id="how-it-works" className="text-5xl font-bold text-center mb-8 mt-14 scroll-mt-40">So einfach geht's</h2>
-
-                <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
-                    <div className="text-center">
-                        <div className="text-7xl mb-4">📝</div>
-                        <h3 className="text-3xl font-bold mb-2">Anmelden</h3>
-                        <p className="text-lg max-w-xs mx-auto">Registriere dich mit deiner Schulnetz-Kalender-URL und füge deine persönlichen Informationen hinzu</p>
-                    </div>
-
-                    <div className="text-4xl md:text-6xl rotate-90 md:rotate-0">➔</div>
-
-                    <div className="text-center">
-                        <div className="text-7xl mb-4">📅</div>
-                        <h3 className="text-3xl font-bold mb-2">Datum wählen</h3>
-                        <p className="text-lg max-w-xs mx-auto">Wähle einfach den Zeitraum deiner Abwesenheit im Kalender aus</p>
-                    </div>
-
-                    <div className="text-4xl md:text-6xl rotate-90 md:rotate-0">➔</div>
-
-                    <div className="text-center">
-                        <div className="text-7xl mb-4">✅</div>
-                        <h3 className="text-3xl font-bold mb-2">Herunterladen & fertig</h3>
-                        <p className="text-lg max-w-xs mx-auto">Lade das fertig ausgefüllte Formular herunter, unterschreibe es und du bist fertig!</p>
+                <div className="py-20">
+                    <div className="container mx-auto px-4">
+                        <div className="text-center">
+                            <h3 className="text-5xl font-bold mb-4">Für wen ist Absendo?</h3>
+                            <p className="text-xl max-w-3xl mx-auto">
+                                Absendo richtet sich zurzeit ausschliesslich an <strong className="text-primary">Schülerinnen und Schüler des Berufsbildungszentrums Wirtschaft, Informatik und Technik (BBZW)</strong> in Sursee, Willisau und Hochdorf.
+                            </p>
+                            <p className="text-lg mt-4 max-w-3xl mx-auto">
+                                Wir arbeiten daran, Absendo in Zukunft auch für weitere Schulen verfügbar zu machen.
+                                Wenn du möchtest, dass deine Schule unterstützt wird, lass es uns wissen!
+                            </p>
+                            <a href="/contact" className="btn-lg btn btn-primary mt-8">Schule vorschlagen</a>
+                        </div>
                     </div>
                 </div>
 
-                <div id="faq" className="py-20 mt-25">
+                <div id="faq" className="py-20">
                     <div className="container mx-auto px-4 max-w-3xl">
                         <h2 className="text-5xl font-bold text-center mb-12">Häufige Fragen (FAQ)</h2>
                         <div className="space-y-6">
@@ -141,7 +158,7 @@ function HomeContent() {
                 </div>
 
                 <div className="py-20">
-                    <div className="container mx-auto px-4 text-center text-primary">
+                    <div className="container mx-auto px-4 text-center">
                         <h2 className="text-5xl font-bold mb-6">
                             Bereit, Zeit zu sparen? 🎉
                         </h2>
