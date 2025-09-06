@@ -95,7 +95,7 @@ function HomeContent() {
                         <div className="text-center">
                             <h3 className="text-5xl font-bold mb-4">Für wen ist Absendo?</h3>
                             <p className="text-xl max-w-3xl mx-auto">
-                                Absendo richtet sich zurzeit ausschliesslich an <strong className="text-primary">Schülerinnen und Schüler des Berufsbildungszentrums Wirtschaft, Informatik und Technik (BBZW)</strong> in Sursee, Willisau und Hochdorf.
+                                Absendo richtet sich zurzeit ausschliesslich an <strong className="text-primary">Schülerinnen und Schüler des Berufsbildungszentrums Wirtschaft, Informatik und Technik (BBZW)</strong> in Sursee, Willisau und Emmen.
                             </p>
                             <p className="text-lg mt-4 max-w-3xl mx-auto">
                                 Wir arbeiten daran, Absendo in Zukunft auch für weitere Schulen verfügbar zu machen.
