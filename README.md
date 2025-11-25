@@ -2,22 +2,9 @@
 
 **Absendo** is a tool designed to simplify the process of filling out absence forms for students of the BBZW (Berufsbildungszentrum Wirtschaft, Informatik und Technik). By integrating directly with your school calendar, Absendo automates the task of generating absence forms, saving students time and effort.
 
-## ✨ Features
-
-*   **Automated Form Filling:** Generate complete absence forms with just a few clicks.
-*   **School Calendar Integration:** Seamlessly import absence data from your BBZW school calendar.
-*   **End-to-End Encryption:** Your personal data and absence information are secured with end-to-end encryption.
-*   **Open Source:** Developed as an open-source project, promoting transparency and community contributions.
-
 ## 🌐 Live Demo
 
 Experience Absendo live: [https://absendo.app](https://absendo.app)
-
-## 📦 Project Structure
-
-This repository contains the **frontend** of the Absendo application, built with React and Vite. The backend is maintained in a separate repository:
-
-👉 [Absendo Backend Repository](https://github.com/notacodes/absendo-backend)
 
 ## 🚀 Technologies
 
@@ -30,44 +17,87 @@ This repository contains the **frontend** of the Absendo application, built with
 *   **Deployment:**
     *   [Vercel](https://vercel.com/)
 
+## 📦 Project Structure
+
+This repository contains the **frontend** of the Absendo application, built with React and Vite. The backend is maintained in a separate repository:
+
+👉 [Absendo Backend Repository](https://github.com/notacodes/absendo-backend)
+
 ## 🛠️ Installation & Local Setup
 
-To get a local copy of Absendo up and running, follow these steps:
+To get a local copy of Absendo up and running for development, follow these steps:
 
 ### Prerequisites
 
 *   Node.js (LTS version recommended)
 *   npm (comes with Node.js)
+*   [Supabase CLI](https://supabase.com/docs/guides/cli)
+*   Docker Desktop (must be running while Supabase runs)
 
-### Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/notacodes/absendo-react.git
 cd absendo-react
 ```
 
-### Install Dependencies
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Environment Variables
+### 3. Start the local Supabase environment
 
-Create a `.env` file in the root of the project.
+Make sure Docker Desktop is running before executing this command. This command starts the local Supabase database and provides you with the necessary API keys.
+
+```bash
+supabase start
+```
+
+After the command completes, you will see output similar to this:
 
 ```
-VITE_SUPABASE_URL=https://uvvchmphtkqsfpaydagn.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dmNobXBodGtxc2ZwYXlkYWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxNzA4MzYsImV4cCI6MjA1OTc0NjgzNn0.x9jLUG8EOwXeO6clfhZII_H90JTceR3UAKcQRZARd2U
+Started supabase local development setup.
+
+         API URL: http://127.0.0.1:54321
+     GraphQL URL: http://127.0.0.1:54321/graphql/v1
+  S3 Storage URL: http://127.0.0.1:54321/storage/v1/s3
+         MCP URL: http://127.0.0.1:54321/mcp
+    Database URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      Studio URL: http://127.0.0.1:54323
+     Mailpit URL: http://127.0.0.1:54324
+ Publishable key: sb_publishable_ACJWlzQHlZj...
+      Secret key: sb_secret_N7UND0UgjKTVK...
+   S3 Access Key: 625729a08b95bf...
+   S3 Secret Key: 850181e4652dd023b7a98c...
+       S3 Region: local
 ```
 
-### Run the Development Server
+### 4. Configure Environment Variables
+
+Create a `.env` file in the root of the project. Copy the **API URL** and **anon key** from the `supabase start` output into this file.
+
+```
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_ANON_KEY=your-publishable-key-from-previous-step
+```
+
+### 5. Run the Development Server
 
 ```bash
 npm run dev
 ```
 
-This will start the development server, usually at `http://localhost:5173`.
+This will start the React development server, usually at `http://localhost:5173`.
+
+### Stopping the Supabase Environment
+
+When you are finished with your development session, you can stop the local Supabase services.
+
+```bash
+supabase stop
+```
 
 ## 👋 Contributing
 
