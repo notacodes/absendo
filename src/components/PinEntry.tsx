@@ -227,7 +227,7 @@ const PinEntry = ({
             {loading ? (
               <>
                 <span className="loading loading-spinner loading-sm"></span>
-                Verarbeitung...
+                {isFirstTime ? 'Schlüssel wird generiert...' : 'PIN wird überprüft...'}
               </>
             ) : (
               isFirstTime && !isConfirming ? 'Weiter' : 'Bestätigen'
