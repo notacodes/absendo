@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '../supabaseClient';
+import { secureLogout, supabase } from '../supabaseClient';
 import EncryptionService from '../services/encryptionService';
 import PinEntry from './PinEntry';
+import AttemptManager from '../utils/attemptManager';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
   });
 
   const encryptionService = EncryptionService.getInstance();
+  const attemptManager = AttemptManager.getInstance();
 
   const handlePinSetup = useCallback(async (pin: string) => {
     if (!user) return;
@@ -34,36 +36,27 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const result = await encryptionService.initializeKeyForOAuthWithPin(
+      await encryptionService.initializeKeyForOAuthWithPin(
         user.id,
         user.email || '',
         pin
       );
 
-      if (result.success) {
+      try {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        if (profileError) {
-          throw profileError;
-        }
+        if (profileError) throw profileError;
 
         const encryptedProfile = await encryptionService.encryptProfileData(profileData);
 
-        const { error } = await supabase.from('profiles').update(encryptedProfile).eq('id', user.id);
+        const { error: updateError } = await supabase.from('profiles').update(encryptedProfile).eq('id', user.id);
 
-        if(error){
-          setAuthState({
-            isAuthenticated: false,
-            needsPinSetup: false,
-            needsPinEntry: false,
-            isLoading: false,
-            error: "Pin Setup fehlgeschlagen"
-          });
-        }
+        if (updateError) throw updateError;
+
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -72,25 +65,36 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           error: null
         });
         sessionStorage.setItem("userPin", pin);
-      } else {
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: result.error || 'PIN-Setup fehlgeschlagen'
-        }));
+
+      } catch (criticalError) {
+        await encryptionService.revertPinSetup(user.id);
+        throw criticalError;
       }
+
     } catch (error) {
       console.error('PIN setup failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-        error: 'PIN-Setup fehlgeschlagen'
+        error: `PIN-Setup fehlgeschlagen: ${errorMessage}`
       }));
     }
   }, [user, encryptionService]);
 
   const handlePinEntry = useCallback(async (pin: string) => {
     if (!user) return;
+
+    const lockoutStatus = attemptManager.isLockedOut();
+    if (lockoutStatus.locked) {
+      const until = lockoutStatus.until?.toLocaleTimeString('de-DE') || '';
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: `Zu viele Fehlversuche. Bitte versuchen Sie es nach ${until} Uhr erneut.`
+      }));
+      return;
+    }
 
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -102,6 +106,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
       );
 
       if (isValidPin) {
+        attemptManager.clearAttempts();
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -111,6 +116,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         });
         sessionStorage.setItem("userPin", pin);
       } else {
+        attemptManager.recordFailedAttempt();
         setAuthState(prev => ({
           ...prev,
           isLoading: false,
@@ -125,10 +131,10 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         error: 'PIN-Überprüfung fehlgeschlagen'
       }));
     }
-  }, [user, encryptionService]);
+  }, [user, encryptionService, attemptManager]);
 
   const handleCancel = useCallback(async () => {
-    await supabase.auth.signOut();
+    await secureLogout();
   }, []);
 
   useEffect(() => {

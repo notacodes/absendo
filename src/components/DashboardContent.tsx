@@ -38,97 +38,66 @@ function DashboardContent() {
     const [settingsLoading, setSettingsLoading] = useState(false);
 
     useEffect(() => {
-        async function fetchUser() {
+        async function fetchInitialData() {
             try {
-                const {
-                    data: { user },
-                    error,
-                } = await supabase.auth.getUser();
-                if (error) throw error;
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) throw userError;
+                if (!user) {
+                    setLoading(false);
+                    return;
+                };
                 setUser(user);
+
+                const encryptionService = EncryptionService.getInstance();
+
+                // --- Parallel Data Fetching ---
+                const [profileResponse, pdfsResponse] = await Promise.all([
+                    supabase.from("profiles").select("*").eq("id", user.id).single(),
+                    supabase.from("pdf_files").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+                ]);
+
+                if (profileResponse.error) throw profileResponse.error;
+                if (pdfsResponse.error) throw pdfsResponse.error;
+
+                // --- Process Profile Data ---
+                const decryptedProfile = encryptionService.decryptProfileData(profileResponse.data) as unknown as UserProfile;
+                const totalAbsences = pdfsResponse.data?.length || 0;
+                const enhancedData: UserProfile = {
+                    ...decryptedProfile,
+                    total_absences: totalAbsences,
+                    time_saved_minutes: totalAbsences * 5
+                };
+                setUserData(enhancedData);
+                setIsFullNameEnabled(decryptedProfile.isFullNameEnabled || false);
+                setIsFullSubjectEnabled(decryptedProfile.isFullSubjectEnabled || false);
+                setIsDoNotSaveEnabled(decryptedProfile.isDoNotSaveEnabled || false);
+
+                // --- Parallel PDF Decryption ---
+                const decryptedPdfs = await Promise.all((pdfsResponse.data || []).map(async (pdf) => {
+                    const [file_path, date_of_absence, reason, pdf_name] = await Promise.all([
+                        encryptionService.decryptField(pdf.file_path, user.id),
+                        encryptionService.decryptField(pdf.date_of_absence, user.id),
+                        encryptionService.decryptField(pdf.reason, user.id),
+                        encryptionService.decryptField(pdf.pdf_name, user.id)
+                    ]);
+                    return {
+                        ...pdf,
+                        file_path: file_path ?? "",
+                        date_of_absence: date_of_absence ?? "",
+                        reason: reason ?? "",
+                        pdf_name: pdf_name ?? "",
+                    };
+                }));
+                setPdfs(decryptedPdfs);
+
             } catch (err) {
-                console.error("Error fetching user:", err);
+                console.error("Error fetching dashboard data:", err);
             } finally {
                 setLoading(false);
             }
         }
-        fetchUser();
+        fetchInitialData();
     }, []);
-
-    useEffect(() => {
-        async function fetchUserData() {
-            if (user) {
-                try {
-                    const { data, error } = await supabase
-                        .from("profiles")
-                        .select("*")
-                        .eq("id", user.id)
-                        .single();
-
-                    if (error) throw error;
-
-                    const encryptionService = EncryptionService.getInstance();
-                    const decryptedData = encryptionService.decryptProfileData(data) as unknown as UserProfile;
-                    
-                    const { data: absencesData, error: absencesError } = await supabase
-                        .from("pdf_files")
-                        .select("id")
-                        .eq("user_id", user.id);
-
-                    if (absencesError) throw absencesError;
-                    const enhancedData: UserProfile = {
-                        ...decryptedData,
-                        total_absences: absencesData?.length || 0,
-                        time_saved_minutes: (absencesData?.length || 0) * 5
-                    };
-                    setUserData(enhancedData);
-
-                    setIsFullNameEnabled(decryptedData.isFullNameEnabled || false);
-                    setIsFullSubjectEnabled(decryptedData.isFullSubjectEnabled || false);
-                    setIsDoNotSaveEnabled(decryptedData.isDoNotSaveEnabled || false);
-
-                } catch (err) {
-                    console.error("Error fetching user data:", err);
-                }
-            }
-        }
-        fetchUserData();
-    }, [user]);
-
-    useEffect(() => {
-        async function fetchPdfs() {
-            if (user) {
-                try {
-                    const { data, error } = await supabase
-                        .from("pdf_files")
-                        .select("*")
-                        .eq("user_id", user.id)
-                        .order("created_at", { ascending: false });
-
-                    if (error) throw error;
-                    const encryptionService = EncryptionService.getInstance();
-                    const decryptedPdfs: PdfFile[] = [];
-                    for (const pdf of data || []) {
-                        const file_path = await encryptionService.decryptField(pdf.file_path, user.id);
-                        const date_of_absence = await encryptionService.decryptField(pdf.date_of_absence, user.id);
-                        const reason = await encryptionService.decryptField(pdf.reason, user.id);
-                        const pdf_name = await encryptionService.decryptField(pdf.pdf_name, user.id);
-                        decryptedPdfs.push({
-                            ...pdf,
-                            file_path: file_path ?? "",
-                            date_of_absence: date_of_absence ?? "",
-                            reason: reason ?? "",
-                            pdf_name: pdf_name ?? "",
-                        });
-                    }
-                    setPdfs(decryptedPdfs);
-                } catch (err) {
-                    console.error("Error fetching PDFs:", err);
-                }
-            }
-        }
-        fetchPdfs();
-    }, [user]);
 
     async function updateSetting(field: 'isFullNameEnabled' | 'isFullSubjectEnabled' | 'isDoNotSaveEnabled', value: boolean) {
         if (!user) return;
