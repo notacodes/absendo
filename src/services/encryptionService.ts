@@ -13,12 +13,6 @@ interface DecryptionResult {
     error?: string;
 }
 
-interface KeyDerivationResult {
-    success: boolean;
-    requiresPin?: boolean;
-    error?: string;
-}
-
 class EncryptionService {
     private static instance: EncryptionService;
     private userKey: string | null = null;
@@ -37,37 +31,45 @@ class EncryptionService {
         return EncryptionService.instance;
     }
 
-    async initializeKeyForOAuthWithPin(userId: string, userEmail: string, pin: string): Promise<KeyDerivationResult> {
+    async initializeKeyForOAuthWithPin(userId: string, userEmail: string, pin: string): Promise<void> {
+        this.currentUserId = userId;
+        const userSalt = await this.saltManager.getSaltForUser(userId);
+
+        const keyMaterial = userId + userEmail + pin;
+        this.userKey = CryptoJS.PBKDF2(keyMaterial, userSalt, {
+            keySize: 256 / 32,
+            iterations: 10000,
+            hasher: CryptoJS.algo.SHA512
+        }).toString();
+
+        const pinHash = CryptoJS.SHA256(this.userKey).toString();
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ pin_hash: pinHash, has_pin: true })
+            .eq('id', userId);
+
+        if (error) {
+            this.userKey = null;
+            this.currentUserId = null;
+            throw new Error(`Failed to save PIN hash: ${error.message}`);
+        }
+    }
+
+    async revertPinSetup(userId: string): Promise<void> {
+        console.warn(`Reverting PIN setup for user ${userId} due to a downstream error.`);
+        await this.clearKey();
         try {
-            this.currentUserId = userId;
-
-            const userSalt = await this.saltManager.getSaltForUser(userId);
-
-            const keyMaterial = userId + userEmail + pin;
-            this.userKey = CryptoJS.PBKDF2(keyMaterial, userSalt, {
-                keySize: 256 / 32,
-                iterations: 10000,
-                hasher: CryptoJS.algo.SHA512
-            }).toString();
-
-            const pinHash = CryptoJS.SHA256(this.userKey).toString();
-
             const { error } = await supabase
                 .from('profiles')
-                .update({ pin_hash: pinHash, has_pin: true })
+                .update({ pin_hash: null, has_pin: false })
                 .eq('id', userId);
-
+            
             if (error) {
-                throw error;
+                console.error(`Failed to revert PIN setup in database: ${error.message}`);
             }
-
-            return {success: true};
-        } catch (error) {
-            console.error('Failed to initialize OAuth key with PIN:', error);
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
-            };
+        } catch (dbError) {
+            console.error(`An unexpected error occurred while reverting PIN setup: ${dbError}`);
         }
     }
 
