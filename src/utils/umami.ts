@@ -16,7 +16,12 @@ function getUmami(): UmamiTracker | undefined {
 export function trackPageView(): void {
     const umami = getUmami();
     if (!umami) return;
-    umami.track();
+
+    const sanitizedUrl = `${window.location.pathname}${window.location.search}`;
+    umami.track((payload) => ({
+        ...payload,
+        url: sanitizedUrl,
+    }));
 }
 
 export function trackEvent(name: string, data?: Record<string, UmamiValue | undefined>): void {
@@ -45,4 +50,3 @@ declare global {
         umami?: UmamiTracker;
     }
 }
-
