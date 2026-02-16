@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import RouteSeo from "./components/RouteSeo.tsx";
+import UmamiPageTracker from "./components/UmamiPageTracker.tsx";
 
 const Home = lazy(() => import("./pages/Home.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
@@ -13,12 +15,15 @@ const AllAbsences = lazy(() => import("./pages/AllAbsences.tsx"));
 const MaintenancePage = lazy(() => import("./pages/Maintenance.tsx"));
 const PinTest = lazy(() => import("./pages/PinTest.tsx"));
 const DatenschutzPage = lazy(() => import("./pages/DatenschutzPage.tsx"));
+const BbzwAbsenzformular = lazy(() => import("./pages/BbzwAbsenzformular.tsx"));
 
 const Loading = () => <div className="flex justify-center items-center h-screen">Lade...</div>;
 
 function AppRoutes() {
     return (
         <Router>
+            <RouteSeo />
+            <UmamiPageTracker />
             <Suspense fallback={<Loading />}>
                 <Routes>
                     <Route path="/" element={<Home />} />
@@ -34,6 +39,7 @@ function AppRoutes() {
                     <Route path="/maintenance" element={<MaintenancePage />} />
                     <Route path="/pin-test" element={<PinTest />} />
                     <Route path="/datenschutz" element={<DatenschutzPage />} />
+                    <Route path="/bbzw-absenzformular" element={<BbzwAbsenzformular />} />
                 </Routes>
             </Suspense>
         </Router>
