@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {supabase} from "../supabaseClient.ts";
+import { trackEvent } from "../utils/umami.ts";
 
 export default function ContactForm() {
     const [formData, setFormData] = useState({
@@ -32,9 +33,11 @@ export default function ContactForm() {
 
         if (error) {
             console.error("Fehler beim Senden an Supabase:", error.message);
+            trackEvent("contact_submit_error", { grund: formData.grund });
             return;
         }
 
+        trackEvent("contact_submit_success", { grund: formData.grund });
         setGesendet(true);
 
         setTimeout(() => {
