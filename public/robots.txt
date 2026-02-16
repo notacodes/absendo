@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Private/auth routes
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /absences
+Disallow: /welcome
+Disallow: /email-verification
+Disallow: /pin-test
+
+Sitemap: https://absendo.app/sitemap.xml
