@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase} from "../supabaseClient.ts";
+import { trackEvent } from "../utils/umami.ts";
 
 function SignupForm() {
     const [email, setEmail] = useState('');
@@ -13,23 +14,28 @@ function SignupForm() {
 
         if (!email || !password) {
             setError('Please fill in all fields.');
+            trackEvent("signup_form_error", { reason: "missing_fields" });
             return;
         }
 
         try {
+            trackEvent("signup_submit_attempt");
             const { error: signUpError } = await supabase.auth.signUp({ email, password,
                 options: {
                     emailRedirectTo: 'https://absendo.app/welcome',
                 }
             })
             if (signUpError) throw signUpError;
-                window.location.href = '/email-verification';
+            trackEvent("signup_submit_success");
+            window.location.href = '/email-verification';
         } catch (err: unknown) {
+            trackEvent("signup_submit_error");
             setError(err instanceof Error ? err.message : 'Login failed.');
         }
     };
 
     async function signInWithGithub() {
+        trackEvent("signup_oauth_click", { provider: "github" });
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
@@ -39,6 +45,7 @@ function SignupForm() {
     }
 
     async function signInWithGoogle() {
+        trackEvent("signup_oauth_click", { provider: "google" });
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {

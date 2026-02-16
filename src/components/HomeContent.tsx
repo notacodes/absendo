@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {useIsUserLoggedIn} from "../supabaseClient.ts";
+import { trackEvent } from "../utils/umami.ts";
 
 function HomeContent() {
     const [error, setError] = useState(false);
@@ -101,7 +102,7 @@ function HomeContent() {
                                 Wir arbeiten daran, Absendo in Zukunft auch für weitere Schulen verfügbar zu machen.
                                 Wenn du möchtest, dass deine Schule unterstützt wird, lass es uns wissen!
                             </p>
-                            <a href="/contact" className="btn-lg btn btn-primary mt-8">Schule vorschlagen</a>
+                            <a href="/contact" className="btn-lg btn btn-primary mt-8" onClick={() => trackEvent("click_contact_school_suggest")}>Schule vorschlagen</a>
                         </div>
                     </div>
                 </div>
@@ -109,48 +110,60 @@ function HomeContent() {
                 <div id="faq" className="py-20">
                     <div className="container mx-auto px-4 max-w-3xl">
                         <h2 className="text-5xl font-bold text-center mb-12">Häufige Fragen (FAQ)</h2>
+                        <p className="text-center text-lg mb-8">
+                            Mehr Details findest du auch auf der Seite{" "}
+                            <a className="link link-primary font-semibold" href="/bbzw-absenzformular">
+                                BBZW Absenzformular
+                            </a>.
+                        </p>
                         <div className="space-y-6">
                             <div className="collapse collapse-arrow bg-base-100 shadow-xl">
-                                <input type="checkbox" />
+                                <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "speed" })} />
                                 <div className="collapse-title text-xl font-bold">
-                                    Was brauche ich, um loszulegen?
+                                    Wie schnell kann ich ein BBZW Absenzformular ausfüllen?
                                 </div>
                                 <div className="collapse-content text-lg">
-                                    <p>Du brauchst nur den Link zu deinem Schulnetz-Kalender und deine persönlichen Infos. Den Rest übernimmt Absendo für dich.</p>
+                                    <p>In der Regel unter 30 Sekunden, sobald dein Profil einmal eingerichtet ist.</p>
                                 </div>
                             </div>
 
                             <div className="collapse collapse-arrow bg-base-100 shadow-xl">
-                                <input type="checkbox" />
+                                <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "requirements" })} />
                                 <div className="collapse-title text-xl font-bold">
-                                    Was ist meine Schulnetz-Kalender-URL und wo bekomme ich sie?
+                                    Was brauche ich, um mit BBZW Absenzen zu starten?
                                 </div>
                                 <div className="collapse-content text-lg">
-                                    <p>Deine Schulnetz-Kalender-URL bekommst du direkt vom Schulnetz.
-                                        Absendo nutzt sie, um deine Absenzen automatisch für dich auszufüllen!
-                                        Sobald Absendo sie braucht, bekommst du eine Schritt-für-Schritt-Anleitung, wie du deine URL findest und einträgst.</p>
+                                    <p>Du brauchst den Link zu deinem Schulnetz-Kalender und deine persönlichen Angaben. Danach erstellt Absendo das Absenzformular automatisch.</p>
                                 </div>
                             </div>
 
                             <div className="collapse collapse-arrow bg-base-100 shadow-xl">
-                                <input type="checkbox" />
+                                <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "locations" })} />
                                 <div className="collapse-title text-xl font-bold">
-                                    Für welche Schulen kann Absendo Absenzen generieren?
+                                    Für welche BBZW Standorte funktioniert es?
                                 </div>
                                 <div className="collapse-content text-lg">
-                                    <p>Im Moment funktioniert Absendo nur für das BBZW – aber:
-                                        Weitere Schulen sind geplant und werden so schnell wie möglich hinzugefügt!
-                                    </p>
+                                    <p>Aktuell für BBZW Sursee, BBZW Emmen und BBZW Willisau. Weitere Schulen sind geplant.</p>
                                 </div>
                             </div>
 
                             <div className="collapse collapse-arrow bg-base-100 shadow-xl">
-                                <input type="checkbox" />
+                                <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "repeat_data" })} />
                                 <div className="collapse-title text-xl font-bold">
-                                    Muss ich jedes Mal alles neu eingeben?
+                                    Muss ich das BBZW Absenzformular jedes Mal neu ausfüllen?
                                 </div>
                                 <div className="collapse-content text-lg">
-                                    <p>Nein. Du richtest Absendo einmal ein – danach kannst du deine Angaben immer wieder nutzen, ohne sie neu einzugeben.</p>
+                                    <p>Nein. Du richtest Absendo einmal ein, danach werden wiederkehrende Angaben automatisch übernommen.</p>
+                                </div>
+                            </div>
+
+                            <div className="collapse collapse-arrow bg-base-100 shadow-xl">
+                                <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "pricing" })} />
+                                <div className="collapse-title text-xl font-bold">
+                                    Ist Absendo kostenlos?
+                                </div>
+                                <div className="collapse-content text-lg">
+                                    <p>Ja. Absendo ist kostenlos nutzbar.</p>
                                 </div>
                             </div>
                         </div>
@@ -183,6 +196,7 @@ function HomeContent() {
                             <button
                                 className="btn btn-success btn-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
                                 onClick={() => {
+                                    trackEvent("click_cta_start_free", { section: "home_bottom" });
                                     if (!isUserLoggedIn) {
                                         window.location.href = "/signup";
                                     } else {

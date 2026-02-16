@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {useIsUserLoggedIn} from "../supabaseClient.ts";
+import { trackEvent } from "../utils/umami.ts";
 
 function Hero() {
     const [userCount, setUserCount] = useState(undefined);
@@ -45,6 +46,7 @@ function Hero() {
                     <button
                         className="btn btn-success btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
                         onClick={() => {
+                            trackEvent("click_cta_start_free", { section: "hero" });
                             if (!isUserLoggedIn) {
                                 window.location.href = "/signup";
                             } else {
@@ -60,7 +62,10 @@ function Hero() {
                             <path d="m12 5 7 7-7 7"/>
                         </svg>
                     </button>
-                    <button className="btn btn-warning btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => window.location.hash = "#how-it-works"}>
+                    <button className="btn btn-warning btn-lg mr-4 mt-4 shadow-md hover:shadow-xl transform hover:scale-105 transition-all" onClick={() => {
+                        trackEvent("click_how_it_works", { section: "hero" });
+                        window.location.hash = "#how-it-works";
+                    }}>
                         So funktioniert’s
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"

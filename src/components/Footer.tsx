@@ -25,6 +25,7 @@ function Footer() {
 
             <nav className="flex flex-col items-center md:items-start">
                 <h6 className="footer-title">Links</h6>
+                <a className="link link-hover" href="/bbzw-absenzformular">BBZW Absenzformular</a>
                 <a className="link link-hover" href="/datenschutz">Datenschutzerklärung</a>
             </nav>
         </footer>

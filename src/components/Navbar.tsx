@@ -1,4 +1,5 @@
 import { secureLogout, useIsUserLoggedIn } from "../supabaseClient.ts";
+import { trackEvent } from "../utils/umami.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
@@ -15,15 +16,21 @@ function Navbar() {
             <div className="navbar-end">
                 { !isUserLoggedIn ? (
                     <div>
-                        <a className="btn btn-white text-black ml-2" href="/login">Login</a>
-                        <a className="btn btn-primary ml-2" href="/signup">Sign Up</a>
+                        <a className="btn btn-white text-black ml-2" href="/login" onClick={() => trackEvent("click_nav_login")}>Login</a>
+                        <a className="btn btn-primary ml-2" href="/signup" onClick={() => trackEvent("click_nav_signup")}>Sign Up</a>
                     </div>
                 ) : (
                     <>
-                        <button className="btn btn-secondary" onClick={() => window.location.href = "/dashboard"}>
+                        <button className="btn btn-secondary" onClick={() => {
+                            trackEvent("click_nav_dashboard");
+                            window.location.href = "/dashboard";
+                        }}>
                             Dashboard
                         </button>
-                        <button className="btn btn-error ml-2" onClick={() => secureLogout().then(() => {window.location.href = "/home";})}>
+                        <button className="btn btn-error ml-2" onClick={() => secureLogout().then(() => {
+                            trackEvent("click_nav_logout");
+                            window.location.href = "/home";
+                        })}>
                             Logout
                         </button>
                     </>
