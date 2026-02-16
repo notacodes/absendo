@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { trackEvent } from "../utils/umami.ts";
 
 function LoginFrom() {
     const [email, setEmail] = useState('');
@@ -12,19 +13,23 @@ function LoginFrom() {
 
         if (!email || !password) {
             setError('Please fill in all fields.');
+            trackEvent("login_form_error", { reason: "missing_fields" });
             return;
         }
 
         try {
+            trackEvent("login_submit_attempt");
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-
+            trackEvent("login_submit_success");
         } catch (err: unknown) {
+            trackEvent("login_submit_error");
             setError(err instanceof Error ? err.message : 'Login failed.');
         }
     };
 
     async function logInWithGithub() {
+        trackEvent("login_oauth_click", { provider: "github" });
         await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
@@ -34,6 +39,7 @@ function LoginFrom() {
     }
 
     async function logInWithGoogle() {
+        trackEvent("login_oauth_click", { provider: "google" });
         await supabase.auth.signInWithOAuth({
             provider: 'google',
            options: {
