@@ -12,7 +12,7 @@ function PinTest() {
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
-    const handlePinSubmit = async (pin: string) => {
+    const handlePinSubmit = async (pin: string, rememberDevice: boolean) => {
         setLoading(true);
         setError('');
         
@@ -23,7 +23,8 @@ function PinTest() {
                 setError('Ungültige PIN. Bitte versuchen Sie es erneut.');
                 setLoading(false);
             } else {
-                setPinResult(`PIN entered: ${pin} (${isFirstTime ? 'First time setup' : 'Login'})`);
+                const trustState = rememberDevice ? 'trusted device' : 'do not trust device';
+                setPinResult(`PIN entered: ${pin} (${isFirstTime ? 'First time setup' : 'Login'}, ${trustState})`);
                 setIsPinModalOpen(false);
                 setLoading(false);
             }

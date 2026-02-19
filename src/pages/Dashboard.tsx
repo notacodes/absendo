@@ -5,6 +5,7 @@ import DashboardLastAbsences from "../components/DashboardContent.tsx";
 import AuthWrapper from "../components/AuthWrapper.tsx";
 import { supabase } from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
+import { UserProfileProvider } from "../contexts/UserProfileContext.tsx";
 
 function Dashboard() {
     const [user, setUser] = useState<User | null>(null);
@@ -58,7 +59,9 @@ function Dashboard() {
 
     return user ? (
         <AuthWrapper user={user}>
-            <DashboardContent />
+            <UserProfileProvider user={user}>
+                <DashboardContent />
+            </UserProfileProvider>
         </AuthWrapper>
     ) : (
         <div className="min-h-screen bg-base-100">

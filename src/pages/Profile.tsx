@@ -4,6 +4,7 @@ import {ProfilePage} from "../components/ProfilePage.tsx";
 import {useEffect, useState} from "react";
 import {User} from "@supabase/supabase-js";
 import AuthWrapper from "../components/AuthWrapper.tsx";
+import { UserProfileProvider } from "../contexts/UserProfileContext.tsx";
 
 
 function Profile () {
@@ -36,7 +37,9 @@ function Profile () {
 
     return user ? (
         <AuthWrapper user={user}>
-            <ProfileContent />
+            <UserProfileProvider user={user}>
+                <ProfileContent />
+            </UserProfileProvider>
         </AuthWrapper>
     ) : (
         <div className="min-h-screen bg-base-100">

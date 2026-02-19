@@ -30,7 +30,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
   const encryptionService = EncryptionService.getInstance();
   const attemptManager = AttemptManager.getInstance();
 
-  const handlePinSetup = useCallback(async (pin: string) => {
+  const handlePinSetup = useCallback(async (pin: string, rememberDevice = true) => {
     if (!user) return;
 
     try {
@@ -57,6 +57,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
 
         if (updateError) throw updateError;
 
+        encryptionService.storeCurrentKey(user.id, rememberDevice);
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -64,7 +65,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
-        sessionStorage.setItem("userPin", pin);
 
       } catch (criticalError) {
         await encryptionService.revertPinSetup(user.id);
@@ -82,7 +82,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
     }
   }, [user, encryptionService]);
 
-  const handlePinEntry = useCallback(async (pin: string) => {
+  const handlePinEntry = useCallback(async (pin: string, rememberDevice = true) => {
     if (!user) return;
 
     const lockoutStatus = attemptManager.isLockedOut();
@@ -107,6 +107,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
 
       if (isValidPin) {
         attemptManager.clearAttempts();
+        encryptionService.storeCurrentKey(user.id, rememberDevice);
         setAuthState({
           isAuthenticated: true,
           needsPinSetup: false,
@@ -114,7 +115,6 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           isLoading: false,
           error: null
         });
-        sessionStorage.setItem("userPin", pin);
       } else {
         attemptManager.recordFailedAttempt();
         setAuthState(prev => ({
@@ -142,7 +142,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
       try {
         setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
   
-        if(encryptionService.isInitialized()){
+        if (encryptionService.isInitialized()) {
           setAuthState({
             isAuthenticated: true,
             needsPinSetup: false,
@@ -152,9 +152,8 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
           });
           return
         }
-  
-        const savedPin = sessionStorage.getItem("userPin");
-        if(savedPin){
+
+        if (encryptionService.restoreKeyForUser(user.id)) {
           setAuthState({
             isAuthenticated: true,
             needsPinSetup: false,
@@ -162,13 +161,34 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
             isLoading: false,
             error: null
           });
-          await handlePinEntry(savedPin);
           return;
         }
-  
+
+        const savedPin = sessionStorage.getItem("userPin");
+        if (savedPin) {
+          const isLegacyPinValid = await encryptionService.verifyPin(
+            user.id,
+            user.email || '',
+            savedPin
+          );
+          sessionStorage.removeItem("userPin");
+
+          if (isLegacyPinValid) {
+            encryptionService.storeCurrentKey(user.id, true);
+            setAuthState({
+              isAuthenticated: true,
+              needsPinSetup: false,
+              needsPinEntry: false,
+              isLoading: false,
+              error: null
+            });
+            return;
+          }
+        }
+
         if (await encryptionService.isPinBasedAuthReady(user.id)) {
           setAuthState({
-            isAuthenticated: true,
+            isAuthenticated: false,
             needsPinSetup: false,
             needsPinEntry: true,
             isLoading: false,
