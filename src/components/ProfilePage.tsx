@@ -95,7 +95,7 @@ export const ProfilePage = () => {
         return {
             ...profile,
             total_absences: totalAbsences,
-            time_saved_minutes: totalAbsences * 3,
+            time_saved_minutes: totalAbsences * 5,
         };
     }, [profile, totalAbsences]);
 
@@ -246,7 +246,7 @@ export const ProfilePage = () => {
                         </div>
 
                         <div className="mt-4 text-sm text-gray-600">
-                            <p>Mit Absendo sparst du dir durchschnittlich 3 Minuten pro Absenz</p>
+                            <p>Mit Absendo sparst du dir durchschnittlich 5 Minuten pro Absenz</p>
                         </div>
                     </div>
                 </div>

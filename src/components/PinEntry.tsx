@@ -217,7 +217,7 @@ const PinEntry = ({
               className="checkbox checkbox-sm"
               disabled={loading}
             />
-            Diesem Gerät vertrauen
+            Auf diesem Gerät angemeldet bleiben
           </label>
         )}
 
