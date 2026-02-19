@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.tsx";
 import DashboardHeader from "../components/DashboardHeader.tsx";
 import DashboardLastAbsences from "../components/DashboardContent.tsx";
+import Footer from "../components/Footer.tsx";
 import AuthWrapper from "../components/AuthWrapper.tsx";
 import { supabase } from "../supabaseClient.ts";
 import {User} from "@supabase/supabase-js";
@@ -50,10 +51,13 @@ function Dashboard() {
     }
 
     const DashboardContent = () => (
-        <div className="min-h-screen bg-base-100">
+        <div className="min-h-screen bg-base-100 flex flex-col">
             <Navbar />
-            <DashboardHeader />
-            <DashboardLastAbsences />
+            <main className="flex-1">
+                <DashboardHeader />
+                <DashboardLastAbsences />
+            </main>
+            <Footer />
         </div>
     );
 
@@ -64,12 +68,13 @@ function Dashboard() {
             </UserProfileProvider>
         </AuthWrapper>
     ) : (
-        <div className="min-h-screen bg-base-100">
+        <div className="min-h-screen bg-base-100 flex flex-col">
             <Navbar />
-            <div className="flex flex-col items-center justify-center py-10">
+            <main className="flex flex-1 flex-col items-center justify-center py-10">
                 <h1 className="text-2xl font-bold">Please log in to access the dashboard</h1>
                 <a href="/login" className="btn btn-primary mt-4">Login</a>
-            </div>
+            </main>
+            <Footer />
         </div>
     );
 }
