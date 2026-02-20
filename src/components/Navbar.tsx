@@ -3,7 +3,7 @@ import { trackEvent } from "../utils/umami.ts";
 
 function Navbar() {
     const isUserLoggedIn = useIsUserLoggedIn();
-    const version = "2";
+    const version = "2.0.0";
 
     return (
         <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur">

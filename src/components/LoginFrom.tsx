@@ -62,9 +62,9 @@ function LoginFrom() {
                             <span className="badge badge-primary badge-outline w-fit">Anmeldung</span>
                             <h2 className="text-3xl font-bold leading-tight">Willkommen zurück bei Absendo</h2>
                             <ul className="list-disc space-y-2 pl-5 text-sm text-base-content/80">
-                                <li>Kalender verknüpfen und Daten automatisch übernehmen</li>
-                                <li>Lektionen gezielt auswählen statt den ganzen Tag</li>
-                                <li>Zero-Knowledge-Architektur für deine Profildaten</li>
+                                <li>Schnell und einfach Absenzen erfassen</li>
+                                <li>Automatische Synchronisation mit deinem Sluz-Kalender</li>
+                                <li>Zero-Knowledge-Architektur schützt deine persönlichen Daten</li>
                             </ul>
                         </div>
                     </div>

@@ -76,9 +76,9 @@ function SignupForm() {
                             <span className="badge badge-primary badge-outline w-fit">Registrieren</span>
                             <h2 className="text-3xl font-bold leading-tight">Starte mit Absendo</h2>
                             <ul className="list-disc space-y-2 pl-5 text-sm text-base-content/80">
-                                <li>Schneller Start mit Google, GitHub oder E-Mail</li>
-                                <li>Absenzformular in etwa 30 Sekunden ausfüllen</li>
-                                <li>Datenschutz durch Zero-Knowledge-Architektur</li>
+                                <li>Schnell und einfach Absenzen erfassen</li>
+                                <li>Automatische Synchronisation mit deinem Sluz-Kalender</li>
+                                <li>Zero-Knowledge-Architektur schützt deine persönlichen Daten</li>
                             </ul>
                         </div>
                     </div>
