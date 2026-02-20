@@ -105,7 +105,7 @@ export default function ContactForm() {
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <label className="label">
-                                        <span className="label-text">Wie heißt du?</span>
+                                        <span className="label-text">Wie heisst du?</span>
                                     </label>
                                     <input
                                         type="text"
