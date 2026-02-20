@@ -131,13 +131,32 @@ function NewAbsenceModal({
     }, [formData.date, isOpen]);
 
     useEffect(() => {
-        if (!isOpen || !formData.date || !userData) {
+        // Modal closed: reset lesson-related state and clear any selection error
+        if (!isOpen) {
             setIsLoadingLessons(false);
             setAvailableLessons([]);
             setFormData((prev) => ({ ...prev, selectedLessonKeys: [] }));
+            setSelectionError(null);
             return;
         }
 
+        // No date selected yet: ensure clean state without showing an error
+        if (!formData.date) {
+            setIsLoadingLessons(false);
+            setAvailableLessons([]);
+            setFormData((prev) => ({ ...prev, selectedLessonKeys: [] }));
+            setSelectionError(null);
+            return;
+        }
+
+        // Date selected but profile/userData missing: indicate incomplete profile / missing calendar URL
+        if (!userData) {
+            setIsLoadingLessons(false);
+            setAvailableLessons([]);
+            setFormData((prev) => ({ ...prev, selectedLessonKeys: [] }));
+            setSelectionError("Profil unvollständig / Kalender-URL fehlt");
+            return;
+        }
         let cancelled = false;
 
         async function loadLessonsForDate() {
