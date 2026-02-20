@@ -91,7 +91,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-        error: `Zu viele Fehlversuche. Bitte versuchen Sie es nach ${until} Uhr erneut.`
+        error: `Zu viele Fehlversuche. Bitte versuche es nach ${until} Uhr erneut.`
       }));
       return;
     }
@@ -120,7 +120,7 @@ const AuthWrapper = ({ children, user }: AuthWrapperProps) => {
         setAuthState(prev => ({
           ...prev,
           isLoading: false,
-          error: 'Ungültige PIN. Bitte versuchen Sie es erneut.'
+          error: 'Ungültige PIN. Bitte versuche es erneut.'
         }));
       }
     } catch (error) {

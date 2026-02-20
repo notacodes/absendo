@@ -345,7 +345,7 @@ function DashboardContent() {
                                                 className="btn btn-xs btn-error"
                                                 onClick={async (event) => {
                                                     event.preventDefault();
-                                                    if (confirm("Bist du sicher, dass Sie diese Absenz löschen möchtest?")) {
+                                                    if (confirm("Bist du sicher, dass du diese Absenz löschen möchtest?")) {
                                                         await deletePdf(pdf);
                                                     }
                                                 }}

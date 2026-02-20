@@ -172,10 +172,10 @@ const PinEntry = ({
         <p className="text-center text-gray-600 mb-6">
           {isFirstTime 
             ? (isConfirming 
-              ? 'Bitte geben Sie Ihre PIN erneut ein' 
-              : 'Erstellen Sie eine 4-6 stellige PIN für zusätzliche Sicherheit'
+              ? 'Bitte gib deine PIN erneut ein' 
+              : 'Erstelle eine 4-6 stellige PIN für zusätzliche Sicherheit'
             )
-            : 'Geben Sie Ihre PIN ein, um fortzufahren'
+            : 'Gib deine PIN ein, um fortzufahren'
           }
         </p>
 
