@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import AppRoutes from './routes.tsx'
 import {Snowfall} from "react-snowfall";
+import "cally";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
