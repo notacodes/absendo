@@ -22,6 +22,7 @@ function Footer() {
                             className="btn btn-sm btn-primary gap-2"
                             href="https://buymeacoffee.com/jwirz"
                             target="_blank"
+                            rel="noopener noreferrer"
                             onClick={() => trackEvent("click_support_footer")}
                         >
                             Support
