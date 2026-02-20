@@ -61,7 +61,6 @@ export function UserProfileProvider({ user, children }: UserProfileProviderProps
             throw new Error("User not available");
         }
 
-        // Fetch the current encrypted profile row
         const { data, error: fetchError } = await supabase
             .from("profiles")
             .select("*")
@@ -72,14 +71,14 @@ export function UserProfileProvider({ user, children }: UserProfileProviderProps
             throw fetchError;
         }
 
-        // Decrypt existing profile data, merge with incoming fields, then re-encrypt
         const currentProfile = encryptionService.decryptProfileData(data) as unknown as UserProfile;
         const updatedProfile: UserProfile = {
             ...currentProfile,
             ...fields,
+            id: user.id,
         };
 
-        const encryptedUpdate = encryptionService.encryptProfileData(updatedProfile);
+        const encryptedUpdate = await encryptionService.encryptProfileData(updatedProfile as Record<string, unknown>);
 
         const { error: updateError } = await supabase
             .from("profiles")
