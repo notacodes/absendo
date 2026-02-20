@@ -42,7 +42,7 @@ async function getPdfData(userData, form_data) {
     }
 
     if (selectedEvents.length === 0) {
-        throw new Error('Bitte wählen Sie mindestens eine Lektion aus');
+        throw new Error('Bitte wähle mindestens eine Lektion aus');
     }
 
     const pdfForm = await fillForm(userData, selectedEvents, form_data);
