@@ -61,20 +61,38 @@ export function UserProfileProvider({ user, children }: UserProfileProviderProps
             throw new Error("User not available");
         }
 
+        // Fetch the current encrypted profile row
+        const { data, error: fetchError } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+        if (fetchError) {
+            throw fetchError;
+        }
+
+        // Decrypt existing profile data, merge with incoming fields, then re-encrypt
+        const currentProfile = encryptionService.decryptProfileData(data) as unknown as UserProfile;
+        const updatedProfile: UserProfile = {
+            ...currentProfile,
+            ...fields,
+        };
+
+        const encryptedUpdate = encryptionService.encryptProfileData(updatedProfile);
+
         const { error: updateError } = await supabase
             .from("profiles")
-            .update(fields)
+            .update(encryptedUpdate)
             .eq("id", user.id);
 
         if (updateError) {
             throw updateError;
         }
 
-        setProfile((previous) => {
-            if (!previous) return previous;
-            return { ...previous, ...fields };
-        });
-    }, [user]);
+        // Update local state with the merged, decrypted profile
+        setProfile(updatedProfile);
+    }, [user, encryptionService]);
 
     useEffect(() => {
         void refreshProfile();
