@@ -34,14 +34,14 @@ function Footer() {
                     </aside>
 
                     <nav className="flex flex-col items-start gap-2">
-                        <h6 className="footer-title">Produkt</h6>
+                        <h2 className="footer-title">Produkt</h2>
                         <a className="link link-hover block" href="/bbzw-absenzformular">BBZW Absenzformular</a>
                         <a className="link link-hover block" href="/dashboard">Dashboard</a>
                         <a className="link link-hover block" href="/profile">Profil</a>
                     </nav>
 
                     <nav className="flex flex-col items-start gap-2">
-                        <h6 className="footer-title">Ressourcen</h6>
+                        <h2 className="footer-title">Ressourcen</h2>
                         <a
                             className="link link-hover block"
                             href="https://github.com/notacodes/absendo"
@@ -62,7 +62,7 @@ function Footer() {
                     </nav>
 
                     <nav className="flex flex-col items-start gap-2">
-                        <h6 className="footer-title">Kontakt</h6>
+                        <h2 className="footer-title">Kontakt</h2>
                         <a className="link link-hover block" href="/contact">Kontaktformular</a>
                         <a className="link link-hover block" href="mailto:contact@absendo.app">contact@absendo.app</a>
                         <a className="link link-hover block" href="/support">Warum Support?</a>

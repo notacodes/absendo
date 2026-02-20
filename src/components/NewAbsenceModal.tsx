@@ -25,6 +25,7 @@ interface FormData {
 }
 
 type CalendarDateElement = HTMLElement & { value?: string };
+let isCallyLoaded = false;
 
 function NewAbsenceModal({
     isOpen,
@@ -57,6 +58,25 @@ function NewAbsenceModal({
     const calendarId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
     const calendarPopoverId = `absence-date-popover-${calendarId}`;
     const calendarAnchorName = `--absence-date-anchor-${calendarId}`;
+
+    useEffect(() => {
+        if (!isOpen || isCallyLoaded) return;
+
+        let cancelled = false;
+        void import("cally")
+            .then(() => {
+                if (!cancelled) {
+                    isCallyLoaded = true;
+                }
+            })
+            .catch((error) => {
+                console.error("Cally konnte nicht geladen werden:", error);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) {

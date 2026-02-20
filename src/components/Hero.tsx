@@ -8,21 +8,42 @@ function Hero() {
     const isUserLoggedIn = useIsUserLoggedIn();
 
     useEffect(() => {
+        const abortController = new AbortController();
+
         const fetchUserCount = async () => {
             try {
-                const response = await fetch("https://api.absendo.app/stats/user-count");
+                const response = await fetch("https://api.absendo.app/stats/user-count", {
+                    signal: abortController.signal,
+                });
                 if (!response.ok) {
                     throw new Error("Could not load user count");
                 }
                 const { userCount } = await response.json();
                 setUserCount(userCount);
             } catch (err) {
+                if (abortController.signal.aborted) return;
                 console.error("Error fetching user count:", err);
                 setHasError(true);
             }
         };
 
-        fetchUserCount();
+        const scheduleFetch = () => {
+            void fetchUserCount();
+        };
+
+        if (typeof window.requestIdleCallback === "function") {
+            const idleId = window.requestIdleCallback(scheduleFetch, { timeout: 1200 });
+            return () => {
+                abortController.abort();
+                window.cancelIdleCallback(idleId);
+            };
+        }
+
+        const timeoutId = window.setTimeout(scheduleFetch, 350);
+        return () => {
+            abortController.abort();
+            window.clearTimeout(timeoutId);
+        };
     }, []);
 
     const navigateToPrimaryAction = () => {

@@ -9,9 +9,13 @@ function HomeContent() {
     const isUserLoggedIn = useIsUserLoggedIn();
 
     useEffect(() => {
+        const abortController = new AbortController();
+
         const fetchSavedTime = async () => {
             try {
-                const response = await fetch("https://api.absendo.app/stats/time-saved");
+                const response = await fetch("https://api.absendo.app/stats/time-saved", {
+                    signal: abortController.signal,
+                });
                 if (!response.ok) {
                     throw new Error("Could not load saved time");
                 }
@@ -19,12 +23,29 @@ function HomeContent() {
                 setSavedTimeMinutes(data.timeSaved.minutes ?? 0);
                 setSavedTimeHours(data.timeSaved.hours ?? 0);
             } catch (err) {
+                if (abortController.signal.aborted) return;
                 console.error("Error fetching saved time:", err);
                 setHasStatsError(true);
             }
         };
 
-        fetchSavedTime();
+        const scheduleFetch = () => {
+            void fetchSavedTime();
+        };
+
+        if (typeof window.requestIdleCallback === "function") {
+            const idleId = window.requestIdleCallback(scheduleFetch, { timeout: 2500 });
+            return () => {
+                abortController.abort();
+                window.cancelIdleCallback(idleId);
+            };
+        }
+
+        const timeoutId = window.setTimeout(scheduleFetch, 1200);
+        return () => {
+            abortController.abort();
+            window.clearTimeout(timeoutId);
+        };
     }, []);
 
     const handleStart = () => {
@@ -219,7 +240,11 @@ function HomeContent() {
 
                     <div className="mx-auto mt-12 max-w-4xl space-y-6">
                         <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-                            <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "speed" })} />
+                            <input
+                                type="checkbox"
+                                aria-label="FAQ: Wie schnell kann ich ein BBZW Absenzformular ausfÃ¼llen?"
+                                onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "speed" })}
+                            />
                             <div className="collapse-title text-xl font-bold">
                                 Wie schnell kann ich ein BBZW Absenzformular ausfüllen?
                             </div>
@@ -229,7 +254,11 @@ function HomeContent() {
                         </div>
 
                         <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-                            <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "requirements" })} />
+                            <input
+                                type="checkbox"
+                                aria-label="FAQ: Was brauche ich, um mit BBZW Absenzen zu starten?"
+                                onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "requirements" })}
+                            />
                             <div className="collapse-title text-xl font-bold">
                                 Was brauche ich, um mit BBZW Absenzen zu starten?
                             </div>
@@ -240,7 +269,11 @@ function HomeContent() {
                         </div>
 
                         <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-                            <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "locations" })} />
+                            <input
+                                type="checkbox"
+                                aria-label="FAQ: FÃ¼r welche BBZW Standorte funktioniert es?"
+                                onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "locations" })}
+                            />
                             <div className="collapse-title text-xl font-bold">
                                 Für welche BBZW Standorte funktioniert es?
                             </div>
@@ -250,7 +283,11 @@ function HomeContent() {
                         </div>
 
                         <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-                            <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "repeat_data" })} />
+                            <input
+                                type="checkbox"
+                                aria-label="FAQ: Muss ich das Formular jedes Mal neu ausfÃ¼llen?"
+                                onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "repeat_data" })}
+                            />
                             <div className="collapse-title text-xl font-bold">
                                 Muss ich das Formular jedes Mal neu ausfüllen?
                             </div>
@@ -260,7 +297,11 @@ function HomeContent() {
                         </div>
 
                         <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-                            <input type="checkbox" onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "pricing" })} />
+                            <input
+                                type="checkbox"
+                                aria-label="FAQ: Ist Absendo kostenlos?"
+                                onChange={(e) => e.target.checked && trackEvent("faq_open", { question: "pricing" })}
+                            />
                             <div className="collapse-title text-xl font-bold">
                                 Ist Absendo kostenlos?
                             </div>
