@@ -11,6 +11,7 @@ export interface UserProfile {
     isFullNameEnabled?: boolean;
     isFullSubjectEnabled?: boolean;
     isDoNotSaveEnabled?: boolean;
+    default_filename_template?: string;
     total_absences?: number;
     time_saved_minutes?: number;
 }

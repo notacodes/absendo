@@ -348,7 +348,8 @@ class EncryptionService {
             'first_name_trainer',
             'last_name_trainer',
             'phone_number_trainer',
-            'email_trainer'
+            'email_trainer',
+            'default_filename_template'
         ];
 
         const sensitiveData: Record<string, unknown> = {};

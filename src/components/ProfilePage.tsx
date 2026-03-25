@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../supabaseClient.ts";
 import EncryptionService from "../services/encryptionService.ts";
 import { useUserProfile } from "../contexts/UserProfileContext.tsx";
@@ -15,6 +15,7 @@ export const ProfilePage = () => {
         last_name_trainer: string;
         phone_number_trainer: string;
         email_trainer: string;
+        default_filename_template: string;
     }
 
     interface FormErrors {
@@ -41,10 +42,12 @@ export const ProfilePage = () => {
         last_name_trainer: "",
         phone_number_trainer: "",
         email_trainer: "",
+        default_filename_template: "Absenz_{datum}",
     });
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const filenameTemplateRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         async function fetchAbsenceCount() {
@@ -77,6 +80,7 @@ export const ProfilePage = () => {
     useEffect(() => {
         if (!profile || !user) return;
 
+        const template = profile.default_filename_template || "Absenz_{datum}";
         setFormData({
             id: user.id,
             first_name: profile.first_name || "",
@@ -87,7 +91,12 @@ export const ProfilePage = () => {
             last_name_trainer: profile.last_name_trainer || "",
             phone_number_trainer: profile.phone_number_trainer || "",
             email_trainer: profile.email_trainer || "",
+            default_filename_template: template,
         });
+        // Sync to uncontrolled contenteditable
+        if (filenameTemplateRef.current) {
+            filenameTemplateRef.current.textContent = template;
+        }
     }, [profile, user]);
 
     const displayData = useMemo<UserProfile | null>(() => {
@@ -170,6 +179,7 @@ export const ProfilePage = () => {
                 last_name_trainer: formData.last_name_trainer,
                 phone_number_trainer: formData.phone_number_trainer,
                 email_trainer: formData.email_trainer,
+                default_filename_template: formData.default_filename_template,
             });
 
             const { error } = await supabase
@@ -253,6 +263,7 @@ export const ProfilePage = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
                 <div className="card bg-base-100 shadow-xl">
                     <div className="card-body">
@@ -304,6 +315,108 @@ export const ProfilePage = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="card bg-base-100 shadow-xl">
+                    <div className="card-body">
+                        <h2 className="card-title text-xl font-bold">Standard-Dateiname für Absenzen</h2>
+                        <p className="text-sm text-base-content/60 mb-4">
+                            Lege fest, wie deine Absenz-Dateien standardmässig benannt werden. Du kannst Variablen verwenden, die beim Erstellen automatisch ersetzt werden. Ziehe sie einfach in das Textfeld.
+                        </p>
+                        <div className="form-control w-full">
+                            <label className="label pb-1">
+                                <span className="label-text font-medium">Variablen</span>
+                            </label>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {[
+                                    { label: "Datum der Absenz", value: "{datum}", example: "25-03-2026" },
+                                    { label: "Grund der Absenz", value: "{grund}", example: "Krankheit" },
+                                ].map((chip) => (
+                                    <div
+                                        key={chip.value}
+                                        draggable
+                                        onDragStart={(e) => e.dataTransfer.setData("text/plain", chip.value)}
+                                        className="flex items-center gap-2 border border-primary/30 bg-primary/5 rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing select-none"
+                                        title={`Ziehe in das Textfeld`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3.5 h-3.5 text-base-content/30 shrink-0">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                                        </svg>
+                                        <div>
+                                            <span className="font-mono text-xs text-primary font-medium">{chip.value}</span>
+                                            <span className="text-xs text-base-content/50 ml-1.5">→ {chip.example}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <label className="label pb-1">
+                                <span className="label-text font-medium">Vorlage</span>
+                            </label>
+                            <div
+                                ref={filenameTemplateRef}
+                                contentEditable
+                                suppressContentEditableWarning
+                                spellCheck={false}
+                                className="input input-bordered w-full font-mono flex items-center overflow-x-auto whitespace-nowrap cursor-text empty:before:content-['Absenz_{datum}'] empty:before:text-base-content/30"
+                                onInput={(e) => {
+                                    const text = (e.currentTarget.textContent || "").replace(/\n/g, "");
+                                    setFormData((prev) => ({ ...prev, default_filename_template: text }));
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") e.preventDefault();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    const variable = e.dataTransfer.getData("text/plain");
+                                    const div = filenameTemplateRef.current;
+                                    if (!div) return;
+
+                                    type ExtendedDocument = Document & {
+                                        caretRangeFromPoint?: (x: number, y: number) => Range | null;
+                                        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+                                    };
+                                    const doc = document as ExtendedDocument;
+
+                                    let range: Range | null = null;
+                                    if (doc.caretRangeFromPoint) {
+                                        range = doc.caretRangeFromPoint(e.clientX, e.clientY);
+                                    } else if (doc.caretPositionFromPoint) {
+                                        const pos = doc.caretPositionFromPoint(e.clientX, e.clientY);
+                                        if (pos) {
+                                            range = document.createRange();
+                                            range.setStart(pos.offsetNode, pos.offset);
+                                            range.collapse(true);
+                                        }
+                                    }
+
+                                    if (range) {
+                                        const sel = window.getSelection();
+                                        sel?.removeAllRanges();
+                                        sel?.addRange(range);
+                                        range.insertNode(document.createTextNode(variable));
+                                        range.collapse(false);
+                                        sel?.removeAllRanges();
+                                        sel?.addRange(range);
+                                    }
+
+                                    const text = (div.textContent ?? "").replace(/\n/g, "");
+                                    setFormData((prev) => ({ ...prev, default_filename_template: text }));
+                                }}
+                            />
+                            <div className="mt-3 flex items-center gap-2 text-sm text-base-content/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 shrink-0">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                <span className="font-mono">
+                                    {(formData.default_filename_template || "Absenz_{datum}")
+                                        .replaceAll("{datum}", new Date().toLocaleDateString("de-CH").replace(/\./g, "-").toString())
+                                        .replaceAll("{grund}", "Krankheit")}
+                                    .pdf
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="card bg-base-100 shadow-xl">

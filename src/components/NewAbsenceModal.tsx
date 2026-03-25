@@ -58,7 +58,13 @@ function NewAbsenceModal({
     const calendarId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
     const calendarPopoverId = `absence-date-popover-${calendarId}`;
     const calendarAnchorName = `--absence-date-anchor-${calendarId}`;
-
+    const [resolvedFileNameTemplate, setResolvedFileNameTemplate] = useState<string | null>(
+        userData?.default_filename_template
+        || (userData?.first_name && userData?.last_name
+            ? `${userData.first_name}_${userData.last_name}_Absenz_{datum}_{grund}`
+            : "Absenz_{datum}_{grund}")
+        || null
+    );
     useEffect(() => {
         if (!isOpen || isCallyLoaded) return;
 
@@ -80,7 +86,6 @@ function NewAbsenceModal({
 
     useEffect(() => {
         if (!isOpen) {
-            // Reset immediately on close so stale date values cannot trigger lesson loading on next open.
             setCurrentStep(1);
             setIsGenerating(false);
             setFormData((prev) => ({
@@ -104,7 +109,10 @@ function NewAbsenceModal({
         setFormData({
             date: "",
             reason: "",
-            fileName: "Absenz",
+            fileName: userData?.default_filename_template
+                || (userData?.first_name && userData?.last_name
+                    ? `${userData.first_name}_${userData.last_name}_Absenz_{datum}_{grund}`
+                    : "Absenz_{datum}_{grund}"),
             is_excused: true,
             isFullNameEnabled,
             isFullSubjectEnabled,
@@ -137,7 +145,7 @@ function NewAbsenceModal({
         return () => {
             calendarElement.removeEventListener("change", onCalendarChange);
         };
-    }, [isOpen]);
+    }, [isOpen, currentStep]);
 
     useEffect(() => {
         const calendarElement = calendarRef.current;
@@ -151,7 +159,6 @@ function NewAbsenceModal({
     }, [formData.date, isOpen]);
 
     useEffect(() => {
-        // Modal closed: reset lesson-related state and clear any selection error
         if (!isOpen) {
             setIsLoadingLessons(false);
             setAvailableLessons([]);
@@ -160,7 +167,6 @@ function NewAbsenceModal({
             return;
         }
 
-        // No date selected yet: ensure clean state without showing an error
         if (!formData.date) {
             setIsLoadingLessons(false);
             setAvailableLessons([]);
@@ -169,7 +175,6 @@ function NewAbsenceModal({
             return;
         }
 
-        // Date selected but profile/userData missing: indicate incomplete profile / missing calendar URL
         if (!userData) {
             setIsLoadingLessons(false);
             setAvailableLessons([]);
@@ -177,6 +182,7 @@ function NewAbsenceModal({
             setSelectionError("Profil unvollständig / Kalender-URL fehlt");
             return;
         }
+
         let cancelled = false;
 
         async function loadLessonsForDate() {
@@ -248,24 +254,37 @@ function NewAbsenceModal({
         }));
     };
 
-    const goToNextStep = () => {
-        if (currentStep !== 1) return;
+    const goToStep2 = () => {
+        setCurrentStep(2);
+    };
 
+    const goToStep3 = () => {
         if (formData.selectedLessonKeys.length === 0) {
             setSelectionError("Bitte wähle mindestens eine Lektion aus.");
             return;
         }
 
         setIsGenerating(true);
-        setCurrentStep(2);
+        setCurrentStep(3);
         void getPDF();
     };
 
+    useEffect(() => {
+        setResolvedFileNameTemplate(resolveFileNameTemplate(formData.fileName));
+    }, [formData]);
+
+    function resolveFileNameTemplate(template: string): string {
+        const datePart = formData.date
+            ? new Date(formData.date).toLocaleDateString("de-CH").replace(/\./g, "-")
+            : "";
+        return template
+            .replaceAll("{datum}", datePart)
+            .replaceAll("{grund}", formData.reason.trim() || "");
+    }
+
     function addPDFExtension(fileName: string) {
-        if (!fileName.endsWith(".pdf")) {
-            return `${fileName}.pdf`;
-        }
-        return fileName;
+        const resolved = resolveFileNameTemplate(fileName);
+        return resolved.endsWith(".pdf") ? resolved : `${resolved}.pdf`;
     }
 
     async function getPDF() {
@@ -290,7 +309,7 @@ function NewAbsenceModal({
             const blob = await generatePdf(userData, preparedFormData);
             if (blob) {
                 setPdfBlob(blob);
-                setCurrentStep(3);
+                setCurrentStep(4);
             } else {
                 setErrorMessage("PDF konnte nicht generiert werden. Prüfe deine Kalender-URL oder versuche es später erneut.");
             }
@@ -339,9 +358,10 @@ function NewAbsenceModal({
             <div className="modal-box max-w-2xl">
                 <h3 className="font-bold text-lg mb-4">Neue Absenz erstellen</h3>
                 <ul className="steps w-full mb-6">
-                    <li className={`step ${currentStep >= 1 ? "step-primary" : ""}`}>Daten eingeben</li>
-                    <li className={`step ${currentStep >= 2 ? "step-primary" : ""}`}>Generieren</li>
-                    <li className={`step ${currentStep >= 3 ? "step-primary" : ""}`}>Download</li>
+                    <li className={`step ${currentStep >= 1 ? "step-primary" : ""}`}>Daten</li>
+                    <li className={`step ${currentStep >= 2 ? "step-primary" : ""}`}>Lektionen</li>
+                    <li className={`step ${currentStep >= 3 ? "step-primary" : ""}`}>Generieren</li>
+                    <li className={`step ${currentStep >= 4 ? "step-primary" : ""}`}>Download</li>
                 </ul>
 
                 {currentStep === 1 && (
@@ -375,21 +395,6 @@ function NewAbsenceModal({
                                 </label>
                             </div>
                         </div>
-
-                        <div className="mb-4">
-                            <label className="label">
-                                <span className="label-text">Name der Datei</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="fileName"
-                                value={formData.fileName}
-                                onChange={handleInputChange}
-                                className="input input-bordered w-full"
-                                required
-                            />
-                        </div>
-
                         <div className="mb-4">
                             <label className="label">
                                 <span className="label-text">Datum</span>
@@ -424,25 +429,73 @@ function NewAbsenceModal({
 
                         <div className="mb-4">
                             <label className="label">
-                                <span className="label-text">Lektionen für diesen Tag</span>
+                                <span className="label-text">Grund</span>
                             </label>
-
-                            {!formData.date && (
-                                <div className="text-sm text-gray-500">Wähle zuerst ein Datum.</div>
+                            <input
+                                name="reason"
+                                value={formData.reason}
+                                onChange={handleInputChange}
+                                className="input input-bordered w-full"
+                                placeholder="Grund für die Absenz eingeben..."
+                                required
+                            ></input>
+                        </div>
+                        <div className="mb-4">
+                            <label className="label">
+                                <span className="label-text">Name der Datei</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="fileName"
+                                value={formData.fileName}
+                                onChange={handleInputChange}
+                                className="input input-bordered w-full font-mono"
+                                required
+                            />
+                            {(formData.fileName.includes("{datum}") || formData.fileName.includes("{grund}")) && (
+                                <label className="label">
+                                    <span className="label-text-alt text-base-content/50">
+                                        Vorschau:{" "}
+                                        <span className="font-mono">
+                                            {resolvedFileNameTemplate}.pdf
+                                        </span>
+                                    </span>
+                                </label>
                             )}
+                        </div>
 
-                            {isLoadingLessons && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <span className="loading loading-spinner loading-sm"></span>
-                                    Lektionen werden geladen...
-                                </div>
-                            )}
+                        <div className="modal-action">
+                            <button className="btn btn-ghost" onClick={onClose}>Abbrechen</button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={goToStep2}
+                                disabled={!formData.date || !formData.reason}
+                            >
+                                Weiter
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-                            {!isLoadingLessons && formData.date && availableLessons.length > 0 && (
-                                <div className="border rounded-lg p-3 max-h-56 overflow-y-auto">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-gray-600">
-                                            {formData.selectedLessonKeys.length} von {availableLessons.length} ausgewählt
+                {/* Step 2 – Lektionen auswählen */}
+                {currentStep === 2 && (
+                    <div className="form-control">
+                        <div className="mb-2 flex items-center gap-2 text-sm text-base-content/60">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                            {new Date(formData.date).toLocaleDateString("de-CH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                        </div>
+
+                        <div className="mb-5">
+                            <div className="flex items-center justify-between mb-3">
+                                <label className="label p-0">
+                                    <span className="label-text font-medium">Lektionen auswählen</span>
+                                </label>
+                                {!isLoadingLessons && availableLessons.length > 0 && (
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm text-base-content/60">
+                                            {formData.selectedLessonKeys.length} von {availableLessons.length}
                                         </span>
                                         <div className="flex gap-2">
                                             <button
@@ -461,22 +514,39 @@ function NewAbsenceModal({
                                             </button>
                                         </div>
                                     </div>
+                                )}
+                            </div>
 
-                                    <div className="space-y-2">
+                            {isLoadingLessons && (
+                                <div className="flex items-center justify-center gap-3 py-10 text-sm text-base-content/60">
+                                    <span className="loading loading-spinner loading-sm"></span>
+                                    Lektionen werden geladen...
+                                </div>
+                            )}
+
+                            {!isLoadingLessons && availableLessons.length > 0 && (
+                                <div className="border border-base-300 rounded-xl overflow-hidden">
+                                    <div className="divide-y divide-base-200 max-h-72 overflow-y-auto">
                                         {availableLessons.map((lesson) => {
                                             const isSelected = formData.selectedLessonKeys.includes(lesson.key);
                                             return (
-                                                <label key={lesson.key} className="flex items-start gap-3 cursor-pointer">
+                                                <label
+                                                    key={lesson.key}
+                                                    className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors hover:bg-base-200 ${isSelected ? "bg-primary/5" : ""}`}
+                                                >
                                                     <input
                                                         type="checkbox"
-                                                        className="checkbox checkbox-sm mt-1"
+                                                        className="checkbox checkbox-primary checkbox-sm shrink-0"
                                                         checked={isSelected}
                                                         onChange={() => toggleLesson(lesson.key)}
                                                     />
-                                                    <div className="text-sm">
-                                                        <div className="font-medium">{lesson.fach} ({lesson.count} Lektion{lesson.count > 1 ? "en" : ""})</div>
-                                                        <div className="text-gray-600">{lesson.lehrer} · {lesson.klasse}</div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="font-medium text-sm">{lesson.fach}</div>
+                                                        <div className="text-xs text-base-content/60 mt-0.5">{lesson.lehrer} · {lesson.klasse}</div>
                                                     </div>
+                                                    <span className="badge badge-ghost badge-sm shrink-0">
+                                                        {lesson.count} Std.
+                                                    </span>
                                                 </label>
                                             );
                                         })}
@@ -485,43 +555,39 @@ function NewAbsenceModal({
                             )}
 
                             {!isLoadingLessons && formData.date && availableLessons.length === 0 && !selectionError && (
-                                <div className="text-sm text-gray-600">Keine Lektionen für dieses Datum gefunden.</div>
+                                <div className="flex flex-col items-center justify-center py-10 text-sm text-base-content/50 gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                    </svg>
+                                    Keine Lektionen für dieses Datum gefunden.
+                                </div>
                             )}
 
                             {selectionError && (
-                                <div className="mt-2 text-sm text-error">{selectionError}</div>
+                                <div className="alert alert-error mt-3 text-sm py-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {selectionError}
+                                </div>
                             )}
                         </div>
 
-                        <div className="mb-4">
-                            <label className="label">
-                                <span className="label-text">Grund</span>
-                            </label>
-                            <textarea
-                                name="reason"
-                                value={formData.reason}
-                                onChange={handleInputChange}
-                                className="textarea textarea-bordered w-full"
-                                rows={1}
-                                placeholder="Grund für die Absenz eingeben..."
-                                required
-                            ></textarea>
-                        </div>
-
                         <div className="modal-action">
-                            <button className="btn btn-ghost" onClick={onClose}>Abbrechen</button>
+                            <button className="btn btn-ghost" onClick={() => setCurrentStep(1)}>Zurück</button>
                             <button
                                 className="btn btn-primary"
-                                onClick={goToNextStep}
-                                disabled={!formData.date || !formData.reason || formData.selectedLessonKeys.length === 0 || isLoadingLessons}
+                                onClick={goToStep3}
+                                disabled={isLoadingLessons || formData.selectedLessonKeys.length === 0}
                             >
-                                Weiter
+                                Generieren
                             </button>
                         </div>
                     </div>
                 )}
 
-                {currentStep === 2 && (
+                {/* Step 3 – Generieren */}
+                {currentStep === 3 && (
                     <div className="flex flex-col items-center justify-center py-10">
                         <div className="radial-progress animate-spin" style={{ "--value": "70" } as React.CSSProperties}></div>
                         <p className="mt-4 text-lg">Absenz wird generiert...</p>
@@ -536,7 +602,7 @@ function NewAbsenceModal({
                                     className="btn btn-sm btn-ghost ml-2"
                                     onClick={() => {
                                         setErrorMessage(null);
-                                        setCurrentStep(1);
+                                        setCurrentStep(2);
                                         setIsGenerating(false);
                                     }}
                                 >
@@ -547,7 +613,7 @@ function NewAbsenceModal({
                         {!errorMessage && !isGenerating && (
                             <button
                                 className="btn btn-primary mt-6"
-                                onClick={() => setCurrentStep(1)}
+                                onClick={() => setCurrentStep(2)}
                             >
                                 Zurück
                             </button>
@@ -555,7 +621,8 @@ function NewAbsenceModal({
                     </div>
                 )}
 
-                {currentStep === 3 && (
+                {/* Step 4 – Download */}
+                {currentStep === 4 && (
                     <div>
                         <div className="flex flex-col items-center justify-center py-10">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-24 h-24 text-success mb-4">
